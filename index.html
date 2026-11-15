@@ -1020,6 +1020,11 @@
 <button id="btn-especial" onclick="accionEspecial()"></button>
 
 <script>
+// ===== Pausa global: ruletas, mensajes y selector de acompañantes congelan el juego =====
+let mensajeAbierto = false;
+function juegoEnPausa() { try { return !!(mensajeAbierto || ruletaActiva || ruletaCofre || eligiendoAcomp); } catch (_) { return false; } }
+(function () { const orig = window.setInterval.bind(window); window.setInterval = (fn, ms, ...a) => orig(() => { if (juegoEnPausa()) return; fn(...a); }, ms, ...a); })();
+
 const menuPrincipal = document.getElementById('menu-principal');
 const divSup = document.getElementById('pantalla-superficie');
 const divSub = document.getElementById('pantalla-sub');
@@ -1608,8 +1613,7 @@ function dormirNoche() {
     esDeNoche = false;
     tiempoCicloSegundos = 300;
     btnDormir.style.display = 'none';
-    alert("🌙 Has dormido profundamente. ¡Amaneció un nuevo día!");
-    nuevoDia();
+    mostrarMensaje({ icono: '🌙', titulo: '¡Buenos días!', texto: 'Has dormido profundamente. ¡Amaneció un nuevo día!', tema: 'noche', boton: '¡A jugar!' }, () => nuevoDia());
   }
 }
 
@@ -2320,20 +2324,28 @@ function fuenteComida(h) {
   for (const a of arboles) if (a.manzanas > 0 && ok(a.x)) c.push({ x: a.x, tipo: 'manzana', tomar: () => { a.manzanas--; actualizarGraficosManzanasArboles(); } });
   for (const a of aguacates) if (a.n > 0 && ok(a.x)) c.push({ x: a.x, tipo: 'aguacate', tomar: () => { a.n--; pintarAguacates(); } });
   for (const a of calabazas) if (a.n > 0 && ok(a.x)) c.push({ x: a.x, tipo: 'calabaza', tomar: () => { a.n--; pintarCalabazas(); } });
-  c.sort((p, q) => Math.abs(p.x - h.x) - Math.abs(q.x - h.x));
+  // elige la comida más conveniente: cerca, sin amontonarse con otras hormigas y lejos de enemigos
+  const pen = x => {
+    let q = 0;
+    for (const o of hormigasNacidas) if (o !== h && o.fx != null && o.ubic === 'sup' && o.mision === 'recolectar' && Math.abs(o.fx - x) < 20) q += 70;
+    for (const e of enemigos) if (e.ubic === 'sup' && Math.abs(e.x - x) < 170) q += 500;
+    if (h.fx != null && Math.abs(h.fx - x) < 5) q -= 150;   // se mantiene en su comida para no cambiar de idea todo el rato
+    return q;
+  };
+  c.sort((p, q) => (Math.abs(p.x - h.x) + pen(p.x)) - (Math.abs(q.x - h.x) + pen(q.x)));
   return c[0] || null;
 }
 function decidir(h) {
   h.t = h.tipo === 'Warrior Ant' ? 1 : 4 + Math.random() * 6;
   if (!entradaCreada) return;
-  if (raid.activa && hayEnemigos('sup') && h.tipo !== 'Honey Ant' && h.tipo !== 'Builder Ant') { h.t = 1; h.mision = 'atacar'; h.est = 'ir_salida'; return; }
+  if (raid.activa && hayEnemigos('sup') && h.tipo !== 'Honey Ant' && h.tipo !== 'Builder Ant' && !h.herida) { h.t = 1; h.mision = 'atacar'; h.est = 'ir_salida'; return; }
   if (luchaHormiga(h) && hayEnemigos('sup') && (h.tipo !== 'Normal Ant' || enemigos.some(e => e.ubic === 'sup' && Math.abs(e.x - xEntrada) < 420))) { h.mision = 'atacar'; h.est = 'ir_salida'; }
   else if (!esDeNoche && fuenteComida({ x: xEntrada })) { h.mision = 'recolectar'; h.est = 'ir_salida'; }   // todas salen por comida
   else if (!esDeNoche && Math.random() < 0.3) { h.mision = 'pasear'; h.est = 'ir_salida'; }               // o salen a pasear
   else if (h.tipo === 'Protector Ant' && !esDeNoche && Math.random() < 0.35) { h.mision = 'vigilar'; h.est = 'ir_salida'; }
 }
 // ----- Pelea: las hormigas van hacia el enemigo alcanzable y nunca se quedan paradas esperando -----
-const luchaHormiga = h => h.tipo !== 'Honey Ant' && h.tipo !== 'Builder Ant';
+const luchaHormiga = h => h.tipo !== 'Honey Ant' && h.tipo !== 'Builder Ant' && !h.herida;   // las heridas no pelean: se retiran a curarse
 let _tgtSub = null, _tgtT = 0;
 function enemigoObjetivoSub() {   // un solo objetivo compartido: el enemigo subterráneo más cercano a tu reina (o a la entrada)
   const ahora = performance.now();
@@ -2405,13 +2417,22 @@ function volverANido(h) {
 function logicaSuperficie(h, ds, v) {
   let objetivo = xEntrada;
   let eCerca = null;   // si hay un enemigo cerca en la superficie, pelea en vez de seguir paseando o recolectando
-  if (luchaHormiga(h) && !h.carga) { let md = h.tipo === 'Normal Ant' ? 220 : 340; for (const e of enemigos) if (e.ubic === 'sup') { const d = Math.abs(e.x - h.x); if (d < md) { md = d; eCerca = e; } } }
+  if (luchaHormiga(h) && !h.carga) {
+    const reinaFuera = !modoSubterraneo, alcance = h.tipo === 'Normal Ant' ? 220 : 340; let mejor = 1e9;
+    for (const e of enemigos) if (e.ubic === 'sup') {
+      const d = Math.abs(e.x - h.x), defiende = reinaFuera && Math.abs(e.x - xSup) < 300 && d < 700;   // un enemigo encima de la reina: todas acuden
+      if (d > alcance && !defiende) continue;
+      const sc = d + e.vida * 0.8 - (defiende ? 300 : 0);   // prefieren los cercanos y los más débiles; primero los que atacan a la reina
+      if (sc < mejor) { mejor = sc; eCerca = e; }
+    }
+  }
   const maxC = h.tipo === 'Normal Ant' ? 2 : 1, nC = (h.carga ? 1 : 0) + (h.extraTipo ? 1 : 0);   // las normales llevan 2 comidas
-  if (eCerca) objetivo = eCerca.x;
+  if (h.herida) objetivo = xEntrada;   // herida: vuelve al nido a curarse
+  else if (eCerca) objetivo = eCerca.x;
   else if (h.mision === 'recolectar' && nC < maxC && !esDeNoche) {
     const f = fuenteComida(h);
     if (f) {
-      objetivo = f.x;
+      objetivo = f.x; h.fx = f.x;
       if (Math.abs(h.x - f.x) < 14) {
         f.tomar();
         if (!h.carga) { h.carga = true; h.cargaTipo = f.tipo; ponerManzana(h, true, f.tipo); } else h.extraTipo = f.tipo;
@@ -2427,7 +2448,7 @@ function logicaSuperficie(h, ds, v) {
     if (Math.abs(h.x - h.patrulla) < 6) h.patrulla = 2 * xEntrada - h.patrulla;
   } else if (h.mision === 'atacar') { const eSup = enemigoMasCercano(h, 'sup'); if (eSup) objetivo = eSup.x; }
 
-  const botin = (h.mision !== 'atacar' && !eCerca) ? objetivoBotin(h) : null;
+  const botin = (h.mision !== 'atacar' && !eCerca && !h.herida) ? objetivoBotin(h) : null;
   if (botin) { objetivo = botin.x; if (Math.abs(h.x - botin.x) < 16) tomarBotin(h, botin); }
   const dx = objetivo - h.x;
   if (Math.abs(dx) > 4) { h.dir = dx > 0 ? 1 : -1; h.x += h.dir * v; }
@@ -2446,6 +2467,12 @@ function actualizarHormigas() {
     if (!h.init) initH(h);
     if (h.ubic === 'exp') continue;   // está en una estructura con la reina
     h.cd -= ds; h.t -= ds;
+    // --- inteligencia: recuerdan los golpes, se curan descansando y se retiran si están muy heridas ---
+    if (h.vPrev == null) h.vPrev = h.vida;
+    h.tGolpe = h.vida < h.vPrev - 0.01 ? 0 : (h.tGolpe == null ? 99 : h.tGolpe) + ds;
+    if (h.vida > 0 && h.vida < h.max && h.tGolpe > 4 && !h.colgada && !h.obra) h.vida = Math.min(h.max, h.vida + (h.ubic === 'sub' && h.est === 'nido' && !h.pelea ? 5 : 1.2) * ds);
+    h.vPrev = h.vida;
+    if (h.vida < h.max * 0.3) h.herida = true; else if (h.vida > h.max * 0.7) h.herida = false;
     const v = datosTipo(h.tipo).vel * ds;
     if (h.colgada) colgadaMiel(h, ds);
     else if (h.obra) actualizarObra(h, ds, v);
@@ -3323,7 +3350,7 @@ function nuevoDia() {
 }
 function iniciarRaid(n) {
   raid.n = n; raid.activa = true; raid.total = Math.min(30, 3 + 2 * n); raid.porSalir = raid.total; raid.cd = 3;
-  avisar(`⚠️ ¡RAID ${n}! ${raid.total} hormigas enemigas vienen por tu comida y tus huevos`);
+  mostrarMensaje({ icono: '⚔️', titulo: `¡RAID ${n}!`, texto: `${raid.total} hormigas enemigas vienen por tu comida y tus huevos. ¡Prepara a tus hormigas!`, tema: 'alerta', boton: '¡A defender!' });
 }
 function lanzarRaider() {
   const n = raid.n, r = Math.random(), pT = Math.min(0.5, 0.12 + 0.05 * n);
@@ -3334,7 +3361,7 @@ function lanzarRaider() {
 function terminarRaid() {
   raid.activa = false;
   const p = sortearPremio('general'); inventario[p.id] = (inventario[p.id] || 0) + 1;
-  avisar(`🏆 ¡Raid ${raid.n} repelida! Premio: ${p.n}`);
+  mostrarMensaje({ iconoHTML: imgPremio(p.id, 64), titulo: `¡Raid ${raid.n} repelida!`, texto: `Defendiste tu nido. Premio: ${p.n}`, tema: 'exito', boton: '¡Genial!' });
 }
 function actualizarRaid(ds) {
   if (!raid.activa) return;
@@ -3513,7 +3540,7 @@ function derrumbarDespensa(msg) {
     g.style.transition = 'transform .9s ease-in, opacity .9s'; g.style.transform = 'translateY(70px)'; g.style.opacity = '0';
     setTimeout(() => { g.innerHTML = ''; g.style.transition = ''; g.style.transform = ''; g.style.opacity = ''; }, 950);
   }
-  avisar(msg.replace('{n}', perdidas));
+  mostrarMensaje({ icono: '💥', titulo: 'Despensa rota', texto: msg.replace('{n}', perdidas).replace(/^💥\s*/, ''), tema: 'alerta', boton: 'Entendido' });
 }
 function revisarDespensa() {
   if (!puntoComida || !itemsComida.length) return;
@@ -3817,7 +3844,7 @@ function bucle(ahora) {
   dtFrame = Math.min(3, (ahora - ultimoFrame) / 16.667);
   ultimoFrame = ahora;
 
-  if (juegoIniciado && !mapaAbierto && !baseAbierta) {
+  if (juegoIniciado && !mapaAbierto && !baseAbierta && !juegoEnPausa()) {
     if (modoSubterraneo) actualizarSubterraneo();
     else actualizarSuperficie();
     actualizarHuevos();
@@ -3831,8 +3858,8 @@ function bucle(ahora) {
     actualizarCamara();
     actualizarCamaraSub();
   }
-  if (baseAbierta) { try { if (torreAbierta) actualizarTorre(); else actualizarBase(); actualizarMochila(); } catch (err) { console.error(err); } }
-  try { actualizarNidosEn(); } catch (err) { console.error(err); }
+  if (baseAbierta && !juegoEnPausa()) { try { if (torreAbierta) actualizarTorre(); else actualizarBase(); actualizarMochila(); } catch (err) { console.error(err); } }
+  if (!juegoEnPausa()) { try { actualizarNidosEn(); } catch (err) { console.error(err); } }
   requestAnimationFrame(bucle);
 }
 requestAnimationFrame(bucle);
@@ -4462,7 +4489,7 @@ function terminarNido(n) {   // el nido vencido desaparece: huevos, zona roja, e
   if (dentroDeNido(n)) salirNidoEn(n);   // si estás adentro, te saca a la superficie
   const r = llenarNido(n);
   pintarNidosEn(); pintarNidosSup();
-  avisar('🏴 ¡Nido enemigo eliminado! ' + (r.quedan ? 'La cueva se llenó de tierra, menos lo que está pegado a tus túneles' : 'La cueva se llenó de tierra'));
+  mostrarMensaje({ icono: '🏴', titulo: '¡Nido enemigo eliminado!', texto: r.quedan ? 'La cueva se llenó de tierra, menos lo que está pegado a tus túneles.' : 'La cueva se llenó de tierra.', tema: 'exito', boton: 'Continuar' });
 }
 function guardiaMuerta(id) {
   const n = nidosEn.find(x => x.id === id); if (!n) return;
@@ -4849,7 +4876,7 @@ document.head.insertAdjacentHTML('beforeend', `<style>
 document.body.insertAdjacentHTML('beforeend', '<button id="btn-pantalla" title="Pantalla completa">⛶</button>');
 const btnPantalla = document.getElementById('btn-pantalla');
 const enPantallaCompleta = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
-function avisoPantalla(t) { try { avisar(t); } catch (_) { alert(t); } }
+function avisoPantalla(t) { try { avisar(t); } catch (_) {} }
 function alternarPantallaCompleta() {
   const d = document, el = d.documentElement;
   if (!enPantallaCompleta()) {
@@ -4866,6 +4893,47 @@ function alternarPantallaCompleta() {
 }
 btnPantalla.addEventListener('click', alternarPantallaCompleta);
 ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev => document.addEventListener(ev, () => { btnPantalla.textContent = enPantallaCompleta() ? '✕' : '⛶'; btnPantalla.title = enPantallaCompleta() ? 'Salir de pantalla completa' : 'Pantalla completa'; }));
+
+// ===== Cuadro de mensajes en el centro (reemplaza los alert del navegador) y pausa el juego =====
+document.head.insertAdjacentHTML('beforeend', `<style>
+#msg-modal{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:7000}
+#msg-caja{width:min(92vw,380px);text-align:center;color:#fff;border-radius:22px;padding:22px 20px 18px;border:4px solid var(--b,#e0b070);background:linear-gradient(165deg,var(--g1,#4a2c12),var(--g2,#1f1208));box-shadow:0 14px 50px rgba(0,0,0,.75),0 0 30px var(--b,#e0b070);font-family:system-ui,'Segoe UI',sans-serif;animation:msgPop .28s cubic-bezier(.2,1.4,.4,1)}
+@keyframes msgPop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+#msg-ico{width:92px;height:92px;margin:-62px auto 8px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:50px;background:radial-gradient(circle,var(--g1,#4a2c12),var(--g2,#1f1208));border:4px solid var(--b,#e0b070);box-shadow:0 6px 18px rgba(0,0,0,.6)}
+#msg-tit{font-size:24px;font-weight:900;letter-spacing:.5px;color:var(--b,#e0b070);text-shadow:0 2px 4px #000;margin:2px 0 8px}
+#msg-txt{font-size:16px;line-height:1.4;color:#f5ecdc;margin-bottom:16px}
+#msg-btn{width:100%;padding:12px;border:none;border-radius:14px;font-size:17px;font-weight:800;color:#fff;cursor:pointer;background:var(--bt,#43a047);box-shadow:0 4px 0 rgba(0,0,0,.35);touch-action:manipulation}
+#msg-btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
+</style>`);
+document.body.insertAdjacentHTML('beforeend', '<div id="msg-modal"><div id="msg-caja"><div id="msg-ico"></div><div id="msg-tit"></div><div id="msg-txt"></div><button id="msg-btn">OK</button></div></div>');
+const TEMAS_MSG = {
+  noche:  { '--b': '#9fa8ff', '--g1': '#2a2f6b', '--g2': '#0f1233', '--bt': '#5c6bc0' },
+  alerta: { '--b': '#ff8a65', '--g1': '#6b2410', '--g2': '#2b0d06', '--bt': '#e64a19' },
+  exito:  { '--b': '#81c784', '--g1': '#1f5a2c', '--g2': '#0c2412', '--bt': '#43a047' },
+  normal: { '--b': '#e0b070', '--g1': '#4a2c12', '--g2': '#1f1208', '--bt': '#43a047' }
+};
+const colaMsg = []; let msgCb = null;
+function mostrarMensaje(o, cb) { colaMsg.push([o, cb]); if (!mensajeAbierto) sigMensaje(); }
+function sigMensaje() {
+  const it = colaMsg.shift(), modal = document.getElementById('msg-modal');
+  if (!it) { mensajeAbierto = false; modal.style.display = 'none'; return; }
+  const [o, cb] = it, caja = document.getElementById('msg-caja'); mensajeAbierto = true; msgCb = cb || null;
+  const t = TEMAS_MSG[o.tema] || TEMAS_MSG.normal; for (const k in t) caja.style.setProperty(k, t[k]);
+  document.getElementById('msg-ico').innerHTML = o.iconoHTML || o.icono || '🐜';
+  document.getElementById('msg-tit').textContent = o.titulo || '';
+  document.getElementById('msg-txt').textContent = o.texto || '';
+  document.getElementById('msg-btn').textContent = o.boton || 'OK';
+  caja.style.animation = 'none'; void caja.offsetWidth; caja.style.animation = '';
+  modal.style.display = 'flex';
+}
+function cerrarMensaje() {
+  if (!mensajeAbierto) return;
+  const cb = msgCb; msgCb = null; mensajeAbierto = false; document.getElementById('msg-modal').style.display = 'none';
+  try { if (cb) cb(); } catch (e) { console.error(e); }
+  if (colaMsg.length) sigMensaje();
+}
+document.getElementById('msg-btn').addEventListener('click', cerrarMensaje);
+document.addEventListener('keydown', e => { if (mensajeAbierto && (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape')) { e.preventDefault(); e.stopPropagation(); cerrarMensaje(); } }, true);
 </script>
 </body>
 </html>
