@@ -645,6 +645,7 @@
         <div class="opcion-hormiga" id="tipo-and" data-tipo="and">⚫ Negra</div>
         <div class="opcion-hormiga" id="tipo-trampa" data-tipo="trampa" title="Hormiga trampa (Odontomachus): mandíbulas rápidas, su ataque hace el doble de daño">⚫ Trampa</div>
         <div class="opcion-hormiga" id="tipo-prados" data-tipo="prados" title="Hormiga de los prados (Lasius): pacífica, solo ataca si un enemigo se acerca a 200 px del nido o al ir a una torre, pero hace el triple de daño">🟡 Prados</div>
+        <div class="opcion-hormiga" id="tipo-loca" data-tipo="loca" title="Hormiga loca: más chiquita, mucho más rápida, completamente negra, con menos vida pero más daño. Sus hormigas roban comida de los nidos enemigos">⚫ Loca</div>
       </div>
       <div class="perfil-botones">
         <button class="btn-perfil-accion" style="background:#4CAF50;color:#fff;" onclick="crearPartida()">▶ Empezar</button>
@@ -880,7 +881,7 @@
 <!-- Pantalla Subterránea -->
 <div id="pantalla-sub" class="pantalla">
   <svg viewBox="0 0 1200 600" preserveAspectRatio="none" style="width:100%; height:100%;">
-    <defs><filter id="fs-t" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".03 .035" numOctaves="4" seed="7" stitchTiles="stitch" result="n"/><feDiffuseLighting in="n" lighting-color="#8a5a34" surfaceScale="6" diffuseConstant="1" result="l"><feDistantLight azimuth="235" elevation="45"/></feDiffuseLighting><feColorMatrix in="l" values=".5 0 0 0 0  0 .46 0 0 0  0 0 .42 0 0  0 0 0 1 0"/></filter><pattern id="t-tierra" width="360" height="360" patternUnits="userSpaceOnUse"><rect width="360" height="360" filter="url(#fs-t)"/><ellipse cx="6" cy="30" rx="2.1" ry="1.4" fill="#ece9e1" opacity=".85"/><ellipse cx="205" cy="117" rx="2.6" ry="1.0" fill="#ece9e1" opacity=".85"/><ellipse cx="239" cy="224" rx="2.4" ry="1.2" fill="#ece9e1" opacity=".85"/><ellipse cx="272" cy="330" rx="1.6" ry="1.1" fill="#ece9e1" opacity=".85"/><ellipse cx="328" cy="66" rx="1.9" ry="1.0" fill="#ece9e1" opacity=".85"/><ellipse cx="18" cy="187" rx="2.2" ry="1.1" fill="#ece9e1" opacity=".85"/><ellipse cx="326" cy="62" rx="2.3" ry="0.9" fill="#ece9e1" opacity=".85"/><ellipse cx="126" cy="182" rx="2.2" ry="1.7" fill="#ece9e1" opacity=".85"/><ellipse cx="91" cy="202" rx="1.9" ry="1.3" fill="#ece9e1" opacity=".85"/><ellipse cx="264" cy="25" rx="1.7" ry="1.7" fill="#ece9e1" opacity=".85"/><ellipse cx="235" cy="17" rx="1.6" ry="1.3" fill="#ece9e1" opacity=".85"/><ellipse cx="310" cy="231" rx="1.5" ry="1.0" fill="#ece9e1" opacity=".85"/><ellipse cx="260" cy="22" rx="1.5" ry="1.5" fill="#ece9e1" opacity=".85"/><ellipse cx="324" cy="173" rx="2.5" ry="1.7" fill="#ece9e1" opacity=".85"/><rect x="127" y="61" width="13" height="3" rx="1" fill="#6b4526" stroke="#3e2814" stroke-width=".6" data-x="(14 0 0)" opacity=".9"/><rect x="165" y="308" width="13" height="3" rx="1" fill="#6b4526" stroke="#3e2814" stroke-width=".6" data-x="(-23 0 0)" opacity=".9"/><rect x="181" y="101" width="15" height="3" rx="1" fill="#6b4526" stroke="#3e2814" stroke-width=".6" data-x="(-39 0 0)" opacity=".9"/></pattern><linearGradient id="g-prof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5028" stop-opacity=".22"/><stop offset=".15" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".5"/></linearGradient><linearGradient id="g-sombra" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".4"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient><pattern id="t-pasto-s" width="200" height="200" patternUnits="userSpaceOnUse"><g fill="none" stroke-width="1.4" stroke-linecap="round" opacity=".85"><path d="M48,112 q0.3,-3.6 0.6,-7.2 M128,35 q1.1,-4.4 2.2,-8.8 M78,9 q-1.0,-4.8 -2.0,-9.7 M9,157 q-0.7,-5.0 -1.4,-9.9 M156,172 q1.0,-3.8 2.0,-7.5 M2,87 q-1.4,-4.2 -2.9,-8.5 M45,29 q-0.9,-4.1 -1.9,-8.2 M37,60 q0.4,-4.9 0.9,-9.8 M184,36 q1.3,-2.5 2.7,-5.0 M24,53 q0.9,-2.6 1.8,-5.2 " stroke="#a8d84a"/><path d="M13,9 q-0.7,-5.0 -1.4,-10.0 M193,182 q0.6,-4.2 1.3,-8.4 M62,21 q-1.4,-4.3 -2.8,-8.6 M124,188 q-0.2,-4.0 -0.4,-8.0 M120,190 q-0.8,-4.5 -1.7,-9.0 M197,90 q1.3,-5.4 2.6,-10.7 " stroke="#6da11c"/><path d="M38,145 q0.1,-4.1 0.3,-8.2 M144,176 q1.3,-4.6 2.5,-9.3 M19,32 q1.4,-3.2 2.8,-6.3 M127,198 q-1.1,-3.3 -2.3,-6.6 M171,198 q0.9,-2.8 1.8,-5.5 M63,192 q-0.4,-5.2 -0.7,-10.4 M118,191 q-0.4,-2.6 -0.8,-5.1 " stroke="#9ccf3a"/><path d="M146,118 q-1.1,-5.4 -2.2,-10.8 M171,198 q-1.0,-4.5 -2.0,-9.0 M9,125 q0.7,-2.6 1.3,-5.3 M194,63 q0.6,-3.3 1.1,-6.6 M187,91 q-0.6,-3.3 -1.2,-6.5 M118,32 q-0.5,-4.4 -1.0,-8.8 M60,123 q-0.9,-3.0 -1.9,-6.1 M194,139 q0.0,-2.9 0.0,-5.8 M16,150 q0.2,-3.2 0.4,-6.3 M69,31 q0.9,-3.4 1.8,-6.8 M6,95 q0.7,-4.8 1.5,-9.5 M109,179 q1.1,-5.1 2.1,-10.2 M105,86 q0.3,-5.3 0.7,-10.6 " stroke="#4f8414"/><path d="M70,120 q1.2,-4.3 2.4,-8.5 M179,10 q-0.3,-3.8 -0.5,-7.6 M110,185 q-0.8,-3.3 -1.6,-6.7 M174,81 q0.5,-5.1 1.1,-10.2 M136,74 q0.7,-4.6 1.4,-9.2 M169,57 q-1.2,-4.9 -2.4,-9.7 M48,42 q0.6,-3.8 1.2,-7.6 M93,129 q0.2,-3.4 0.4,-6.7 M185,180 q0.2,-5.2 0.5,-10.4 M96,29 q-0.8,-4.0 -1.6,-8.0 " stroke="#5d9418"/></g></pattern>
+    <defs><filter id="fs-t" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".03 .035" numOctaves="4" seed="7" stitchTiles="stitch" result="n"/><feDiffuseLighting in="n" lighting-color="#8a5a34" surfaceScale="6" diffuseConstant="1" result="l"><feDistantLight azimuth="235" elevation="45"/></feDiffuseLighting><feColorMatrix in="l" values=".5 0 0 0 0  0 .46 0 0 0  0 0 .42 0 0  0 0 0 1 0"/></filter><pattern id="t-tierra" width="360" height="360" patternUnits="userSpaceOnUse"><rect width="360" height="360" fill="#5e3b22" filter="url(#fs-t)"/><ellipse cx="6" cy="30" rx="2.1" ry="1.4" fill="#ece9e1" opacity=".85"/><ellipse cx="205" cy="117" rx="2.6" ry="1.0" fill="#ece9e1" opacity=".85"/><ellipse cx="239" cy="224" rx="2.4" ry="1.2" fill="#ece9e1" opacity=".85"/><ellipse cx="272" cy="330" rx="1.6" ry="1.1" fill="#ece9e1" opacity=".85"/><ellipse cx="328" cy="66" rx="1.9" ry="1.0" fill="#ece9e1" opacity=".85"/><ellipse cx="18" cy="187" rx="2.2" ry="1.1" fill="#ece9e1" opacity=".85"/><ellipse cx="326" cy="62" rx="2.3" ry="0.9" fill="#ece9e1" opacity=".85"/><ellipse cx="126" cy="182" rx="2.2" ry="1.7" fill="#ece9e1" opacity=".85"/><ellipse cx="91" cy="202" rx="1.9" ry="1.3" fill="#ece9e1" opacity=".85"/><ellipse cx="264" cy="25" rx="1.7" ry="1.7" fill="#ece9e1" opacity=".85"/><ellipse cx="235" cy="17" rx="1.6" ry="1.3" fill="#ece9e1" opacity=".85"/><ellipse cx="310" cy="231" rx="1.5" ry="1.0" fill="#ece9e1" opacity=".85"/><ellipse cx="260" cy="22" rx="1.5" ry="1.5" fill="#ece9e1" opacity=".85"/><ellipse cx="324" cy="173" rx="2.5" ry="1.7" fill="#ece9e1" opacity=".85"/><rect x="127" y="61" width="13" height="3" rx="1" fill="#6b4526" stroke="#3e2814" stroke-width=".6" data-x="(14 0 0)" opacity=".9"/><rect x="165" y="308" width="13" height="3" rx="1" fill="#6b4526" stroke="#3e2814" stroke-width=".6" data-x="(-23 0 0)" opacity=".9"/><rect x="181" y="101" width="15" height="3" rx="1" fill="#6b4526" stroke="#3e2814" stroke-width=".6" data-x="(-39 0 0)" opacity=".9"/></pattern><linearGradient id="g-prof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5028" stop-opacity=".22"/><stop offset=".15" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".5"/></linearGradient><linearGradient id="g-sombra" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".4"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient><pattern id="t-pasto-s" width="200" height="200" patternUnits="userSpaceOnUse"><g fill="none" stroke-width="1.4" stroke-linecap="round" opacity=".85"><path d="M48,112 q0.3,-3.6 0.6,-7.2 M128,35 q1.1,-4.4 2.2,-8.8 M78,9 q-1.0,-4.8 -2.0,-9.7 M9,157 q-0.7,-5.0 -1.4,-9.9 M156,172 q1.0,-3.8 2.0,-7.5 M2,87 q-1.4,-4.2 -2.9,-8.5 M45,29 q-0.9,-4.1 -1.9,-8.2 M37,60 q0.4,-4.9 0.9,-9.8 M184,36 q1.3,-2.5 2.7,-5.0 M24,53 q0.9,-2.6 1.8,-5.2 " stroke="#a8d84a"/><path d="M13,9 q-0.7,-5.0 -1.4,-10.0 M193,182 q0.6,-4.2 1.3,-8.4 M62,21 q-1.4,-4.3 -2.8,-8.6 M124,188 q-0.2,-4.0 -0.4,-8.0 M120,190 q-0.8,-4.5 -1.7,-9.0 M197,90 q1.3,-5.4 2.6,-10.7 " stroke="#6da11c"/><path d="M38,145 q0.1,-4.1 0.3,-8.2 M144,176 q1.3,-4.6 2.5,-9.3 M19,32 q1.4,-3.2 2.8,-6.3 M127,198 q-1.1,-3.3 -2.3,-6.6 M171,198 q0.9,-2.8 1.8,-5.5 M63,192 q-0.4,-5.2 -0.7,-10.4 M118,191 q-0.4,-2.6 -0.8,-5.1 " stroke="#9ccf3a"/><path d="M146,118 q-1.1,-5.4 -2.2,-10.8 M171,198 q-1.0,-4.5 -2.0,-9.0 M9,125 q0.7,-2.6 1.3,-5.3 M194,63 q0.6,-3.3 1.1,-6.6 M187,91 q-0.6,-3.3 -1.2,-6.5 M118,32 q-0.5,-4.4 -1.0,-8.8 M60,123 q-0.9,-3.0 -1.9,-6.1 M194,139 q0.0,-2.9 0.0,-5.8 M16,150 q0.2,-3.2 0.4,-6.3 M69,31 q0.9,-3.4 1.8,-6.8 M6,95 q0.7,-4.8 1.5,-9.5 M109,179 q1.1,-5.1 2.1,-10.2 M105,86 q0.3,-5.3 0.7,-10.6 " stroke="#4f8414"/><path d="M70,120 q1.2,-4.3 2.4,-8.5 M179,10 q-0.3,-3.8 -0.5,-7.6 M110,185 q-0.8,-3.3 -1.6,-6.7 M174,81 q0.5,-5.1 1.1,-10.2 M136,74 q0.7,-4.6 1.4,-9.2 M169,57 q-1.2,-4.9 -2.4,-9.7 M48,42 q0.6,-3.8 1.2,-7.6 M93,129 q0.2,-3.4 0.4,-6.7 M185,180 q0.2,-5.2 0.5,-10.4 M96,29 q-0.8,-4.0 -1.6,-8.0 " stroke="#5d9418"/></g></pattern>
       <linearGradient id="tierra-grad" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stop-color="#5c3013"/>
         <stop offset="100%" stop-color="#361808"/>
@@ -1177,11 +1178,21 @@ function alternarEsconder() { escondida = !escondida; }
 const btnAtrapar = document.getElementById('btn-atrapar');
 const btnHoja = document.getElementById('btn-hoja');
 
+// ----- Raza Loca: chiquita, rápida, frágil, más daño y roba comida de nidos enemigos -----
+const esLoca = () => tipoHormigaSeleccionada === 'loca';
+const ESCALA_LOCA = 0.75;      // tamaño (la reina y las hormigas)
+const VEL_LOCA = 1.45;         // velocidad
+const VIDA_LOCA = 0.8;         // vida de las hormigas
+const DANO_LOCA = 1.5;         // daño
+const FRAGIL_LOCA = 1.25;      // la reina recibe más daño
+const escalaRaza = () => esLoca() ? ESCALA_LOCA : 1;
+
 const coloresReinas = {
   red: { c1: '#7b1113', c2: '#a11d21', stroke: '#fbc02d' },
   and: { c1: '#1c1c1c', c2: '#2e2e2e', stroke: '#fbc02d' },
   trampa: { c1: '#121212', c2: '#262626', stroke: '#c9a227' },
-  prados: { c1: '#d99a14', c2: '#f4bd2f', stroke: '#9a6208' }   // amarilla / dorada
+  prados: { c1: '#d99a14', c2: '#f4bd2f', stroke: '#9a6208' },   // amarilla / dorada
+  loca: { c1: '#050505', c2: '#0e0e10', stroke: '#2a2a30' }   // completamente negra
 };
 
 document.querySelectorAll('.opcion-hormiga').forEach(op => {
@@ -1418,6 +1429,14 @@ function aplicarColorReina() {
   if (tipoHormigaSeleccionada === 'prados') { mSup.innerHTML = mandibulasPrados(20, -14.5, 10, 2.2); mSub.innerHTML = mandibulasPrados(12.5, -8.2, 6.5, 1.4); }
   else if (tipoHormigaSeleccionada === 'trampa') { mSup.innerHTML = mandibulasSVG(20, -14.5, 14, 2.6); mSub.innerHTML = mandibulasSVG(12.5, -8.2, 9.5, 1.7); }
   mSup.style.display = mq; mSub.style.display = mq;
+  // Loca: patas negras y antenas largas con codo (como en la foto)
+  const loca = esLoca();
+  [['s-p1', '#3b0d0c'], ['s-p2', '#3b0d0c'], ['s-p3', '#3b0d0c'], ['sub-p1', '#220706'], ['sub-p2', '#220706'], ['sub-p3', '#220706']].forEach(([id, c]) => { const e = document.getElementById(id); if (e) e.setAttribute('stroke', loca ? '#050505' : c); });
+  [[hormigaSup, 'ant-loca-sup', 'M20,-24 L25,-36 L34,-40 M16,-25 L19,-39 L26,-47', 1.6], [hormigaSub, 'ant-loca-sub', 'M12,-14 L16,-24 L23,-27 M9,-15 L11,-26 L17,-32', 1.2]].forEach(([g, id, d, w]) => {
+    let a = document.getElementById(id);
+    if (!a) { a = document.createElementNS(svgNS, 'path'); a.id = id; a.setAttribute('fill', 'none'); a.setAttribute('stroke-linecap', 'round'); a.setAttribute('stroke-linejoin', 'round'); a.setAttribute('d', d); a.setAttribute('stroke-width', w); g.appendChild(a); }
+    a.setAttribute('stroke', '#050505'); a.style.display = loca ? '' : 'none';
+  });
 }
 
 function iniciarJuego() {
@@ -1768,6 +1787,13 @@ const PATAS_SVG = (() => {
   [-6, 0, 6].forEach(x => { t += `<line class="pata" x1="${x}" y1="-3" x2="${x}" y2="4" stroke="#5a3a1c" stroke-width="1.4" stroke-linecap="round"/>`; });
   return t + '</g>';
 })();
+// Patas de la raza Loca: negras, finas y largas
+const PATAS_LOCA = (() => {
+  let t = '<g>';
+  [[-8, -10], [-2, -2], [4, 6]].forEach(([x, xe]) => { t += `<line class="pata" x1="${x}" y1="-3" x2="${xe}" y2="5.5" stroke="#050505" stroke-width="1" stroke-linecap="round"/>`; });
+  [[-6, -11], [0, 1], [6, 10]].forEach(([x, xe]) => { t += `<line class="pata" x1="${x}" y1="-3" x2="${xe}" y2="5.5" stroke="#050505" stroke-width="1" stroke-linecap="round"/>`; });
+  return t + '</g>';
+})();
 function hex2hsl(hx) {
   const r = parseInt(hx.slice(1, 3), 16) / 255, g = parseInt(hx.slice(3, 5), 16) / 255, b = parseInt(hx.slice(5, 7), 16) / 255;
   const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
@@ -1787,12 +1813,13 @@ function hsl2hex(h, sa, l) {
 // Las hormigas toman el color de la reina elegida (Red, Black o Trampa)
 function recolorHormiga(svg) {
   const col = coloresReinas[tipoHormigaSeleccionada] || coloresReinas.red;
-  const [H, S] = hex2hsl(col.c2), negro = tipoHormigaSeleccionada === 'and' || tipoHormigaSeleccionada === 'trampa', amarilla = tipoHormigaSeleccionada === 'prados';
+  const [H, S] = hex2hsl(col.c2), negro = tipoHormigaSeleccionada === 'and' || tipoHormigaSeleccionada === 'trampa', amarilla = tipoHormigaSeleccionada === 'prados', loca = esLoca();
   return svg.replace(/<(ellipse|circle)\b[^>]*>/g, tag => {
     if (!/stroke=/.test(tag)) return tag;
     return tag.replace(/(fill|stroke)="(#[0-9a-fA-F]{6})"/g, (m, a, hx) => {
       const l = hex2hsl(hx)[2];
       if (l > 0.9 || l < 0.06) return m;
+      if (loca) return `${a}="${l > 0.5 ? '#2c2c33' : '#0a0a0c'}"`;   // negro total (con un brillito en lo más claro)
       const nl = negro ? Math.max(0.14, Math.min(0.32, l * 0.6)) : amarilla ? Math.max(0.36, Math.min(0.68, l + 0.1)) : Math.max(0.2, Math.min(0.62, l));
       return `${a}="${hsl2hex(H, negro ? 0.05 : S, nl)}"`;
     });
@@ -1843,6 +1870,12 @@ function dibujoHormiga(tipo) {
   if (tipoHormigaSeleccionada === 'trampa' || tipoHormigaSeleccionada === 'prados') {
     const [xf, yc] = CABEZA_HORMIGA[tipo] || [7.5, -4], m = tipoHormigaSeleccionada === 'prados' ? mandibulasPrados(xf, yc, 6.5, 1.1) : mandibulasSVG(xf, yc, 9, 1.1), i = base.indexOf('<rect x="-15"');
     base = i >= 0 ? base.slice(0, i) + m + base.slice(i) : base + m;
+  }
+  if (esLoca()) {
+    const [xf, yc] = CABEZA_HORMIGA[tipo] || [7.5, -4], i = base.indexOf('<rect x="-15"');
+    const cuerpo = i >= 0 ? base.slice(0, i) : base, barras = i >= 0 ? base.slice(i) : '';
+    const antenas = `<path d="M${xf - 2},${yc - 2} l3,-6 l5.5,-2.5 M${xf - 3.5},${yc - 2.5} l1.5,-7 l4.5,-4.5" fill="none" stroke="#050505" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/>`;
+    return `<g transform="scale(${ESCALA_LOCA})">` + PATAS_LOCA + cuerpo + antenas + '</g>' + barras;   // la barra de vida queda sin escalar y al final
   }
   return PATAS_SVG + base;
 }
@@ -2078,7 +2111,7 @@ function actualizarSubterraneo() {
 
   if (vx !== 0) {
     antSub.dir = vx;
-    let nx = Math.max(25, Math.min(limiteSub - 25, antSub.x + vx * 2.2 * dtFrame * velCorrer()));
+    let nx = Math.max(25, Math.min(limiteSub - 25, antSub.x + vx * 2.2 * (esLoca() ? VEL_LOCA : 1) * dtFrame * velCorrer()));
     if (fuera(nx, antSub.y) <= fuera(antSub.x, antSub.y)) {
       antSub.x = nx;
     } else {
@@ -2116,7 +2149,7 @@ function actualizarSubterraneo() {
   }
 
   // Dibujar
-  hormigaSub.setAttribute('transform', `translate(${antSub.x}, ${antSub.y}) scale(${antSub.dir}, 1)`);
+  hormigaSub.setAttribute('transform', `translate(${antSub.x}, ${antSub.y}) scale(${antSub.dir * escalaRaza()}, ${escalaRaza()})`);
   const m = Math.sin(antSub.paso) * 3;
   pSub1.setAttribute('x2', -8 + m);
   pSub2.setAttribute('x2', 0 - m);
@@ -2143,7 +2176,7 @@ function actualizarSuperficie() {
       else if (nx >= LAGO_DER - 28) { enHoja = false; xSup = LAGO_DER + 8; hoja.x = LAGO_DER - 40; }
       else xSup = nx;
     } else {
-      xSup = limitarX(xSup + vx * 3 * dtFrame * velCorrer());
+      xSup = limitarX(xSup + vx * 3 * (esLoca() ? VEL_LOCA : 1) * dtFrame * velCorrer());
     }
     pasoSup += 0.3 * dtFrame;
   }
@@ -2154,7 +2187,7 @@ function actualizarSuperficie() {
   hojaBarco.setAttribute('transform', `translate(${hoja.x}, ${520 + bob})`);
 
   const y = enHoja ? 511 + bob : alturaColina(xSup);
-  hormigaSup.setAttribute('transform', `translate(${xSup}, ${y}) scale(${dirSup}, 1)`);
+  hormigaSup.setAttribute('transform', `translate(${xSup}, ${y}) scale(${dirSup * escalaRaza()}, ${escalaRaza()})`);
   const m = Math.sin(pasoSup) * 3;
   sP1.setAttribute('x2', -12 + m);
   sP2.setAttribute('x2', 0 - m);
@@ -2177,8 +2210,10 @@ function actualizarSuperficie() {
   // Grillo cerca → botón Atrapar; hoja cerca → botón Subir; borde derecho → flechita
   btnAtrapar.style.display = (!enHoja && grillos.some(g => Math.abs(xSup - g.x) < 45)) ? 'block' : 'none';
   btnHoja.style.display = (!enHoja && Math.abs(xSup - hoja.x) < 90) ? 'block' : 'none';
-  btnFlecha.style.display = (!enHoja && limiteDer < LIMITE_MAX && xSup >= limiteDer - 45) ? 'block' : 'none';
-  btnFlechaIzq.style.display = (!enHoja && limiteIzq > LIMITE_MIN && xSup <= limiteIzq + 45) ? 'block' : 'none';
+  // Los biomas se descubren solos al llegar al borde del mapa (ya no hace falta tocar la flechita)
+  if (!enHoja && limiteDer < LIMITE_MAX && xSup >= limiteDer - 45) ampliarMundo();
+  else if (!enHoja && limiteIzq > LIMITE_MIN && xSup <= limiteIzq + 45) ampliarMundoIzq();
+  btnFlecha.style.display = 'none'; btnFlechaIzq.style.display = 'none';
   const vn = xSup < -1250;
   if (vn !== nieveVis) { nieveVis = vn; nieveG.style.display = vn ? '' : 'none'; seamG.style.display = vn ? '' : 'none'; }
 
@@ -2343,7 +2378,7 @@ function caminarCampo(h, arr, v, sentido = 1) {
 // ----- Hormigas nacidas -----
 function initH(h) {
   h.init = true; h.ubic = 'sub'; h.vy = 0; h.est = 'nido'; h.t = 3 + Math.random() * 6; h.cd = 0; h.carga = false; h.pausa = 0;
-  h.max = datosTipo(h.tipo).vida;
+  h.max = Math.round(datosTipo(h.tipo).vida * (esLoca() ? VIDA_LOCA : 1));
   h.vida = h.max; h.barra = h.elemento.lastElementChild; h.dir = h.dir || 1;
   h.barraMiel = h.elemento.querySelector('.b-miel'); h.vientre = h.elemento.querySelector('.vientre'); h.txtObra = h.elemento.querySelector('.b-obra');
   if (h.tipo === 'Honey Ant' && h.miel == null) h.miel = 100;
@@ -2383,6 +2418,7 @@ function decidir(h) {
   if (!entradaCreada) return;
   if (raid.activa && hayEnemigosAtacables() && h.tipo !== 'Honey Ant' && h.tipo !== 'Builder Ant' && !h.herida) { h.t = 1; h.mision = 'atacar'; h.est = 'ir_salida'; return; }
   if (luchaHormiga(h) && hayEnemigosAtacables() && (h.tipo !== 'Normal Ant' || enemigos.some(e => e.ubic === 'sup' && Math.abs(e.x - xEntrada) < 420))) { h.mision = 'atacar'; h.est = 'ir_salida'; }
+  else if (esLoca() && h.tipo !== 'Honey Ant' && h.tipo !== 'Builder Ant' && !esDeNoche && !h.herida && nidoParaRobar({ x: xEntrada }) && Math.random() < 0.5) { h.mision = 'robar'; h.est = 'ir_salida'; }   // raza Loca: va a robar comida a un nido enemigo
   else if (!esDeNoche && fuenteComida({ x: xEntrada })) { h.mision = 'recolectar'; h.est = 'ir_salida'; }   // todas salen por comida
   else if (!esDeNoche && Math.random() < 0.3) { h.mision = 'pasear'; h.est = 'ir_salida'; }               // o salen a pasear
   else if (h.tipo === 'Protector Ant' && !esDeNoche && Math.random() < 0.35) { h.mision = 'vigilar'; h.est = 'ir_salida'; }
@@ -2474,6 +2510,11 @@ function logicaSuperficie(h, ds, v) {
   const maxC = h.tipo === 'Normal Ant' ? 2 : 1, nC = (h.carga ? 1 : 0) + (h.extraTipo ? 1 : 0);   // las normales llevan 2 comidas
   if (h.herida) objetivo = xEntrada;   // herida: vuelve al nido a curarse
   else if (eCerca) objetivo = eCerca.x;
+  else if (h.mision === 'robar' && !h.carga && !esDeNoche) {   // corre al nido enemigo, agarra comida y vuelve
+    const nr = nidoParaRobar(h);
+    if (nr) { objetivo = nr.xs; if (Math.abs(h.x - nr.xs) < 16) { robarComida(h, nr); h.mision = null; objetivo = xEntrada; } }
+    else h.mision = null;
+  }
   else if (h.mision === 'recolectar' && nC < maxC && !esDeNoche) {
     const f = fuenteComida(h);
     if (f) {
@@ -2493,10 +2534,10 @@ function logicaSuperficie(h, ds, v) {
     if (Math.abs(h.x - h.patrulla) < 6) h.patrulla = 2 * xEntrada - h.patrulla;
   } else if (h.mision === 'atacar') { const eSup = enemigoMasCercano(h, 'sup'); if (eSup && (!esPacifista() || enemigoCercaDelNido(eSup))) objetivo = eSup.x; }
 
-  const botin = (h.mision !== 'atacar' && !eCerca && !h.herida) ? objetivoBotin(h) : null;
+  const botin = (h.mision !== 'atacar' && h.mision !== 'robar' && !eCerca && !h.herida) ? objetivoBotin(h) : null;
   if (botin) { objetivo = botin.x; if (Math.abs(h.x - botin.x) < 16) tomarBotin(h, botin); }
   const dx = objetivo - h.x;
-  if (Math.abs(dx) > 4) { h.dir = dx > 0 ? 1 : -1; h.x += h.dir * v; }
+  if (Math.abs(dx) > 4) { h.dir = dx > 0 ? 1 : -1; h.x += h.dir * v; if (esLoca()) h.x += Math.sin(performance.now() / 120 + (h.fasePata || 0)) * 0.4; }   // las locas van en zigzag
   else if (objetivo === xEntrada) { volverANido(h); return; }
   h.y = alturaColina(h.x);
 }
@@ -2535,7 +2576,7 @@ function actualizarHormigas() {
     if (h.vida > 0 && h.vida < h.max && h.tGolpe > 4 && !h.colgada && !h.obra) h.vida = Math.min(h.max, h.vida + (h.ubic === 'sub' && h.est === 'nido' && !h.pelea ? 5 : 1.2) * ds);
     h.vPrev = h.vida;
     if (h.vida < h.max * 0.3) h.herida = true; else if (h.vida > h.max * 0.7) h.herida = false;
-    const v = datosTipo(h.tipo).vel * ds;
+    const v = datosTipo(h.tipo).vel * ds * (esLoca() ? VEL_LOCA : 1);
     if (h.colgada) colgadaMiel(h, ds);
     else if (h.obra) actualizarObra(h, ds, v);
     else if (h.sigue) seguirReina(h, ds, v);
@@ -2690,7 +2731,7 @@ const btnComer = document.getElementById('btn-comer');
 const barraHambreFill = document.getElementById('barra-hambre-fill');
 const modalPartidas = document.getElementById('modal-partidas');
 const inputNuevaPartida = document.getElementById('input-nueva-partida');
-const nombresReina = { red: 'Reina Roja', and: 'Reina Negra', trampa: 'Reina Trampa', prados: 'Reina de los Prados' };
+const nombresReina = { red: 'Reina Roja', and: 'Reina Negra', trampa: 'Reina Trampa', prados: 'Reina de los Prados', loca: 'Reina Loca' };
 
 function comer() {
   if (comida < 10 || hambre >= 100) return;
@@ -3371,6 +3412,37 @@ seamG.style.cssText = 'pointer-events:none;display:none';
 seamG.innerHTML = '';
 document.getElementById('grupo-hormigas-sup').parentNode.insertBefore(seamG, document.getElementById('grupo-hormigas-sup'));
 
+// ===== Raza Loca: las hormigas roban comida de los nidos enemigos (cada nido tiene un stock que se repone con el tiempo) =====
+const ROBO_MAX = 6, ROBO_REGEN_MS = 90000, ROBO_DANO = 5;
+function stockRobo(n) {
+  const ahora = Date.now();
+  if (n.stockRobo == null) { n.stockRobo = ROBO_MAX; n.tStockRobo = ahora; }
+  const rec = Math.floor((ahora - n.tStockRobo) / ROBO_REGEN_MS);
+  if (rec > 0) { n.stockRobo = Math.min(ROBO_MAX, n.stockRobo + rec); n.tStockRobo += rec * ROBO_REGEN_MS; }
+  return n.stockRobo;
+}
+function nidoParaRobar(h) {   // el nido enemigo (aún vivo) más cercano, del mismo lado del lago, con comida que robar
+  try {
+    const mid = (LAGO_IZQ + LAGO_DER) / 2, lado = h.x < mid ? -1 : 1;
+    let mejor = null, md = 1e9;
+    for (const n of nidosEn) {
+      if (n.fin || nidoLimpio(n) || stockRobo(n) <= 0) continue;
+      if ((n.xs < mid ? -1 : 1) !== lado || n.xs < limiteIzq + 40 || n.xs > limiteDer - 40) continue;
+      const d = Math.abs(n.xs - h.x); if (d < md) { md = d; mejor = n; }
+    }
+    return mejor;
+  } catch (_) { return null; }
+}
+function robarComida(h, n) {
+  if (stockRobo(n) >= ROBO_MAX) n.tStockRobo = Date.now();
+  n.stockRobo--;
+  const r = Math.random(), tipo = r < 0.5 ? 'manzana' : r < 0.8 ? 'aguacate' : 'calabaza';
+  h.carga = true; h.cargaTipo = tipo; ponerManzana(h, true, tipo);
+  h.vida -= ROBO_DANO;   // las guardianas la muerden al escapar
+  try { numFlot(h.x, h.y - 30, '-' + ROBO_DANO, '#ff8a80', lbPadre); } catch (_) {}
+  avisar('🤪🍎 ¡Una hormiga le robó comida a un nido enemigo!');
+}
+
 // ===== Botín: las hormigas cazan grillos y agarran aguacates en la superficie =====
 function objetivoBotin(h) {
   if (h.tipo === 'Honey Ant' || h.tipo === 'Builder Ant' || h.carga || h.ubic !== 'sup') return null;
@@ -3522,7 +3594,7 @@ function atacarEnemigos(h) {
   if (h.tipo === 'Honey Ant' || h.tipo === 'Builder Ant' || h.cd > 0) return;
   for (const e of enemigos) {
     if (e.ubic !== h.ubic || Math.abs(h.x - e.x) > 28 || (h.ubic === 'sub' && Math.abs(h.y - e.y) > 26)) continue;
-    const dm = (h.tipo === 'Warrior Ant' ? 14 : h.tipo === 'Protector Ant' ? 5 : 3) * mulAtaque(); e.vida -= dm; h.cd = 0.8; try { numFlot(e.x, e.y - 40, '-' + dm, '#ffcc80', e.ubic === 'sub' ? svgSub : lbPadre); } catch (_) {}
+    const dm = Math.round((h.tipo === 'Warrior Ant' ? 14 : h.tipo === 'Protector Ant' ? 5 : 3) * mulAtaque() * 10) / 10; e.vida -= dm; h.cd = 0.8; try { numFlot(e.x, e.y - 40, '-' + dm, '#ffcc80', e.ubic === 'sub' ? svgSub : lbPadre); } catch (_) {}
     if (h.ubic === 'sup') e.x += Math.sign(e.x - h.x) * 6;
     return;
   }
@@ -3536,7 +3608,7 @@ function enemigoAlAlcance() {
   }
   return m;
 }
-function mulAtaque() { return tipoHormigaSeleccionada === 'trampa' ? 2 : tipoHormigaSeleccionada === 'prados' ? 3 : 1; }   // trampa: doble de daño · prados: triple de daño
+function mulAtaque() { return tipoHormigaSeleccionada === 'trampa' ? 2 : tipoHormigaSeleccionada === 'prados' ? 3 : esLoca() ? DANO_LOCA : 1; }   // trampa: doble de daño · prados: triple de daño
 
 // ----- Pasiva de la hormiga de los prados: pacífica, solo ataca si está obligada -----
 const RADIO_PACIFISTA = 200;   // px alrededor del nido: ahí sí atacan al enemigo (dentro del nido y en torres/estructuras siempre pelean)
@@ -3731,7 +3803,8 @@ function actualizarCamaraSub() {
   if (Math.abs(obj - camSubX) < 0.3) camSubX = obj; else camSubX += (obj - camSubX) * Math.min(1, 0.1 * dtFrame);
   svgSub.setAttribute('viewBox', camSubX.toFixed(1) + ' 0 1200 600');
   mouseSvgX = camSubX + mouseFx * 1200;
-  btnFlechaSub.style.display = (modoSubterraneo && !mapaAbierto && limiteSub < 3600 && antSub.x > limiteSub - 170) ? 'block' : 'none';
+  if (modoSubterraneo && !mapaAbierto && limiteSub < 3600 && antSub.x > limiteSub - 170) ampliarSubterraneo();   // el subsuelo también se amplía solo
+  btnFlechaSub.style.display = 'none';
 }
 function ampliarSubterraneo() {
   if (limiteSub >= 3600) return;
@@ -3976,7 +4049,7 @@ const PREMIOS = [
 const ZONAS_TXT = { huevos: 'ruleta de huevos', iglu: 'cofres del igloo', nido: 'cofres de nidos enemigos', torre: 'cofres de la torre', general: 'raids y rachas' };
 const IGLU_X = -3200, BW = 900, SUELO = 300, REAPARECE_COFRE_MS = 5 * 60 * 60 * 1000;   // los cofres reaparecen a las 5 horas (tiempo real)
 let buffs = { escudo: 0, frio: 0, suerte: 0 };
-const factorDano = () => buffs.escudo > 0 ? 0.5 : 1;
+const factorDano = () => (buffs.escudo > 0 ? 0.5 : 1) * (esLoca() ? FRAGIL_LOCA : 1);
 let inventario = {}, cofresAbiertos = {}, baseAbierta = false, cdIglu = 0, ruletaCofre = false;
 let bp = { x: 80, dir: 1, hp: 100, cd: 0 }, bEnem = [], bCof = [{ id: 0, x: 330 }, { id: 1, x: 560 }, { id: 2, x: 820 }], bDespejada = false;
 
@@ -5231,7 +5304,9 @@ let _bajoGuardado = false; try { _bajoGuardado = almacen.getItem(BAJO_KEY) === '
 aplicarBajoDetalle(_bajoGuardado);
 if (_bajoGuardado) setTimeout(() => pausarAnimacionesSVG(true), 1500);
 
-const VERSION_JUEGO = '1.11';   // SUBE ESTE NÚMERO en cada update grande (1.11 → 1.12 …)
+const VERSION_JUEGO = '1.5';   // SUBE ESTE NÚMERO en cada update. Los decimales van de 0 a 9: después de 1.9 viene 2.0 (nunca 1.10 ni 1.11)
+// Ayuda para calcular la siguiente update: siguienteVersion('1.9') → '2.0' · siguienteVersion('1.5') → '1.6'
+const siguienteVersion = v => { let [a, b] = String(v).split('.').map(Number); b = (b || 0) + 1; if (b >= 10) { a++; b = 0; } return a + '.' + b; };
 document.head.insertAdjacentHTML('beforeend', `<style>#version-juego{position:fixed;right:8px;bottom:3px;z-index:3600;font:700 11px/1 system-ui,sans-serif;color:#fff;background:rgba(0,0,0,.45);padding:3px 7px;border-radius:8px;pointer-events:none;text-shadow:0 1px 2px #000;letter-spacing:.3px}</style>`);
 document.body.insertAdjacentHTML('beforeend', `<div id="version-juego">Actualización ${VERSION_JUEGO}</div>`);
 
@@ -5251,7 +5326,9 @@ const _EN = {
   "Tus partidas": "Your saved games", "Crear nueva": "Create new", "Nueva partida": "New game",
   "Si tu reina muere, esa partida se pierde para siempre.": "If your queen dies, that game is lost forever.",
   "¿Qué hormiga quieres ser?": "Which ant do you want to be?",
-  "Roja": "Red", "Negra": "Black", "Trampa": "Trap-jaw", "Prados": "Meadow",
+  "Roja": "Red", "Negra": "Black", "Trampa": "Trap-jaw", "Prados": "Meadow", "Loca": "Crazy",
+  "Hormiga loca: más chiquita, mucho más rápida, completamente negra, con menos vida pero más daño. Sus hormigas roban comida de los nidos enemigos": "Crazy ant: smaller, much faster, completely black, with less health but more damage. Its ants steal food from enemy nests",
+  "🤪🍎 ¡Una hormiga le robó comida a un nido enemigo!": "🤪🍎 An ant stole food from an enemy nest!",
   "Empezar": "Start", "Atrás": "Back", "FIN DEL JUEGO": "GAME OVER", "Volver al menú": "Back to menu",
   "Nuevo juego": "New game", "Se perderá todo el progreso actual. ¿Seguro?": "All current progress will be lost. Are you sure?",
   "Sí, reiniciar": "Yes, restart", "Menú": "Menu", "Jugar": "Play", "¿Seguro?": "Are you sure?",
@@ -5486,7 +5563,7 @@ const _ENRE = [
 const _ENFR = [
   [/ruleta de huevos/g, 'egg wheel'], [/cofres del igloo/g, 'igloo chests'], [/cofres de nidos enemigos/g, 'enemy nest chests'],
   [/cofres de la torre/g, 'tower chests'], [/raids y rachas/g, 'raids and streaks'],
-  [/Reina de los Prados/g, 'Meadow Queen'], [/Reina Trampa/g, 'Trap-jaw Queen'], [/Reina Negra/g, 'Black Queen'], [/Reina Roja/g, 'Red Queen']
+  [/Reina de los Prados/g, 'Meadow Queen'], [/Reina Loca/g, 'Crazy Queen'], [/Reina Trampa/g, 'Trap-jaw Queen'], [/Reina Negra/g, 'Black Queen'], [/Reina Roja/g, 'Red Queen']
 ];
 
 // --- Motor de traducción ---
