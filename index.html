@@ -3849,6 +3849,7 @@ function bucle(ahora) {
     else actualizarSuperficie();
     actualizarHuevos();
     actualizarHormigas();
+    try { actualizarReinaNido(); } catch (err) { console.error(err); }
     actualizarEnemigos();
     actualizarDespensa();
     actualizarVida();
@@ -3967,13 +3968,16 @@ const bAct = document.getElementById('b-act'), bHp = document.getElementById('b-
 const premioDe = id => PREMIOS.find(p => p.id === id);
 // ===== Imágenes de los premios (sin emojis) + Reina =====
 function dibujoReinaSVG() {
-  return '<g stroke-linecap="round"><line x1="-8" y1="-2" x2="-9" y2="4" stroke="#2b1a0e" stroke-width="1.4"/><line x1="-2" y1="-2" x2="-2" y2="4" stroke="#2b1a0e" stroke-width="1.4"/><line x1="4" y1="-2" x2="5" y2="4" stroke="#2b1a0e" stroke-width="1.4"/></g>'
-    + '<path d="M-4,-9 Q-6,-19 -15,-16 Q-11,-9 -4,-9Z" fill="rgba(255,255,255,.6)" stroke="#e1f5fe" stroke-width=".7"/>'
+  const cuerpo = '<path d="M-4,-9 Q-6,-19 -15,-16 Q-11,-9 -4,-9Z" fill="rgba(255,255,255,.6)" stroke="#e1f5fe" stroke-width=".7"/>'
     + '<ellipse cx="-12" cy="-6" rx="11" ry="7.5" fill="#6a1b9a" stroke="#ffd54f" stroke-width="1.4"/>'
     + '<path d="M-17,-9 Q-12,-12 -7,-9 M-18,-5 Q-12,-8 -6,-5" stroke="#ffd54f" stroke-width=".8" fill="none" opacity=".8"/>'
     + '<ellipse cx="-1" cy="-6" rx="5" ry="4" fill="#8e24aa" stroke="#ffd54f" stroke-width="1.1"/>'
-    + '<circle cx="7" cy="-7" r="4.4" fill="#8e24aa" stroke="#ffd54f" stroke-width="1.1"/><circle cx="8.8" cy="-8.2" r=".9" fill="#fff"/>'
+    + '<circle cx="7" cy="-7" r="4.4" fill="#8e24aa" stroke="#ffd54f" stroke-width="1.1"/>';
+  let pelo = '<circle cx="8.8" cy="-8.2" r=".9" fill="#fff"/>'
     + '<path d="M3,-11 L4.2,-16.5 L6.4,-12.8 L8.4,-17 L10,-11Z" fill="#ffd54f" stroke="#f57f17" stroke-width=".8" stroke-linejoin="round"/>';
+  const trampa = tipoHormigaSeleccionada === 'trampa' ? mandibulasSVG(10.5, -7, 8, 1.1) : '';
+  return '<g stroke-linecap="round"><line class="pata" x1="-8" y1="-2" x2="-9" y2="4" stroke="#2b1a0e" stroke-width="1.4"/><line class="pata" x1="-2" y1="-2" x2="-2" y2="4" stroke="#2b1a0e" stroke-width="1.4"/><line class="pata" x1="4" y1="-2" x2="5" y2="4" stroke="#2b1a0e" stroke-width="1.4"/></g>'
+    + recolorHormiga(cuerpo) + trampa + pelo;   // el cuerpo toma el color de la raza que elegiste
 }
 function imgPremio(id, px) {
   const comida = t => `<g transform="scale(1.7)">${dibujoItemComida(t)}</g>`;
@@ -4017,8 +4021,8 @@ function renderInv() {
     : '<span style="grid-column:1/-1;font-size:13px;color:#ddd">Vacía… busca cofres en el igloo, en los nidos enemigos y en la torre</span>';
   if (!invSel) { det.innerHTML = ids.length ? '<small style="opacity:.8">Toca un objeto para mirarlo o usarlo</small>' : ''; return; }
   const p = premioDe(invSel), enNido = invSel === 'reina' && reinaNido.on;
-  det.innerHTML = `<div class="inv-det"><div class="nom">${p.n} ×${inventario[invSel]}</div><small>${enNido ? 'Ya está en tu nido. Próximo huevo en ' + Math.floor(Math.max(0, reinaNido.t) / 60) + ':' + String(Math.max(0, Math.round(reinaNido.t)) % 60).padStart(2, '0') + '.' : p.d}</small>`
-    + `<div class="inv-btns"><button style="background:#5c6bc0" onclick="mirarItem('${invSel}')">Mirar</button><button style="background:#43a047" ${enNido ? 'disabled' : ''} onclick="usarItem('${invSel}')">${enNido ? 'En el nido' : 'Usar'}</button></div></div>`;
+  det.innerHTML = `<div class="inv-det"><div class="nom">${p.n} ×${inventario[invSel]}</div><small>${enNido ? 'Ya está en tu nido (usa «Mover aquí» estando en el nido para cambiarla de lugar). Próximo huevo en ' + Math.floor(Math.max(0, reinaNido.t) / 60) + ':' + String(Math.max(0, Math.round(reinaNido.t)) % 60).padStart(2, '0') + '.' : p.d}</small>`
+    + `<div class="inv-btns"><button style="background:#5c6bc0" onclick="mirarItem('${invSel}')">Mirar</button><button style="background:#43a047" onclick="usarItem('${invSel}')">${enNido ? 'Mover aquí' : 'Usar'}</button></div></div>`;
 }
 function selInv(k) { invSel = k; renderInv(); }
 function mirarItem(k) {
@@ -4039,7 +4043,11 @@ function usarItem(id) {
     buffs[p.uso] = p.v; inventario[id]--; renderInv(); avisar(p.d); return;
   }
   if (p.uso === 'reina') {
-    if (reinaNido.on) { avisar('Tu Reina ya está en el nido poniendo huevos'); return; }
+    if (reinaNido.on) {   // ya está colocada: la mueves adonde estás tú
+      if (!modoSubterraneo) { avisar('Baja a tu nido para mover a la Reina'); return; }
+      Object.assign(reinaNido, { x: antSub.x, y: antSub.y, vy: 0, destino: null, quieta: 45, evalT: 0 }); dibujarReina(); cerrarMochila();
+      avisar('Moviste a la Reina aquí. Se queda 45 s y luego vuelve a buscar el lugar más seguro'); return;
+    }
     if (!modoSubterraneo) { avisar('Baja a tu nido para colocar la Reina'); return; }
     reinaNido = { on: true, t: REINA_HUEVO_S, x: antSub.x, y: antSub.y }; dibujarReina(); renderInv(); cerrarMochila();
     avisar('¡La Reina se instaló en tu nido! Pondrá huevos sola gastando comida de la despensa'); return;
@@ -4058,11 +4066,52 @@ function usarItem(id) {
 let gReinaNido = null;
 function dibujarReina() {
   if (gReinaNido) { gReinaNido.remove(); gReinaNido = null; }
+  reinaNido.patas = null;
   if (!reinaNido.on) return;
   gReinaNido = document.createElementNS(svgNS, 'g');
-  gReinaNido.setAttribute('transform', `translate(${reinaNido.x}, ${reinaNido.y + 2}) scale(1.25)`);
   gReinaNido.innerHTML = dibujoReinaSVG();
+  gReinaNido.setAttribute('transform', `translate(${reinaNido.x}, ${reinaNido.y + 2}) scale(${(reinaNido.dir || 1) * 1.25}, 1.25)`);
   nidoHuevos.parentNode.insertBefore(gReinaNido, nidoHuevos.nextSibling);
+}
+// La Reina camina por tu nido buscando el lugar más seguro: lejos de enemigos y de la entrada, sin salir del nido ni entrar a nidos enemigos
+const cReinaNido = { k: -1, t: 0, arr: null }, cEntradaReina = { k: -1, t: 0, arr: null };
+function lugarMasSeguro(q) {
+  const arrE = campoHacia(cEntradaReina, xEntrada, 58);
+  const enem = enemigos.filter(e => e.ubic === 'sub' && e.vida > 0);
+  const puntua = c => {
+    if (c.y < 110) return null;                                                          // demasiado cerca de la superficie
+    if (nidosEn.some(n => Math.hypot(c.x - n.cx, c.y - n.cy) < 230)) return null;        // nunca dentro de un nido enemigo
+    const d = arrE[Math.max(0, Math.min(CH - 1, (c.y / CS) | 0)) * CW + Math.max(0, Math.min(CW - 1, (c.x / CS) | 0))];
+    if (d < 0 || d > 480 / CS) return null;                                              // no se aleja demasiado de la entrada
+    let me = 400; for (const e of enem) me = Math.min(me, Math.hypot(e.x - c.x, e.y - c.y));
+    return Math.min(d, 60) * 1.2 + me * 0.9;                                             // más profundo y más lejos de los enemigos = más seguro
+  };
+  let best = null, bs = -1e9;
+  for (const c of circ) { const sc = puntua(c); if (sc != null && sc > bs) { bs = sc; best = { x: c.x, y: c.y, sc }; } }
+  const act = q.destino ? puntua(q.destino) : null;
+  if (act != null && best && best.sc < act + 18) return { x: q.destino.x, y: q.destino.y, sc: act };   // no cambia de idea por poco
+  return best || q.destino || null;
+}
+function actualizarReinaNido() {
+  const q = reinaNido; if (!q.on) return;
+  const ds = dtFrame / 60, v = datosTipo('Normal Ant').vel * ds * 0.6;
+  if (circSucio) recargarCirculos();
+  q.vy = q.vy || 0; q.dir = q.dir || 1;
+  if (fH(q.x, q.y) >= 5) { q.fuera = (q.fuera || 0) + ds; if (q.fuera > 0.5) rescatarHormiga(q); } else q.fuera = 0;
+  q.evalT = (q.evalT || 0) - ds; q.quieta = Math.max(0, (q.quieta || 0) - ds);
+  if (q.quieta > 0) {   // la dejaste donde quisiste: se queda ahí, salvo que haya enemigos encima
+    if (enemigos.some(e => e.ubic === 'sub' && e.vida > 0 && Math.hypot(e.x - q.x, e.y - q.y) < 220)) q.quieta = 0;
+  }
+  if (q.quieta <= 0 && q.evalT <= 0) { q.evalT = 3; q.destino = lugarMasSeguro(q); }
+  const dst = q.quieta <= 0 ? q.destino : null;
+  if (dst && Math.hypot(q.x - dst.x, q.y - dst.y) > 16) {
+    const arr = campoHacia(cReinaNido, dst.x, dst.y);
+    if (puedeLlegar(arr, q)) caminarCampo(q, arr, v); else fisicaHormiga(q, ds, 0, 0, 0, false, false);
+  } else fisicaHormiga(q, ds, 0, 0, 0, false, false);
+  if (gReinaNido) {
+    gReinaNido.setAttribute('transform', `translate(${q.x}, ${q.y + 2}) scale(${q.dir * 1.25}, 1.25)`);
+    animarPatas(q, gReinaNido);
+  }
 }
 function ponerHuevoReina() {
   if (huevosEnIncubacion.length >= 6 || hormigasNacidas.length >= 40) { reinaNido.t = 10; return; }   // nido lleno: espera
@@ -4076,7 +4125,6 @@ function ponerHuevoReina() {
   huevosEnIncubacion.push({ tipo, tiempoRestante: datosTipo(tipo).huevo, x: reinaNido.x + 14 + Math.random() * 10, y: reinaNido.y, elementoVisual: null });
   actualizarPanelHuevos();
   if (modoSubterraneo) avisarEsquina('La Reina puso un huevo (' + tipo + ') y gastó ' + REINA_COSTO + ' comidas');
-  if (gReinaNido) { gReinaNido.style.transition = 'transform .2s'; setTimeout(() => dibujarReina(), 250); }
 }
 setInterval(() => {
   if (!reinaNido.on || !juegoIniciado) return;
@@ -4943,7 +4991,7 @@ document.getElementById('msg-btn').addEventListener('click', cerrarMensaje);
 document.addEventListener('keydown', e => { if (mensajeAbierto && (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape')) { e.preventDefault(); e.stopPropagation(); cerrarMensaje(); } }, true);
 
 // ===== Versión del juego: se muestra abajo a la derecha. Sube este número en cada update =====
-const VERSION_JUEGO = '1.1';
+const VERSION_JUEGO = '1.2';
 document.head.insertAdjacentHTML('beforeend', `<style>#version-juego{position:fixed;right:8px;bottom:3px;z-index:3600;font:700 11px/1 system-ui,sans-serif;color:#fff;background:rgba(0,0,0,.45);padding:3px 7px;border-radius:8px;pointer-events:none;text-shadow:0 1px 2px #000;letter-spacing:.3px}</style>`);
 document.body.insertAdjacentHTML('beforeend', `<div id="version-juego">Update ${VERSION_JUEGO}</div>`);
 </script>
