@@ -1876,7 +1876,7 @@ function iniciarRuleta() {
   for (const it of items) { if ((r -= it.pct) < 0) { ganador = it; break; } }
   tipoGanador = ganador.id;
   correrTira(document.getElementById('cr-vista2'), document.getElementById('cr-tira2'), items, ganador, () => {
-    displayRuleta.innerHTML = ganador.id === 'Reina' ? '<b>¡La Reina!</b><br><small>Se instalará en tu nido y pondrá huevos sola</small>' : `<b>Nacerá: ${ganador.n}</b>`;
+    displayRuleta.innerHTML = ganador.id === 'Reina' ? '<b>¡La Reina!</b><br><small>Se instalará en tu nido y pondrá huevos sola (gasta comida de la despensa)</small>' : `<b>Nacerá: ${ganador.n}</b>`;
     btnCerrarRuleta.style.display = 'block';
   });
 }
@@ -1886,8 +1886,8 @@ function cerrarRuleta() {
   ruletaActiva = false;
   if (tipoGanador === 'Reina') {   // la Reina salió de la ruleta de huevos: se instala en el nido
     tipoGanador = ''; inventario.reina = 1;
-    reinaNido = { on: true, t: 8, x: antSub.x, y: antSub.y }; dibujarReina();
-    avisar('¡La Reina se instaló en tu nido! Pondrá huevos sola');
+    reinaNido = { on: true, t: REINA_HUEVO_S, x: antSub.x, y: antSub.y }; dibujarReina();
+    avisar('¡La Reina se instaló en tu nido! Pondrá huevos sola gastando comida de la despensa');
     return;
   }
 
@@ -3881,7 +3881,7 @@ const PREMIOS = [
   { id: 'nectar',   n: 'Néctar real',        p: 10, uso: 'comida', v: 60,  z: ['torre'],                    d: 'Rellena 60 de tu barra de comida.' },
   { id: 'corazon',  n: 'Corazón de miel',    p: 8,  uso: 'vida',   v: 100, z: ['torre'],                    d: 'Cura toda la vida de tu reina.' },
   { id: 'hoja',     n: 'Hoja de roble',      p: 10, uso: 'escudo', v: 60,  z: ['torre'],                    d: 'Escudo: -50% de daño durante 60 s.' },
-  { id: 'reina',    n: 'Reina',              p: 3,  uso: 'reina', unica: true, z: ['nido', 'torre'],        d: 'Solo puedes tener 1. Se instala en tu nido y pone huevos sola.' },
+  { id: 'reina',    n: 'Reina',              p: 3,  uso: 'reina', unica: true, z: ['huevos'],                d: 'Solo sale en la ruleta de huevos y solo puedes tener 1. Pone huevos sola, pero gasta comida de tu despensa.' },
   // --- Cosas de nieve: solo salen en los cofres del igloo ---
   { id: 'bola_nieve',  n: 'Bola de nieve',     p: 22, uso: 'comida', v: 12, z: ['iglu'], d: 'Rellena 12 de tu barra de comida.' },
   { id: 'agua_helada', n: 'Agua de deshielo',  p: 16, uso: 'energia',       z: ['iglu'], d: 'Rellena toda tu estamina al instante.' },
@@ -3890,7 +3890,7 @@ const PREMIOS = [
   { id: 'perla',       n: 'Perla de escarcha', p: 8,  uso: 'vida',   v: 60,  z: ['iglu'], d: 'Cura 60 de vida de tu reina.' },
   { id: 'estrella',    n: 'Estrella polar',    p: 4,  uso: 'suerte', v: 1,   z: ['iglu'], d: 'Tu próximo cofre da un premio extra.' }
 ];
-const ZONAS_TXT = { iglu: 'cofres del igloo', nido: 'cofres de nidos enemigos', torre: 'cofres de la torre', general: 'raids y rachas' };
+const ZONAS_TXT = { huevos: 'ruleta de huevos', iglu: 'cofres del igloo', nido: 'cofres de nidos enemigos', torre: 'cofres de la torre', general: 'raids y rachas' };
 const IGLU_X = -3200, BW = 900, SUELO = 300, REAPARECE_COFRE_MS = 5 * 60 * 60 * 1000;   // los cofres reaparecen a las 5 horas (tiempo real)
 let buffs = { escudo: 0, frio: 0, suerte: 0 };
 const factorDano = () => buffs.escudo > 0 ? 0.5 : 1;
@@ -4000,7 +4000,8 @@ function imgPremio(id, px) {
 }
 function colorProb(pct) { return pct >= 20 ? '#9e9e9e' : pct >= 10 ? '#66bb6a' : pct >= 6 ? '#42a5f5' : pct >= 3.5 ? '#ab47bc' : '#ffc107'; }
 let reinaNido = { on: false, t: 0, x: 0, y: 0 };
-const REINA_HUEVO_S = 40;   // segundos de juego entre huevo y huevo de la Reina
+const REINA_HUEVO_S = 120;  // cooldown de la Reina en segundos REALES entre huevo y huevo (no se acelera con el tiempo del juego)
+const REINA_COSTO = 2;      // cada huevo gasta 2 comidas de la despensa
 const reinaYaTiene = () => (inventario.reina || 0) > 0 || reinaNido.on;
 const premiosDisponibles = zona => PREMIOS.filter(p => p.z.includes(zona || 'general') && !(p.unica && reinaYaTiene()));
 
@@ -4016,13 +4017,13 @@ function renderInv() {
     : '<span style="grid-column:1/-1;font-size:13px;color:#ddd">Vacía… busca cofres en el igloo, en los nidos enemigos y en la torre</span>';
   if (!invSel) { det.innerHTML = ids.length ? '<small style="opacity:.8">Toca un objeto para mirarlo o usarlo</small>' : ''; return; }
   const p = premioDe(invSel), enNido = invSel === 'reina' && reinaNido.on;
-  det.innerHTML = `<div class="inv-det"><div class="nom">${p.n} ×${inventario[invSel]}</div><small>${enNido ? 'Ya está en tu nido poniendo huevos.' : p.d}</small>`
+  det.innerHTML = `<div class="inv-det"><div class="nom">${p.n} ×${inventario[invSel]}</div><small>${enNido ? 'Ya está en tu nido. Próximo huevo en ' + Math.floor(Math.max(0, reinaNido.t) / 60) + ':' + String(Math.max(0, Math.round(reinaNido.t)) % 60).padStart(2, '0') + '.' : p.d}</small>`
     + `<div class="inv-btns"><button style="background:#5c6bc0" onclick="mirarItem('${invSel}')">Mirar</button><button style="background:#43a047" ${enNido ? 'disabled' : ''} onclick="usarItem('${invSel}')">${enNido ? 'En el nido' : 'Usar'}</button></div></div>`;
 }
 function selInv(k) { invSel = k; renderInv(); }
 function mirarItem(k) {
   const p = premioDe(k); if (!p) return;
-  const donde = p.z.map(z => ZONAS_TXT[z]).join(', ') + (k === 'reina' ? ', ruleta de huevos' : '');
+  const donde = p.z.map(z => ZONAS_TXT[z]).join(', ');
   const efecto = { comida: 'Comida', energia: 'Estamina', vida: 'Vida', escudo: 'Defensa', frio: 'Hambre', suerte: 'Suerte', huevo: 'Huevo gratis', reina: 'Colocable' }[p.uso] || 'Objeto';
   document.getElementById('mirar-caja').innerHTML = `<div style="display:flex;justify-content:center;padding:8px 0;animation:mirarGira 3s ease-in-out infinite">${imgPremio(k, 96)}</div>`
     + `<h3 style="margin:4px 0">${p.n}</h3><div style="display:inline-block;padding:2px 10px;border-radius:10px;background:${colorProb(p.p)};color:#111;font-weight:700;font-size:12px">${efecto}</div>`
@@ -4040,8 +4041,8 @@ function usarItem(id) {
   if (p.uso === 'reina') {
     if (reinaNido.on) { avisar('Tu Reina ya está en el nido poniendo huevos'); return; }
     if (!modoSubterraneo) { avisar('Baja a tu nido para colocar la Reina'); return; }
-    reinaNido = { on: true, t: 8, x: antSub.x, y: antSub.y }; dibujarReina(); renderInv(); cerrarMochila();
-    avisar('¡La Reina se instaló en tu nido! Pondrá huevos sola'); return;
+    reinaNido = { on: true, t: REINA_HUEVO_S, x: antSub.x, y: antSub.y }; dibujarReina(); renderInv(); cerrarMochila();
+    avisar('¡La Reina se instaló en tu nido! Pondrá huevos sola gastando comida de la despensa'); return;
   }
   if (p.uso === 'huevo') {
     if (!modoSubterraneo) { avisar('Baja a tu nido para usar el huevo dorado'); return; }
@@ -4064,16 +4065,22 @@ function dibujarReina() {
   nidoHuevos.parentNode.insertBefore(gReinaNido, nidoHuevos.nextSibling);
 }
 function ponerHuevoReina() {
-  if (huevosEnIncubacion.length >= 10 || hormigasNacidas.length >= 40) { reinaNido.t = 10; return; }   // nido lleno: espera
-  const r = Math.random(), tipo = r < 0.04 ? 'Warrior Ant' : r < 0.12 ? 'Honey Ant' : r < 0.22 ? 'Builder Ant' : r < 0.42 ? 'Protector Ant' : 'Normal Ant';
+  if (huevosEnIncubacion.length >= 6 || hormigasNacidas.length >= 40) { reinaNido.t = 10; return; }   // nido lleno: espera
+  if (!puntoComida || itemsComida.length < REINA_COSTO) {   // sin comida en la despensa no pone huevos
+    reinaNido.t = 10;
+    if (Date.now() - (reinaNido.avisoT || 0) > 60000) { reinaNido.avisoT = Date.now(); avisarEsquina('La Reina no puede poner huevos: no hay comida en la despensa'); }
+    return;
+  }
+  itemsComida.splice(-REINA_COSTO); pintarComidaNido();
+  const r = Math.random(), tipo = r < 0.7 ? 'Normal Ant' : r < 0.9 ? 'Protector Ant' : 'Builder Ant';   // nerf: sin Guerreras ni Mieleras
   huevosEnIncubacion.push({ tipo, tiempoRestante: datosTipo(tipo).huevo, x: reinaNido.x + 14 + Math.random() * 10, y: reinaNido.y, elementoVisual: null });
   actualizarPanelHuevos();
-  if (modoSubterraneo) avisarEsquina('La Reina puso un huevo (' + tipo + ')');
-  if (gReinaNido) { gReinaNido.style.transition = 'transform .2s'; gReinaNido.style.transformOrigin = reinaNido.x + 'px ' + reinaNido.y + 'px'; setTimeout(() => dibujarReina(), 250); }
+  if (modoSubterraneo) avisarEsquina('La Reina puso un huevo (' + tipo + ') y gastó ' + REINA_COSTO + ' comidas');
+  if (gReinaNido) { gReinaNido.style.transition = 'transform .2s'; setTimeout(() => dibujarReina(), 250); }
 }
 setInterval(() => {
   if (!reinaNido.on || !juegoIniciado) return;
-  reinaNido.t -= VEL_TIEMPO;
+  reinaNido.t -= 1;   // cooldown en tiempo real
   if (reinaNido.t <= 0) { reinaNido.t = REINA_HUEVO_S; ponerHuevoReina(); }
 }, 1000);
 let buffTxt = '';
@@ -4934,6 +4941,11 @@ function cerrarMensaje() {
 }
 document.getElementById('msg-btn').addEventListener('click', cerrarMensaje);
 document.addEventListener('keydown', e => { if (mensajeAbierto && (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape')) { e.preventDefault(); e.stopPropagation(); cerrarMensaje(); } }, true);
+
+// ===== Versión del juego: se muestra abajo a la derecha. Sube este número en cada update =====
+const VERSION_JUEGO = '1.1';
+document.head.insertAdjacentHTML('beforeend', `<style>#version-juego{position:fixed;right:8px;bottom:3px;z-index:3600;font:700 11px/1 system-ui,sans-serif;color:#fff;background:rgba(0,0,0,.45);padding:3px 7px;border-radius:8px;pointer-events:none;text-shadow:0 1px 2px #000;letter-spacing:.3px}</style>`);
+document.body.insertAdjacentHTML('beforeend', `<div id="version-juego">Update ${VERSION_JUEGO}</div>`);
 </script>
 </body>
 </html>
