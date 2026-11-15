@@ -2,6 +2,10 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#64cdfc">
 <style>
   body, html {
     margin: 0;
@@ -18,7 +22,7 @@
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100vh; height: 100dvh;
   }
   svg {
     display: block;
@@ -32,7 +36,7 @@
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100vh; height: 100dvh;
     background: #2a1409;
     display: flex;
     flex-direction: column;
@@ -87,7 +91,7 @@
   /* --- Modal de Perfil --- */
   #modal-perfil, #modal-confirmar, #modal-partidas, #modal-gameover, #modal-mapa {
     position: absolute;
-    top: 0; left: 0; width: 100vw; height: 100vh;
+    top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh;
     background: rgba(0,0,0,0.7);
     display: none;
     justify-content: center;
@@ -381,7 +385,7 @@
   /* --- Ruleta de Eclosión --- */
   #modal-ruleta {
     position: absolute;
-    top: 0; left: 0; width: 100vw; height: 100vh;
+    top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh;
     background: rgba(0,0,0,0.75);
     display: none;
     justify-content: center;
@@ -3875,7 +3879,7 @@ document.body.insertAdjacentHTML('beforeend', `<style>
 #inv-lista{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0;min-height:40px}
 .inv-it{background:#1a0a04;border:2px solid #b8860b;border-radius:12px;color:#fff;padding:8px 10px;cursor:pointer;font:600 13px system-ui}
 #base-secreta{position:fixed;inset:0;z-index:4000;display:none;flex-direction:column;align-items:center;justify-content:center;background:#050d18;color:#fff;font-family:system-ui}
-#base-secreta svg{width:min(100vw,900px);height:auto;max-height:70vh}
+#base-secreta svg{width:min(100vw,900px);height:auto;max-height:70vh;max-height:70dvh}
 .b-btn{border-radius:50%;width:56px;height:56px;border:3px solid #fff;background:rgba(0,0,0,.6);color:#fff;font-size:22px;cursor:pointer;touch-action:none}
 .cofre-caja{background:#361808;border:4px solid #87410f;padding:18px 16px;border-radius:20px;text-align:center;color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.8);width:min(94vw,480px)}
 .cr-vista{position:relative;overflow:hidden;border-radius:12px;background:#1a0a04;padding:22px 0 8px;border:2px solid #5a2d0c}
@@ -3965,7 +3969,7 @@ function imgPremio(id, px) {
     hoja: '<path d="M-9,8 C-10,-4 -2,-10 9,-9 C10,2 3,9 -9,8Z" fill="#66bb6a" stroke="#2e7d32" stroke-width="1.5" stroke-linejoin="round"/><path d="M-8,7 C-2,2 3,-3 7,-7" stroke="#2e7d32" fill="none" stroke-width="1.3"/>',
     reina: '<g transform="scale(.7) translate(6,6.5)">' + dibujoReinaSVG() + '</g>'
   }[id] || '';
-  return `<svg viewBox="-12 -12 24 24" width="${px || 44}" height="${px || 44}" style="overflow:visible">${d}</svg>`;
+  return `<svg viewBox="-12 -12 24 24" width="${px || 44}" height="${px || 44}" style="width:${px || 44}px;height:${px || 44}px;display:inline-block;overflow:visible">${d}</svg>`;
 }
 function colorProb(pct) { return pct >= 20 ? '#9e9e9e' : pct >= 10 ? '#66bb6a' : pct >= 6 ? '#42a5f5' : pct >= 3.5 ? '#ab47bc' : '#ffc107'; }
 let reinaNido = { on: false, t: 0, x: 0, y: 0 };
@@ -4590,10 +4594,10 @@ const evento = { prox: 150 + Math.random() * 120, lluvia: 0 };
 document.body.insertAdjacentHTML('beforeend', `<style>
 #lluvia{position:fixed;inset:0;pointer-events:none;z-index:3500;display:none;background:linear-gradient(rgba(20,40,70,.2),rgba(20,40,70,.2)),repeating-linear-gradient(105deg,transparent 0 14px,rgba(200,225,255,.35) 14px 15px);background-size:auto,60px 60px;animation:llov .35s linear infinite}
 @keyframes llov{to{background-position:0 0,-18px 60px}}
-#hud-extra{position:fixed;left:20px;top:150px;max-width:210px;background:rgba(0,0,0,.5);color:#fff;border:2px solid rgba(255,235,59,.6);border-radius:10px;padding:6px 10px;font:600 12px/1.5 system-ui,sans-serif;z-index:4100;pointer-events:none;display:none}
+#hud-extra{position:fixed;right:12px;left:auto;top:8px;max-width:190px;background:rgba(0,0,0,.5);color:#fff;border:2px solid rgba(255,235,59,.6);border-radius:10px;padding:6px 10px;font:600 12px/1.5 system-ui,sans-serif;z-index:4100;pointer-events:none;display:none}
 #btn-torre{position:fixed;right:80px;bottom:110px;width:58px;height:58px;border-radius:50%;border:3px solid #fff;background:#6d4c41;color:#fff;font-size:26px;cursor:pointer;z-index:4100;display:none;box-shadow:0 4px 12px rgba(0,0,0,.4)}
 #torre-ov{position:fixed;inset:0;z-index:4000;display:none;flex-direction:column;align-items:center;justify-content:center;background:#0a0d12;color:#fff;font-family:system-ui}
-#torre-ov svg{width:min(100vw,900px);height:auto;max-height:70vh}
+#torre-ov svg{width:min(100vw,900px);height:auto;max-height:70vh;max-height:70dvh}
 </style><div id="lluvia"></div><div id="hud-extra"></div>
 <button id="btn-torre" title="Entrar a la torre (W)" onclick="entrarTorre()">🏰</button>
 <div id="torre-ov">
@@ -4836,6 +4840,32 @@ setInterval(() => {
   const ver = ES_CEL && juegoIniciado && !mapaAbierto && !document.body.classList.contains('editando-ui');
   document.querySelectorAll('.btn-cel').forEach(b => { if (!document.body.classList.contains('editando-ui')) b.style.display = ver ? 'block' : 'none'; });
 }, 250);
+
+// ===== Botón de pantalla completa (como F11, también en celular) =====
+document.head.insertAdjacentHTML('beforeend', `<style>
+#btn-pantalla{position:fixed;left:50%;margin-left:-21px;top:8px;width:42px;height:42px;border-radius:50%;border:3px solid #fff;background:rgba(0,0,0,.55);color:#fff;font-size:20px;line-height:1;cursor:pointer;z-index:3600;box-shadow:0 3px 10px rgba(0,0,0,.4);padding:0;touch-action:manipulation}
+#btn-pantalla:active{transform:scale(.92)}
+</style>`);
+document.body.insertAdjacentHTML('beforeend', '<button id="btn-pantalla" title="Pantalla completa">⛶</button>');
+const btnPantalla = document.getElementById('btn-pantalla');
+const enPantallaCompleta = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+function avisoPantalla(t) { try { avisar(t); } catch (_) { alert(t); } }
+function alternarPantallaCompleta() {
+  const d = document, el = d.documentElement;
+  if (!enPantallaCompleta()) {
+    const rq = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+    if (!rq) { avisoPantalla('Tu navegador no permite pantalla completa. En iPhone: Compartir → Añadir a pantalla de inicio'); return; }
+    let r; try { r = rq.call(el); } catch (_) { r = Promise.reject(); }
+    Promise.resolve(r).then(() => { try { screen.orientation.lock('landscape').catch(() => {}); } catch (_) {} })
+      .catch(() => avisoPantalla('No se pudo: abre el juego en Chrome normal (no dentro de otra app) o usa "Añadir a pantalla de inicio"'));
+  } else {
+    const ex = d.exitFullscreen || d.webkitExitFullscreen || d.msExitFullscreen;
+    try { ex.call(d); } catch (_) {}
+    try { screen.orientation.unlock(); } catch (_) {}
+  }
+}
+btnPantalla.addEventListener('click', alternarPantallaCompleta);
+['fullscreenchange', 'webkitfullscreenchange'].forEach(ev => document.addEventListener(ev, () => { btnPantalla.textContent = enPantallaCompleta() ? '✕' : '⛶'; btnPantalla.title = enPantallaCompleta() ? 'Salir de pantalla completa' : 'Pantalla completa'; }));
 </script>
 </body>
 </html>
