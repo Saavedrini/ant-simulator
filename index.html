@@ -163,7 +163,7 @@
     font-size: 16px;
     transition: 0.2s;
   }
-  .selector-modal { justify-content: center; gap: 10px; margin-bottom: 20px; }
+  .selector-modal { justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
   .selector-modal .opcion-hormiga { padding: 12px 14px; font-size: 15px; }
   .opcion-hormiga:hover {
     background: rgba(255, 255, 255, 0.35);
@@ -607,7 +607,7 @@
   <div id="saludo-jugador">¡Hola, Jugador!</div>
   <div class="menu-botones">
     <button class="btn-menu-principal" id="btn-play">Partidas</button>
-    <button class="btn-menu-principal" id="btn-ui" onclick="abrirEditorUI()">Configuración</button>
+    <button class="btn-menu-principal" id="btn-ui" onclick="abrirConfig()">Configuración</button>
   </div>
 </div>
 
@@ -641,9 +641,10 @@
       <input type="text" id="input-nueva-partida" placeholder="Nombre de la partida..." maxlength="20">
       <p style="font-size:15px;margin:6px 0 12px 0;font-weight:600;">¿Qué hormiga quieres ser?</p>
       <div class="selector-container selector-modal">
-        <div class="opcion-hormiga seleccionada" id="tipo-red" data-tipo="red">🔴 Red</div>
-        <div class="opcion-hormiga" id="tipo-and" data-tipo="and">⚫ Black</div>
-        <div class="opcion-hormiga" id="tipo-trampa" data-tipo="trampa" title="Hormiga trampa (Odontomachus): mandíbulas rápidas, su ataque hace el doble de daño">🟤 Trampa</div>
+        <div class="opcion-hormiga seleccionada" id="tipo-red" data-tipo="red">🔴 Roja</div>
+        <div class="opcion-hormiga" id="tipo-and" data-tipo="and">⚫ Negra</div>
+        <div class="opcion-hormiga" id="tipo-trampa" data-tipo="trampa" title="Hormiga trampa (Odontomachus): mandíbulas rápidas, su ataque hace el doble de daño">⚫ Trampa</div>
+        <div class="opcion-hormiga" id="tipo-prados" data-tipo="prados" title="Hormiga de los prados (Lasius): pacífica, solo ataca si un enemigo se acerca a 200 px del nido o al ir a una torre, pero hace el triple de daño">🟡 Prados</div>
       </div>
       <div class="perfil-botones">
         <button class="btn-perfil-accion" style="background:#4CAF50;color:#fff;" onclick="crearPartida()">▶ Empezar</button>
@@ -656,7 +657,7 @@
 <!-- Modal Game Over -->
 <div id="modal-gameover">
   <div class="perfil-caja">
-    <h3>💀 GAME OVER</h3>
+    <h3>💀 FIN DEL JUEGO</h3>
     <p id="texto-gameover" style="font-size:14px;margin:0 0 15px 0;"></p>
     <button class="btn-perfil-accion" style="background:#607d8b;color:#fff;" onclick="document.getElementById('modal-gameover').style.display='none'">Volver al menú</button>
   </div>
@@ -680,7 +681,7 @@
 <!-- Indicadores Superiores -->
 <div id="barra-tiempos">
   <div id="panel-tiempo">☀️ Día (5:00)</div>
-  <div id="timer-manzanas">🍎 Restock: 3:00</div>
+  <div id="timer-manzanas">🍎 Reposición: 3:00</div>
 </div>
 
 <!-- Pantalla Superficie -->
@@ -973,14 +974,14 @@
 
 
 <!-- Barras de Estado Abajo a la Izquierda -->
-<div class="barra-wrapper" id="barra-stamina-wrapper"><div class="barra-container"><div id="barra-stamina-fill"></div><span class="barra-label">⚡ STAMINA</span><span class="barra-val" id="val-stamina">0</span></div></div>
+<div class="barra-wrapper" id="barra-stamina-wrapper"><div class="barra-container"><div id="barra-stamina-fill"></div><span class="barra-label">⚡ ESTAMINA</span><span class="barra-val" id="val-stamina">0</span></div></div>
 <div class="barra-wrapper" id="barra-comida-wrapper"><div class="barra-container"><div id="barra-comida-fill"></div><span class="barra-label">🍎 COMIDA</span><span class="barra-val" id="val-comida">0</span></div></div>
 <div class="barra-wrapper" id="barra-hambre-wrapper"><div class="barra-container"><div id="barra-hambre-fill"></div><span class="barra-label">🍗 HAMBRE</span><span class="barra-val" id="val-hambre">0</span></div></div>
 <div class="barra-wrapper" id="barra-vida-wrapper"><div class="barra-container"><div id="barra-vida-fill"></div><span class="barra-label">❤️ VIDA</span><span class="barra-val" id="val-vida">0</span></div></div>
 <button id="btn-correr" onclick="alternarCorrer()">🏃 Correr</button>
 
 <!-- Botones de Acción Inferiores -->
-<button id="btn-harvest" onclick="cosecharArbol()">🍎 Harvest</button>
+<button id="btn-harvest" onclick="cosecharArbol()">🍎 Cosechar</button>
 <button id="btn-atrapar" onclick="atraparGrillo()">🦗 Atrapar</button>
 <button id="btn-atacar" onclick="atacarReina()">⚔️ Atacar (F)</button>
 <button id="btn-guardar" title="Elegir dónde se guarda la comida del nido" onclick="elegirLugarComida()">📍</button>
@@ -1014,7 +1015,7 @@
 </div>
 <button id="btn-crear-entrada" class="btn-accion-inferior" onclick="accionPrincipalSuperficie()">⛏️</button>
 <button id="btn-huevo" title="Poner huevo (E)" onclick="intentarPonerHuevo()">🥚</button>
-<button id="btn-follow" title="Follow: que te siga" onclick="alternarSeguir()">👣</button>
+<button id="btn-follow" title="Seguir: que te siga" onclick="alternarSeguir()">👣</button>
 <button id="btn-alimentar" title="Alimentar a la hormiga cercana (usa 10 de comida)" onclick="alimentarHormiga()">🍎</button>
 <button id="btn-comer" title="Comer (usa 15% de comida)" onclick="comer()">🍖</button>
 <button id="btn-dormir" onclick="dormirNoche()">💤 Dormir</button>
@@ -1179,7 +1180,8 @@ const btnHoja = document.getElementById('btn-hoja');
 const coloresReinas = {
   red: { c1: '#7b1113', c2: '#a11d21', stroke: '#fbc02d' },
   and: { c1: '#1c1c1c', c2: '#2e2e2e', stroke: '#fbc02d' },
-  trampa: { c1: '#4e2a14', c2: '#8a4b22', stroke: '#e0b070' }
+  trampa: { c1: '#121212', c2: '#262626', stroke: '#c9a227' },
+  prados: { c1: '#d99a14', c2: '#f4bd2f', stroke: '#9a6208' }   // amarilla / dorada
 };
 
 document.querySelectorAll('.opcion-hormiga').forEach(op => {
@@ -1411,8 +1413,11 @@ function aplicarColorReina() {
   document.getElementById('sub-c2').setAttribute('stroke', col.stroke);
   document.getElementById('sub-c3').setAttribute('fill', col.c2);
   document.getElementById('sub-c3').setAttribute('stroke', col.stroke);
-  const mq = tipoHormigaSeleccionada === 'trampa' ? '' : 'none';   // hormiga trampa: mandíbulas abiertas
-  document.getElementById('sup-mand').style.display = mq; document.getElementById('sub-mand').style.display = mq;
+  const mq = (tipoHormigaSeleccionada === 'trampa' || tipoHormigaSeleccionada === 'prados') ? '' : 'none';   // trampa: finas y largas · prados: cortas y gruesas
+  const mSup = document.getElementById('sup-mand'), mSub = document.getElementById('sub-mand');
+  if (tipoHormigaSeleccionada === 'prados') { mSup.innerHTML = mandibulasPrados(20, -14.5, 10, 2.2); mSub.innerHTML = mandibulasPrados(12.5, -8.2, 6.5, 1.4); }
+  else if (tipoHormigaSeleccionada === 'trampa') { mSup.innerHTML = mandibulasSVG(20, -14.5, 14, 2.6); mSub.innerHTML = mandibulasSVG(12.5, -8.2, 9.5, 1.7); }
+  mSup.style.display = mq; mSub.style.display = mq;
 }
 
 function iniciarJuego() {
@@ -1605,7 +1610,7 @@ setInterval(() => {
   const tr = Math.max(0, Math.ceil(tiempoRestockSegundos));
   let minsM = Math.floor(tr / 60);
   let secsM = tr % 60;
-  timerManzanas.textContent = `🍎${limiteDer >= LIMITE_MAX ? '🥑' : ''}${limiteIzq < 0 ? '🎃' : ''} Restock: ${minsM}:${secsM < 10 ? '0' : ''}${secsM}`;
+  timerManzanas.textContent = `🍎${limiteDer >= LIMITE_MAX ? '🥑' : ''}${limiteIzq < 0 ? '🎃' : ''} Reposición: ${minsM}:${secsM < 10 ? '0' : ''}${secsM}`;
 
   try { revisarDespensa(); } catch (_) {}
 }, 1000);
@@ -1782,27 +1787,61 @@ function hsl2hex(h, sa, l) {
 // Las hormigas toman el color de la reina elegida (Red, Black o Trampa)
 function recolorHormiga(svg) {
   const col = coloresReinas[tipoHormigaSeleccionada] || coloresReinas.red;
-  const [H, S] = hex2hsl(col.c2), negro = tipoHormigaSeleccionada === 'and';
+  const [H, S] = hex2hsl(col.c2), negro = tipoHormigaSeleccionada === 'and' || tipoHormigaSeleccionada === 'trampa', amarilla = tipoHormigaSeleccionada === 'prados';
   return svg.replace(/<(ellipse|circle)\b[^>]*>/g, tag => {
     if (!/stroke=/.test(tag)) return tag;
     return tag.replace(/(fill|stroke)="(#[0-9a-fA-F]{6})"/g, (m, a, hx) => {
       const l = hex2hsl(hx)[2];
       if (l > 0.9 || l < 0.06) return m;
-      const nl = negro ? Math.max(0.14, Math.min(0.32, l * 0.6)) : Math.max(0.2, Math.min(0.62, l));
+      const nl = negro ? Math.max(0.14, Math.min(0.32, l * 0.6)) : amarilla ? Math.max(0.36, Math.min(0.68, l + 0.1)) : Math.max(0.2, Math.min(0.62, l));
       return `${a}="${hsl2hex(H, negro ? 0.05 : S, nl)}"`;
     });
   });
 }
 // Mandíbulas largas y abiertas de la hormiga trampa (Odontomachus)
-function mandibulasSVG(xf, yc, L, W) {   // finas, largas y casi cerradas, como la hormiga trampa real
-  const up = `M${xf - 1},${yc - 0.8} Q${(xf + L * 0.6).toFixed(1)},${(yc - L * 0.28).toFixed(1)} ${xf + L},${(yc - L * 0.1).toFixed(1)}`, lo = `M${xf - 1},${yc + 0.8} Q${(xf + L * 0.55).toFixed(1)},${(yc + L * 0.42).toFixed(1)} ${(xf + L * 0.92).toFixed(1)},${(yc + L * 0.3).toFixed(1)}`;
-  return `<g class="mand" fill="none" stroke-linecap="round"><path d="${up} ${lo}" stroke="#1c0b08" stroke-width="${(W + 0.9).toFixed(1)}"/><path d="${up} ${lo}" stroke="#6b2a22" stroke-width="${W}"/></g>`;
+// ----- Mandíbulas realistas: hojas afiladas (anchas en la base, en punta) con dientes, abiertas en V -----
+function hojaMandibula(p0, p1, p2, w0, w1, signo, dientes, relleno, borde) {
+  const N = 9, Lp = [], Rp = [], pts = [];
+  for (let i = 0; i <= N; i++) {
+    const t = i / N, u = 1 - t;
+    const x = u * u * p0[0] + 2 * u * t * p1[0] + t * t * p2[0], y = u * u * p0[1] + 2 * u * t * p1[1] + t * t * p2[1];
+    const dx = 2 * u * (p1[0] - p0[0]) + 2 * t * (p2[0] - p1[0]), dy = 2 * u * (p1[1] - p0[1]) + 2 * t * (p2[1] - p1[1]);
+    const m = Math.hypot(dx, dy) || 1, nx = -dy / m, ny = dx / m, w = (w0 + (w1 - w0) * t) / 2;
+    Lp.push([x + nx * w, y + ny * w]); Rp.push([x - nx * w, y - ny * w]); pts.push({ x, y, nx, ny, w, dx: dx / m, dy: dy / m });
+  }
+  const f = n => n.toFixed(2), P = a => a.map(q => f(q[0]) + ',' + f(q[1])).join(' L');
+  let g = `<path d="M${P(Lp.concat(Rp.slice().reverse()))}Z" fill="${relleno}" stroke="${borde}" stroke-width="0.3" stroke-linejoin="round"/>`;
+  g += `<path d="M${P(pts.map(q => [q.x, q.y]))}" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="${f(Math.max(0.25, w0 * 0.12))}" stroke-linecap="round"/>`;
+  // dientes en el borde interior
+  for (const t of dientes) {
+    const q = pts[Math.min(N, Math.round(t * N))], bx = q.x + q.nx * q.w * signo, by = q.y + q.ny * q.w * signo, h = Math.max(0.7, q.w * 1.1);
+    g += `<path d="M${f(bx - q.dx * h * 0.55)},${f(by - q.dy * h * 0.55)} L${f(bx + q.nx * h * signo + q.dx * h * 0.35)},${f(by + q.ny * h * signo + q.dy * h * 0.35)} L${f(bx + q.dx * h * 0.55)},${f(by + q.dy * h * 0.55)}Z" fill="${borde}"/>`;
+  }
+  return g;
+}
+// Hormiga trampa (Odontomachus, como la foto): mandíbulas largas y finas que salen hacia adelante y abajo y forman un lazo, con las puntas juntas y curvadas
+function mandibulasSVG(xf, yc, L, W) {
+  const k = W / 1.1;
+  return `<g class="mand">`
+    + hojaMandibula([xf - 0.5, yc - 0.2 * k], [xf + L * 0.55, yc - L * 0.14], [xf + L * 0.96, yc + L * 0.26], 1.3 * k, 0.3 * k, 1, [0.78, 0.9], '#3f1c0d', '#170804')
+    + hojaMandibula([xf - 0.5, yc + 0.7 * k], [xf + L * 0.4, yc + L * 0.56], [xf + L * 0.92, yc + L * 0.34], 1.3 * k, 0.3 * k, -1, [0.78, 0.9], '#512812', '#170804')
+    + `</g>`;
+}
+// Hormiga de los prados (Lasius, como la foto): mandíbulas cortas, robustas y curvas hacia adentro, marrón rojizo, con dientes y pelitos
+function mandibulasPrados(xf, yc, L, W) {
+  const k = W / 1.1, f = n => n.toFixed(2);
+  let pelos = '';
+  [[0.3, -1], [0.5, -1], [0.45, 1]].forEach(([t, sg]) => { const x = xf + L * t, y = yc + sg * (L * 0.2 + 0.4 * k); pelos += `<path d="M${f(x)},${f(y)} l${f(0.5 * k)},${f(sg * 1.1 * k)}" stroke="#d9a15b" stroke-width="0.25" stroke-linecap="round" opacity=".8"/>`; });
+  return `<g class="mand">`
+    + hojaMandibula([xf - 0.5, yc - 0.5 * k], [xf + L * 0.5, yc - L * 0.14], [xf + L * 0.92, yc + L * 0.26], 2.3 * k, 0.4 * k, 1, [0.5, 0.68, 0.84], '#7a3818', '#2e1305')
+    + hojaMandibula([xf - 0.5, yc + 0.8 * k], [xf + L * 0.38, yc + L * 0.52], [xf + L * 0.86, yc + L * 0.34], 2.3 * k, 0.4 * k, -1, [0.5, 0.68, 0.84], '#8c4620', '#2e1305')
+    + `</g>`;
 }
 const CABEZA_HORMIGA = { 'Warrior Ant': [9.5, -5], 'Protector Ant': [9, -5], 'Honey Ant': [9.8, -5], 'Builder Ant': [8.3, -4.5] };
 function dibujoHormiga(tipo) {
   let base = recolorHormiga(dibujoHormigaBase(tipo));
-  if (tipoHormigaSeleccionada === 'trampa') {
-    const [xf, yc] = CABEZA_HORMIGA[tipo] || [7.5, -4], m = mandibulasSVG(xf, yc, 8.5, 1.1), i = base.indexOf('<rect x="-15"');
+  if (tipoHormigaSeleccionada === 'trampa' || tipoHormigaSeleccionada === 'prados') {
+    const [xf, yc] = CABEZA_HORMIGA[tipo] || [7.5, -4], m = tipoHormigaSeleccionada === 'prados' ? mandibulasPrados(xf, yc, 6.5, 1.1) : mandibulasSVG(xf, yc, 9, 1.1), i = base.indexOf('<rect x="-15"');
     base = i >= 0 ? base.slice(0, i) + m + base.slice(i) : base + m;
   }
   return PATAS_SVG + base;
@@ -1947,7 +1986,7 @@ function actualizarPanelHuevos() {
     let mins = Math.floor(tq / 60);
     let secs = tq % 60;
     let tiempoStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-    html += `<div>${h.etapa === 'larva' ? '🐛' : h.etapa === 'pupa' ? '🟤' : '🥚'} <b>${h.tipo}</b>: ⏳ ${tiempoStr}</div>`;
+    html += `<div>${h.etapa === 'larva' ? '🐛' : h.etapa === 'pupa' ? '🟤' : '🥚'} <b>${NOMBRE_HORMIGA[h.tipo] || h.tipo}</b>: ⏳ ${tiempoStr}</div>`;
   });
   listaHuevos.innerHTML = html;
 }
@@ -2126,7 +2165,7 @@ function actualizarSuperficie() {
   const paltaCerca = !enHoja && aguacates.find(a => Math.abs(xSup - a.x) < 65 && a.n > 0);
   const calabazaCerca = !enHoja && calabazas.find(c => Math.abs(xSup - c.x) < 65 && c.n > 0);
   btnHarvest.style.display = (arbolCerca || paltaCerca || calabazaCerca) ? 'block' : 'none';
-  btnHarvest.textContent = arbolCerca ? '🍎 Harvest' : paltaCerca ? '🥑 Harvest' : '🎃 Harvest';
+  btnHarvest.textContent = arbolCerca ? '🍎 Cosechar' : paltaCerca ? '🥑 Cosechar' : '🎃 Cosechar';
 
   // Montones de hojas del otoño: la reina se esconde y los enemigos no la ven
   const pilaCerca = !enHoja && pilasHojas.some(px => Math.abs(xSup - px) < 45);
@@ -2342,8 +2381,8 @@ function fuenteComida(h) {
 function decidir(h) {
   h.t = h.tipo === 'Warrior Ant' ? 1 : 4 + Math.random() * 6;
   if (!entradaCreada) return;
-  if (raid.activa && hayEnemigos('sup') && h.tipo !== 'Honey Ant' && h.tipo !== 'Builder Ant' && !h.herida) { h.t = 1; h.mision = 'atacar'; h.est = 'ir_salida'; return; }
-  if (luchaHormiga(h) && hayEnemigos('sup') && (h.tipo !== 'Normal Ant' || enemigos.some(e => e.ubic === 'sup' && Math.abs(e.x - xEntrada) < 420))) { h.mision = 'atacar'; h.est = 'ir_salida'; }
+  if (raid.activa && hayEnemigosAtacables() && h.tipo !== 'Honey Ant' && h.tipo !== 'Builder Ant' && !h.herida) { h.t = 1; h.mision = 'atacar'; h.est = 'ir_salida'; return; }
+  if (luchaHormiga(h) && hayEnemigosAtacables() && (h.tipo !== 'Normal Ant' || enemigos.some(e => e.ubic === 'sup' && Math.abs(e.x - xEntrada) < 420))) { h.mision = 'atacar'; h.est = 'ir_salida'; }
   else if (!esDeNoche && fuenteComida({ x: xEntrada })) { h.mision = 'recolectar'; h.est = 'ir_salida'; }   // todas salen por comida
   else if (!esDeNoche && Math.random() < 0.3) { h.mision = 'pasear'; h.est = 'ir_salida'; }               // o salen a pasear
   else if (h.tipo === 'Protector Ant' && !esDeNoche && Math.random() < 0.35) { h.mision = 'vigilar'; h.est = 'ir_salida'; }
@@ -2427,6 +2466,7 @@ function logicaSuperficie(h, ds, v) {
     for (const e of enemigos) if (e.ubic === 'sup') {
       const d = Math.abs(e.x - h.x), defiende = reinaFuera && Math.abs(e.x - xSup) < 300 && d < 700;   // un enemigo encima de la reina: todas acuden
       if (d > alcance && !defiende) continue;
+      if (esPacifista() && !enemigoCercaDelNido(e)) continue;   // prados: ignora a los enemigos lejos del nido
       const sc = d + e.vida * 0.8 - (defiende ? 300 : 0);   // prefieren los cercanos y los más débiles; primero los que atacan a la reina
       if (sc < mejor) { mejor = sc; eCerca = e; }
     }
@@ -2451,7 +2491,7 @@ function logicaSuperficie(h, ds, v) {
     if (h.patrulla == null) h.patrulla = xEntrada + 55;
     objetivo = h.patrulla;
     if (Math.abs(h.x - h.patrulla) < 6) h.patrulla = 2 * xEntrada - h.patrulla;
-  } else if (h.mision === 'atacar') { const eSup = enemigoMasCercano(h, 'sup'); if (eSup) objetivo = eSup.x; }
+  } else if (h.mision === 'atacar') { const eSup = enemigoMasCercano(h, 'sup'); if (eSup && (!esPacifista() || enemigoCercaDelNido(eSup))) objetivo = eSup.x; }
 
   const botin = (h.mision !== 'atacar' && !eCerca && !h.herida) ? objetivoBotin(h) : null;
   if (botin) { objetivo = botin.x; if (Math.abs(h.x - botin.x) < 16) tomarBotin(h, botin); }
@@ -2618,7 +2658,7 @@ function actualizarCercana() {
   btnFollow.disabled = !mejor;
   btnAlimentar.disabled = !mejor || comida < 10 || mejor.vida >= mejor.max;
   btnFollow.textContent = mejor && mejor.sigue ? '✋' : '👣';
-  btnFollow.title = mejor && mejor.sigue ? 'Unfollow: dejar de seguir' : 'Follow: que te siga';
+  btnFollow.title = mejor && mejor.sigue ? 'Dejar de seguir' : 'Seguir: que te siga';
   // Botón de habilidad especial: solo si hiciste click en una Honey/Builder Ant cercana
   if (espSel) {
     const txt = espSel.tipo === 'Honey Ant' ? (espSel.colgada ? '⬇️ Descolgar' : '🍯 Colgarse')
@@ -2650,7 +2690,7 @@ const btnComer = document.getElementById('btn-comer');
 const barraHambreFill = document.getElementById('barra-hambre-fill');
 const modalPartidas = document.getElementById('modal-partidas');
 const inputNuevaPartida = document.getElementById('input-nueva-partida');
-const nombresReina = { red: 'Red Queen', and: 'Black Queen', trampa: 'Trap-jaw Queen' };
+const nombresReina = { red: 'Reina Roja', and: 'Reina Negra', trampa: 'Reina Trampa', prados: 'Reina de los Prados' };
 
 function comer() {
   if (comida < 10 || hambre >= 100) return;
@@ -2896,7 +2936,7 @@ function alternarColgar(h) {
     h.colgada = false;
     if (puntoEnTunel(h.x, h.y + 10)) h.y += 10;
     h.t = 2;
-    avisar('La Honey Ant se descolgó. Conserva la miel que le queda.');
+    avisar('La hormiga Mielera se descolgó. Conserva la miel que le queda.');
     return;
   }
   if (h.miel <= 0) return;
@@ -2904,7 +2944,7 @@ function alternarColgar(h) {
   let y = h.y;
   while (y > 40 && puntoEnTunel(h.x, y - 3)) y -= 3;   // sube hasta el techo del túnel
   h.y = y;
-  avisar('🍯 La Honey Ant se colgó: dará su miel a la colonia hasta quedar vacía.');
+  avisar('🍯 La hormiga Mielera se colgó: dará su miel a la colonia hasta quedar vacía.');
 }
 function colgadaMiel(h, ds) {
   h.sigue = false;
@@ -2912,7 +2952,7 @@ function colgadaMiel(h, ds) {
     const d = Math.min(RITMO_MIEL * ds, h.miel, 100 - comida);
     comida = Math.min(100, comida + d); h.miel -= d;
   }
-  if (h.miel <= 0.01) { h.miel = 0; h.vida = 0; avisar('🍯 La Honey Ant dio toda su miel y murió.'); }
+  if (h.miel <= 0.01) { h.miel = 0; h.vida = 0; avisar('🍯 La hormiga Mielera dio toda su miel y murió.'); }
 }
 function visualMielera(h) {
   const m = Math.max(0, h.miel || 0);
@@ -2955,7 +2995,7 @@ function actualizarObra(h, ds, v) {
 function terminarObra(h) {
   h.obra = null; h.cObra = null; h.t = 2; h.pausa = 0;
   if (h.txtObra) h.txtObra.style.display = 'none';
-  avisar('🏗️ ¡La Builder Ant terminó la obra!');
+  avisar('🏗️ ¡La hormiga Constructora terminó la obra!');
 }
 
 // ----- Plano de obra -----
@@ -3081,7 +3121,7 @@ function confirmarObra() {
   h.obra = { pts: mapaPts.map(p => ({ x: p.x, y: p.y })), dug: 0, fase: 'ir', espera: 0 };
   h.sigue = false;
   cerrarMapa();
-  avisar('🏗️ ¡Obra en marcha! La Builder Ant empezará a cavar.');
+  avisar('🏗️ ¡Obra en marcha! La hormiga Constructora empezará a cavar.');
 }
 
 // ===== Mapa ampliable: cámara, flechita, lago, aguacates y grillos =====
@@ -3496,7 +3536,13 @@ function enemigoAlAlcance() {
   }
   return m;
 }
-function mulAtaque() { return tipoHormigaSeleccionada === 'trampa' ? 2 : 1; }   // hormiga trampa: mandíbulas, doble de daño
+function mulAtaque() { return tipoHormigaSeleccionada === 'trampa' ? 2 : tipoHormigaSeleccionada === 'prados' ? 3 : 1; }   // trampa: doble de daño · prados: triple de daño
+
+// ----- Pasiva de la hormiga de los prados: pacífica, solo ataca si está obligada -----
+const RADIO_PACIFISTA = 200;   // px alrededor del nido: ahí sí atacan al enemigo (dentro del nido y en torres/estructuras siempre pelean)
+const esPacifista = () => tipoHormigaSeleccionada === 'prados';
+const enemigoCercaDelNido = e => Math.abs(e.x - xEntrada) < RADIO_PACIFISTA;
+const hayEnemigosAtacables = () => esPacifista() ? enemigos.some(e => e.ubic === 'sup' && enemigoCercaDelNido(e)) : hayEnemigos('sup');
 function atacarReina() {
   if (!juegoIniciado || mapaAbierto || baseAbierta || cdAtaqueReina > 0) return;
   const e = enemigoAlAlcance(); if (!e) return;
@@ -3874,7 +3920,9 @@ aplicarUI();
 let dtFrame = 1;
 let ultimoFrame = performance.now();
 
+let vsyncOn = true;   // V-Sync: el juego sigue la frecuencia de la pantalla; apagado = máximo 60 FPS
 function bucle(ahora) {
+  if (!vsyncOn && ahora - ultimoFrame < 15) { requestAnimationFrame(bucle); return; }
   dtFrame = Math.min(3, (ahora - ultimoFrame) / 16.667);
   ultimoFrame = ahora;
 
@@ -4009,7 +4057,7 @@ function dibujoReinaSVG() {
     + '<circle cx="7" cy="-7" r="4.4" fill="#8e24aa" stroke="#ffd54f" stroke-width="1.1"/>';
   let pelo = '<circle cx="8.8" cy="-8.2" r=".9" fill="#fff"/>'
     + '<path d="M3,-11 L4.2,-16.5 L6.4,-12.8 L8.4,-17 L10,-11Z" fill="#ffd54f" stroke="#f57f17" stroke-width=".8" stroke-linejoin="round"/>';
-  const trampa = tipoHormigaSeleccionada === 'trampa' ? mandibulasSVG(10.5, -7, 8, 1.1) : '';
+  const trampa = tipoHormigaSeleccionada === 'trampa' ? mandibulasSVG(10.5, -7, 8, 1.1) : tipoHormigaSeleccionada === 'prados' ? mandibulasPrados(10.5, -7, 6.5, 1.1) : '';
   return '<g stroke-linecap="round"><line class="pata" x1="-8" y1="-2" x2="-9" y2="4" stroke="#2b1a0e" stroke-width="1.4"/><line class="pata" x1="-2" y1="-2" x2="-2" y2="4" stroke="#2b1a0e" stroke-width="1.4"/><line class="pata" x1="4" y1="-2" x2="5" y2="4" stroke="#2b1a0e" stroke-width="1.4"/></g>'
     + recolorHormiga(cuerpo) + trampa + pelo;   // el cuerpo toma el color de la raza que elegiste
 }
@@ -4158,7 +4206,7 @@ function ponerHuevoReina() {
   const r = Math.random(), tipo = r < 0.7 ? 'Normal Ant' : r < 0.9 ? 'Protector Ant' : 'Builder Ant';   // nerf: sin Guerreras ni Mieleras
   huevosEnIncubacion.push({ tipo, tiempoRestante: datosTipo(tipo).huevo, x: reinaNido.x + 14 + Math.random() * 10, y: reinaNido.y, elementoVisual: null });
   actualizarPanelHuevos();
-  if (modoSubterraneo) avisarEsquina('La Reina puso un huevo (' + tipo + ') y gastó ' + REINA_COSTO + ' comidas');
+  if (modoSubterraneo) avisarEsquina('La Reina puso un huevo (' + (NOMBRE_HORMIGA[tipo] || tipo) + ') y gastó ' + REINA_COSTO + ' comidas');
 }
 setInterval(() => {
   if (!reinaNido.on || !juegoIniciado) return;
@@ -5025,9 +5073,499 @@ document.getElementById('msg-btn').addEventListener('click', cerrarMensaje);
 document.addEventListener('keydown', e => { if (mensajeAbierto && (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape')) { e.preventDefault(); e.stopPropagation(); cerrarMensaje(); } }, true);
 
 // ===== Versión del juego: se muestra abajo a la derecha. Sube este número en cada update =====
-const VERSION_JUEGO = '1.4';
+
+// ===== Menú de Configuración (Interfaz + Gráficos) =====
+document.head.insertAdjacentHTML('beforeend', `<style>
+#menu-config{position:fixed;inset:0;z-index:5200;display:none;align-items:center;justify-content:center;font-family:system-ui,sans-serif;background:#1b0b04;overflow:hidden}
+#menu-config>svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#cfg-win{position:relative;width:min(94vw,440px);background:#4a2a12;border:4px solid #2a1409;border-radius:16px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.7),0 0 0 2px #7a4a24;font:700 15px/1.25 system-ui,"Segoe UI",Arial,sans-serif;color:#f5e3c3;text-align:left;user-select:none}
+#cfg-win .w-titulo{display:flex;align-items:center;justify-content:space-between;background:#22c55e;border-bottom:4px solid #14532d;height:44px;padding-left:14px;color:#fff}
+#cfg-win .w-titulo span{font-size:19px;font-weight:900;letter-spacing:.5px;text-shadow:0 2px 0 #14532d}
+#cfg-win .w-x{width:50px;height:44px;border:none;border-left:4px solid #14532d;background:#16a34a;font-size:18px;font-weight:900;cursor:pointer;color:#fff}
+#cfg-win .w-x:hover{background:#ef4444}
+#cfg-win .w-cuerpo{padding:12px 12px 0;background:#4a2a12}
+#cfg-win .w-tabs{display:flex;gap:4px;margin-bottom:-4px;position:relative;z-index:1}
+#cfg-win .w-tab{padding:6px 10px;border:4px solid #2a1409;border-bottom:none;border-radius:10px 10px 0 0;background:#6e4220;color:#e8cfa5;cursor:pointer;font-size:15px}
+#cfg-win .w-tab:hover{background:#7d4d27}
+#cfg-win .w-tab.sel{background:#3a1e0d;color:#fff;padding-bottom:9px;margin-top:-3px;position:relative;z-index:2}
+#cfg-win .w-pag{border:4px solid #2a1409;border-radius:0 12px 12px 12px;background:#3a1e0d;padding:14px 16px 16px;min-height:300px;position:relative;background-image:radial-gradient(#5b3416 1.5px,transparent 1.8px),radial-gradient(#2a1409 1.2px,transparent 1.5px);background-size:34px 34px,23px 23px;background-position:0 0,11px 14px}
+#cfg-win .w-fila{display:flex;align-items:center;padding:6px 0}
+#cfg-win .w-fila .l{width:130px;flex:none;color:#ffd98a}
+#cfg-win .w-sep{border:none;border-top:3px dashed #6e4220;margin:10px 0}
+#cfg-win .w-icono{display:flex;align-items:center;gap:18px;padding:4px 0 10px}
+#cfg-win .w-icono .nom{flex:1;background:#2a1409;border:3px solid #6e4220;border-radius:10px;padding:6px 10px;font-size:18px;font-weight:900;color:#fff}
+#cfg-win .w-btn{min-width:75px;padding:8px 14px;border:none;border-radius:10px;background:#22c55e;box-shadow:0 4px 0 #14532d;font:inherit;font-weight:900;cursor:pointer;color:#fff;text-shadow:0 1px 0 #14532d}
+#cfg-win .w-btn:hover{filter:brightness(1.08)}
+#cfg-win .w-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #14532d}
+#cfg-win .w-btn.def{outline:3px solid #fff3;outline-offset:1px}
+#cfg-win .w-btn:disabled{background:#7d6a58;box-shadow:0 4px 0 #4a3b2e;color:#c9b8a4;text-shadow:none;cursor:default;filter:none;transform:none}
+#cfg-win .w-btn.rojo{background:#ef4444;box-shadow:0 4px 0 #7f1d1d;text-shadow:0 1px 0 #7f1d1d}
+#cfg-win .w-chk{display:flex;align-items:center;gap:10px;padding:4px 0;cursor:pointer;font-size:17px;color:#fff}
+#cfg-win .w-chk input{appearance:none;-webkit-appearance:none;width:26px;height:26px;margin:0;border-radius:7px;border:3px solid #2a1409;background:#6e4220;cursor:pointer;position:relative}
+#cfg-win .w-chk input:checked{background:#22c55e;border-color:#14532d}
+#cfg-win .w-chk input:checked::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:900}
+#cfg-win .w-nota{font-size:13px;font-weight:600;color:#e8cfa5;margin:4px 0 0 0;line-height:1.4}
+#cfg-win .w-pie{display:flex;justify-content:flex-end;gap:10px;padding:14px 12px 14px;background:#4a2a12}
+#cfg-win .w-pie .w-btn{min-width:92px}
+#cfg-win .w-chk input[type=radio]{border-radius:50%}
+#cfg-win .w-chk input[type=radio]:checked::after{content:'●';font-size:14px}
+/* ---- Modo de bajo detalle: quita texturas, decoraciones, brillos y animaciones pequeñas ---- */
+body.bajo-detalle [fill="url(#t-pasto)"],body.bajo-detalle [fill="url(#p-nieve)"],body.bajo-detalle [fill="url(#mf-granos)"]{display:none}
+body.bajo-detalle #deco-pasto-c,body.bajo-detalle #deco-planicie,body.bajo-detalle #deco-izq,body.bajo-detalle #lluvia{display:none!important}
+body.bajo-detalle #olas-lago,body.bajo-detalle *{animation-duration:0s!important}
+body.bajo-detalle svg *{filter:none!important}
+body.bajo-detalle svg{shape-rendering:optimizeSpeed;text-rendering:optimizeSpeed}
+body.bajo-detalle *{box-shadow:none!important;text-shadow:none!important;backdrop-filter:none!important}
+</style>`);
+document.body.insertAdjacentHTML('beforeend', `<div id="menu-config">
+<svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="cf-tierra" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b3416"/><stop offset=".5" stop-color="#3a1e0d"/><stop offset="1" stop-color="#170803"/></linearGradient>
+<pattern id="cf-granos" width="60" height="60" patternUnits="userSpaceOnUse"><circle cx="8" cy="12" r="2.2" fill="#7a4a24" opacity=".5"/><circle cx="40" cy="8" r="1.4" fill="#2a1409" opacity=".7"/><circle cx="25" cy="34" r="2.8" fill="#6b3f1d" opacity=".45"/><circle cx="52" cy="46" r="1.8" fill="#8a5a30" opacity=".4"/></pattern>
+<g id="cf-ladron"><path d="M-6,3 L-9,9 M0,3 L0,10 M6,3 L9,9 M-6,-3 L-9,-9 M0,-3 L0,-10 M6,-3 L9,-9" stroke="#000" stroke-width="1.6" stroke-linecap="round" fill="none"/><ellipse cx="-9" cy="0" rx="7" ry="5" fill="#262626" stroke="#000"/><ellipse cx="0" cy="0" rx="4" ry="3.2" fill="#3a3a3a" stroke="#000"/><circle cx="8" cy="0" r="4" fill="#3a3a3a" stroke="#000"/><path d="M11,-2 L16,-5 M11,2 L16,5" stroke="#000" fill="none"/><circle cx="9.5" cy="-1.4" r="1" fill="#ff5252"/></g>
+<g id="cf-roja"><path d="M-6,3 L-9,9 M0,3 L0,10 M6,3 L9,9 M-6,-3 L-9,-9 M0,-3 L0,-10 M6,-3 L9,-9" stroke="#1a0a05" stroke-width="1.6" stroke-linecap="round" fill="none"/><ellipse cx="-9" cy="0" rx="7" ry="5" fill="#a11d21" stroke="#1a0a05"/><ellipse cx="0" cy="0" rx="4" ry="3.2" fill="#c0392b" stroke="#1a0a05"/><circle cx="8" cy="0" r="4" fill="#c0392b" stroke="#1a0a05"/><path d="M11,-2 L17,-6 M11,2 L17,6" stroke="#1a0a05" fill="none"/></g>
+<g id="cf-huevo"><ellipse rx="6" ry="4.5" fill="#fdfefe" stroke="#d5dbdb"/><ellipse cx="-2" cy="-1.5" rx="2" ry="1.1" fill="#fff" opacity=".9"/></g>
+</defs>
+<rect width="1200" height="700" fill="url(#cf-tierra)"/><rect width="1200" height="700" fill="url(#cf-granos)"/>
+<rect width="1200" height="64" fill="#64cdfc"/><rect y="52" width="1200" height="26" fill="#84be26"/><rect y="70" width="1200" height="10" fill="#689c19"/>
+<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+<g stroke-width="40" stroke="#6e4220"><path d="M150,70 L150,150 C150,200 220,215 300,235 C450,265 520,205 640,245 L900,265 C1000,275 1060,330 1040,430"/><path d="M640,245 C660,330 700,385 760,420"/><path d="M300,235 C260,310 190,390 220,480 C245,550 360,565 480,575"/></g>
+<g stroke-width="30" stroke="#0f0502"><path d="M150,70 L150,150 C150,200 220,215 300,235 C450,265 520,205 640,245 L900,265 C1000,275 1060,330 1040,430"/><path d="M640,245 C660,330 700,385 760,420"/><path d="M300,235 C260,310 190,390 220,480 C245,550 360,565 480,575"/></g></g>
+<g stroke="#6e4220" stroke-width="5" fill="#0f0502"><ellipse cx="300" cy="250" rx="70" ry="44"/><ellipse cx="1040" cy="440" rx="75" ry="48"/><ellipse cx="760" cy="428" rx="58" ry="38"/><ellipse cx="500" cy="585" rx="62" ry="36"/></g>
+<g><use href="#cf-huevo" x="270" y="262"/><use href="#cf-huevo" x="295" y="270"/><use href="#cf-huevo" x="322" y="262"/><use href="#cf-huevo" x="308" y="244"/><use href="#cf-huevo" x="282" y="246"/>
+<use href="#cf-huevo" x="1010" y="455"/><use href="#cf-huevo" x="1038" y="465"/><use href="#cf-huevo" x="1064" y="455"/><use href="#cf-huevo" x="1048" y="430"/><use href="#cf-huevo" x="1020" y="428"/>
+<use href="#cf-huevo" x="740" y="440"/><use href="#cf-huevo" x="765" y="445"/><use href="#cf-huevo" x="782" y="436"/><use href="#cf-huevo" x="480" y="595"/><use href="#cf-huevo" x="508" y="598"/></g>
+<g id="cf-ladrones">
+${[
+ ['M150,70 L150,150 C150,200 220,215 300,235 L300,247 L300,235 C220,215 150,200 150,150 L150,70', 15, 0],
+ ['M150,70 L150,150 C150,200 220,215 300,235 L300,247 L300,235 C220,215 150,200 150,150 L150,70', 15, -7.5],
+ ['M150,70 L150,150 C150,200 220,215 300,235 C450,265 520,205 640,245 L900,265 C1000,275 1060,330 1040,430 L1030,440 L1040,430 C1060,330 1000,275 900,265 L640,245 C520,205 450,265 300,235 C220,215 150,200 150,150 L150,70', 34, -5],
+ ['M150,70 L150,150 C150,200 220,215 300,235 C450,265 520,205 640,245 C660,330 700,385 760,420 L750,428 L760,420 C700,385 660,330 640,245 C520,205 450,265 300,235 C220,215 150,200 150,150 L150,70', 28, -17]
+].map(([p, d, b]) => `<g><use href="#cf-ladron"/><g><use href="#cf-huevo" x="19" y="0"/><animate attributeName="opacity" values="0;1" keyTimes="0;0.5" calcMode="discrete" dur="${d}s" begin="${b}s" repeatCount="indefinite"/></g><animateMotion dur="${d}s" begin="${b}s" repeatCount="indefinite" rotate="auto" path="${p}"/></g>`).join('')}
+</g>
+<g id="cf-rojas">
+${[
+ ['M150,70 L150,150 C150,200 220,215 300,235 L300,247 L300,235 C220,215 150,200 150,150 L150,70', 15, 1.3],
+ ['M150,70 L150,150 C150,200 220,215 300,235 C450,265 520,205 640,245 L900,265 C1000,275 1060,330 1040,430 L1030,440 L1040,430 C1060,330 1000,275 900,265 L640,245 C520,205 450,265 300,235 C220,215 150,200 150,150 L150,70', 34, -3.8],
+ ['M150,70 L150,150 C150,200 220,215 300,235 C450,265 520,205 640,245 C660,330 700,385 760,420 L750,428 L760,420 C700,385 660,330 640,245 C520,205 450,265 300,235 C220,215 150,200 150,150 L150,70', 28, -15.4]
+].map(([p, d, b]) => `<g><use href="#cf-roja"/><animateMotion dur="${d}s" begin="${b}s" repeatCount="indefinite" rotate="auto" path="${p}"/></g>`).join('')}
+${[[345,252,1],[1002,445,1],[728,436,1]].map(([x, y]) => `<g transform="translate(${x},${y})"><g><use href="#cf-ladron"/><animateTransform attributeName="transform" type="translate" values="0,0;-3,0;0,0;3,0;0,0" dur=".5s" repeatCount="indefinite" additive="sum"/></g><g transform="translate(-30,0)"><g><use href="#cf-roja"/><animateTransform attributeName="transform" type="translate" values="0,0;6,0;0,0" dur=".6s" repeatCount="indefinite" additive="sum"/></g></g><text y="-14" x="-14" font-size="14" text-anchor="middle">💥<animate attributeName="opacity" values="0;1;0" dur=".6s" repeatCount="indefinite"/></text></g>`).join('')}
+</g>
+</svg>
+<div id="cfg-win">
+<div class="w-titulo"><span>Configuración</span><button class="w-x" onclick="cancelarCfg()" title="Cerrar">✕</button></div>
+<div class="w-cuerpo">
+<div class="w-tabs"><div class="w-tab sel" id="tab-gen" onclick="verTabCfg('gen')">General</div><div class="w-tab" id="tab-int" onclick="verTabCfg('int')">Interfaz</div><div class="w-tab" id="tab-gra" onclick="verTabCfg('gra')">Gráficos</div><div class="w-tab" id="tab-idi" onclick="verTabCfg('idi')">Idioma</div></div>
+<div class="w-pag">
+<div id="pag-gen">
+<div class="w-icono"><span style="font-size:34px">🐜</span><div class="nom">Ant Simulator</div></div>
+<hr class="w-sep">
+<div class="w-fila"><span class="l">Tipo de juego:</span><span>Simulador de hormigas</span></div>
+<div class="w-fila"><span class="l">Versión:</span><span id="cfg-version"></span></div>
+<hr class="w-sep">
+<div class="w-fila"><span class="l">Interfaz:</span><span>Botones y barras</span></div>
+<div class="w-fila"><span class="l">Gráficos:</span><span id="cfg-gra-txt"></span></div>
+<div class="w-fila"><span class="l">Idioma:</span><span id="cfg-idi-txt"></span></div>
+<div class="w-fila"><span class="l">V-Sync:</span><span id="cfg-vs-txt"></span></div>
+</div>
+<div id="pag-int" style="display:none">
+<div class="w-fila"><span class="l">Editor:</span><span style="flex:1">Mover y cambiar botones</span><button class="w-btn" onclick="irEditorUI()">Cambiar...</button></div>
+<hr class="w-sep">
+<p class="w-nota">Mueve, agranda y cambia la forma de los botones y barras de la pantalla, y crea botones de atajo.</p>
+</div>
+<div id="pag-gra" style="display:none">
+<label class="w-chk"><input type="checkbox" id="chk-vsync" onchange="cfgCambio()"> V-Sync (ajustar a la pantalla)</label>
+<p class="w-nota">Sincroniza el juego con la frecuencia de tu pantalla (60, 90, 120, 144 Hz…) para que se vea fluido y sin cortes. Pantalla detectada: <b id="cfg-hz">…</b>. Si lo desactivas, el juego se limita a 60 FPS.</p>
+<hr class="w-sep">
+<label class="w-chk"><input type="checkbox" id="chk-bajo" onchange="cfgCambio()"> Modo de bajo detalle</label>
+<p class="w-nota">Quita texturas, decoraciones pequeñas, brillos y animaciones para que el juego vaya más fluido y con menos lag.</p>
+</div>
+<div id="pag-idi" style="display:none">
+<p class="w-nota" style="margin:0 0 10px">Elige el idioma del juego:</p>
+<label class="w-chk"><input type="radio" name="cfg-idi" value="es" onchange="cfgCambio()"> Español</label>
+<label class="w-chk"><input type="radio" name="cfg-idi" value="en" onchange="cfgCambio()"> English</label>
+<hr class="w-sep">
+<p class="w-nota">El idioma se cambia al pulsar Aplicar o Aceptar.</p>
+</div>
+</div></div>
+<div class="w-pie"><button class="w-btn def" onclick="aceptarCfg()">Aceptar</button><button class="w-btn rojo" onclick="cancelarCfg()">Cancelar</button><button class="w-btn" id="btn-cfg-aplicar" onclick="aplicarCfg()" disabled>Aplicar</button></div>
+</div></div>`);
+const BAJO_KEY = 'antSimulatorBajoDetalle';
+function pausarAnimacionesSVG(p) { document.querySelectorAll('svg').forEach(v => { try { p ? v.pauseAnimations() : v.unpauseAnimations(); } catch (_) {} }); }
+function aplicarBajoDetalle(on) {
+  document.body.classList.toggle('bajo-detalle', on);
+  if (on) pausarAnimacionesSVG(true); else pausarAnimacionesSVG(false);
+}
+function verTabCfg(t) {
+  for (const k of ['gen', 'int', 'gra', 'idi']) { document.getElementById('tab-' + k).classList.toggle('sel', k === t); document.getElementById('pag-' + k).style.display = k === t ? '' : 'none'; }
+}
+function cfgTextoGraficos() { document.getElementById('cfg-gra-txt').textContent = document.body.classList.contains('bajo-detalle') ? 'Bajo detalle' : 'Normal'; document.getElementById('cfg-vs-txt').textContent = vsyncOn ? 'Activado (' + (hzPantalla || '?') + ' Hz)' : 'Desactivado (60 FPS)'; }
+const VSYNC_KEY = 'antSimulatorVSync';
+let hzPantalla = 0;
+(function medirHz() {   // mide la frecuencia real de la pantalla con unos cuadros de animación
+  const t = []; const f = ahora => { t.push(ahora); if (t.length < 40) requestAnimationFrame(f); else { const d = t.slice(1).map((x, i) => x - t[i]).sort((a, b) => a - b), med = d[d.length >> 1]; const hz = 1000 / med; hzPantalla = [30, 48, 50, 60, 72, 75, 90, 100, 120, 144, 165, 240].reduce((p, q) => Math.abs(q - hz) < Math.abs(p - hz) ? q : p); } };
+  requestAnimationFrame(f);
+})();
+function cfgCambio() { document.getElementById('btn-cfg-aplicar').disabled = document.getElementById('chk-bajo').checked === document.body.classList.contains('bajo-detalle') && document.getElementById('chk-vsync').checked === vsyncOn && idiomaElegido() === idioma; }
+function aplicarCfg() {
+  const on = document.getElementById('chk-bajo').checked;
+  aplicarBajoDetalle(on); try { almacen.setItem(BAJO_KEY, on ? '1' : '0'); } catch (_) {}
+  vsyncOn = document.getElementById('chk-vsync').checked; try { almacen.setItem(VSYNC_KEY, vsyncOn ? '1' : '0'); } catch (_) {}
+  aplicarIdioma(idiomaElegido()); cfgTextoIdioma();
+  document.getElementById('btn-cfg-aplicar').disabled = true; cfgTextoGraficos();
+}
+function aceptarCfg() { aplicarCfg(); cerrarConfig(); }
+function cancelarCfg() { cerrarConfig(); }
+function irEditorUI() { cerrarConfig(); abrirEditorUI(); }
+function abrirConfig() {
+  document.getElementById('chk-bajo').checked = document.body.classList.contains('bajo-detalle');
+  document.getElementById('chk-vsync').checked = vsyncOn; document.getElementById('cfg-hz').textContent = hzPantalla ? hzPantalla + ' Hz' : 'midiendo…';
+  document.getElementById('btn-cfg-aplicar').disabled = true;
+  document.getElementById('cfg-version').textContent = VERSION_JUEGO; cfgTextoGraficos(); cfgTextoIdioma(); verTabCfg('gen');
+  document.getElementById('menu-config').style.display = 'flex';
+  if (document.body.classList.contains('bajo-detalle')) pausarAnimacionesSVG(true);
+}
+function cerrarConfig() { document.getElementById('menu-config').style.display = 'none'; }
+try { vsyncOn = almacen.getItem(VSYNC_KEY) !== '0'; } catch (_) {}
+let _bajoGuardado = false; try { _bajoGuardado = almacen.getItem(BAJO_KEY) === '1'; } catch (_) {}
+aplicarBajoDetalle(_bajoGuardado);
+if (_bajoGuardado) setTimeout(() => pausarAnimacionesSVG(true), 1500);
+
+const VERSION_JUEGO = '1.11';   // SUBE ESTE NÚMERO en cada update grande (1.11 → 1.12 …)
 document.head.insertAdjacentHTML('beforeend', `<style>#version-juego{position:fixed;right:8px;bottom:3px;z-index:3600;font:700 11px/1 system-ui,sans-serif;color:#fff;background:rgba(0,0,0,.45);padding:3px 7px;border-radius:8px;pointer-events:none;text-shadow:0 1px 2px #000;letter-spacing:.3px}</style>`);
-document.body.insertAdjacentHTML('beforeend', `<div id="version-juego">Update ${VERSION_JUEGO}</div>`);
+document.body.insertAdjacentHTML('beforeend', `<div id="version-juego">Actualización ${VERSION_JUEGO}</div>`);
+
+// ===== Idiomas: Español (por defecto) y English =====
+// Todo el juego está escrito en español. Cuando eliges English, este módulo traduce los textos al vuelo.
+// Para agregar otro idioma: crea otra tabla como _EN, súmalo a IDIOMAS y a la lista de la pestaña "Idioma".
+const IDIOMA_KEY = 'antSimulatorIdioma';
+const IDIOMAS = { es: 'Español', en: 'English' };
+let idioma = 'es';
+try { idioma = almacen.getItem(IDIOMA_KEY) === 'en' ? 'en' : 'es'; } catch (_) {}
+
+// --- Textos exactos (sin emojis delante ni detrás) ---
+const _EN = {
+  // Menú y perfil
+  "Perfil": "Profile", "Partidas": "Games", "Configuración": "Settings", "Configurar Perfil": "Edit Profile",
+  "Escribe tu nombre de jugador:": "Type your player name:", "Guardar": "Save", "Cancelar": "Cancel", "Cerrar": "Close",
+  "Tus partidas": "Your saved games", "Crear nueva": "Create new", "Nueva partida": "New game",
+  "Si tu reina muere, esa partida se pierde para siempre.": "If your queen dies, that game is lost forever.",
+  "¿Qué hormiga quieres ser?": "Which ant do you want to be?",
+  "Roja": "Red", "Negra": "Black", "Trampa": "Trap-jaw", "Prados": "Meadow",
+  "Empezar": "Start", "Atrás": "Back", "FIN DEL JUEGO": "GAME OVER", "Volver al menú": "Back to menu",
+  "Nuevo juego": "New game", "Se perderá todo el progreso actual. ¿Seguro?": "All current progress will be lost. Are you sure?",
+  "Sí, reiniciar": "Yes, restart", "Menú": "Menu", "Jugar": "Play", "¿Seguro?": "Are you sure?",
+  "Aún no tienes partidas. ¡Crea una!": "You don't have any games yet. Create one!",
+  "Tu nombre...": "Your name...", "Nombre de la partida...": "Game name...",
+  "Error al cargar la partida guardada:": "Error loading the saved game:",
+  "Hormiga trampa (Odontomachus): mandíbulas rápidas, su ataque hace el doble de daño": "Trap-jaw ant (Odontomachus): fast mandibles, its attack deals double damage",
+  "Hormiga de los prados (Lasius): pacífica, solo ataca si un enemigo se acerca a 200 px del nido o al ir a una torre, pero hace el triple de daño": "Meadow ant (Lasius): peaceful, it only attacks if an enemy gets within 200 px of the nest or when going to a tower, but it deals triple damage",
+  // Obra / mapa
+  "Plano de obra": "Construction plan", "Construir": "Build", "Borrar": "Clear", "Construyendo…": "Building…",
+  "Reina": "Queen", "Constructora": "Builder", "Protectora": "Protector", "Guerrera": "Warrior", "Mielera": "Honey",
+  "Obrera": "Worker", "Defensa": "Defense", "Ataque": "Attack",
+  "Toca un túnel (zona clara) y arrastra para dibujar hacia dónde construir.": "Tap a tunnel (light area) and drag to draw where to build.",
+  "Llegaste al límite de largo de una obra.": "You reached the length limit of a construction.",
+  "Empieza dentro de un túnel que ya exista (zona clara).": "Start inside a tunnel that already exists (light area).",
+  "¡Obra en marcha! La hormiga Constructora empezará a cavar.": "Work started! The Builder Ant will start digging.",
+  "¡La hormiga Constructora terminó la obra!": "The Builder Ant finished the work!",
+  // Huevos y ruleta
+  "¡Huevo puesto!": "Egg laid!", "Girando ruleta genética...": "Spinning the genetic wheel...", "¡Aceptar!": "Accept!",
+  "Nido de Huevos": "Egg Nest", "No hay huevos en incubación.": "No eggs incubating.",
+  "¡La Reina!": "The Queen!",
+  "Se instalará en tu nido y pondrá huevos sola (gasta comida de la despensa)": "She will settle in your nest and lay eggs on her own (uses food from the pantry)",
+  "¡La Reina se instaló en tu nido! Pondrá huevos sola gastando comida de la despensa": "The Queen settled in your nest! She will lay eggs on her own, using food from the pantry",
+  "No puedes poner un huevo en el aire": "You can't lay an egg in the air",
+  "La Reina no puede poner huevos: no hay comida en la despensa": "The Queen can't lay eggs: there is no food in the pantry",
+  // HUD y botones
+  "ESTAMINA": "STAMINA", "COMIDA": "FOOD", "HAMBRE": "HUNGER", "VIDA": "LIFE",
+  "Correr": "Run", "Cosechar": "Harvest", "Atrapar": "Catch", "Atacar (F)": "Attack (F)", "Atacar": "Attack",
+  "Esconderse": "Hide", "Salir": "Exit", "Subir a la hoja": "Climb on the leaf", "Dormir": "Sleep",
+  "Descolgar": "Come down", "Colgarse": "Hang up", "Cavar entrada aquí": "Dig entrance here",
+  "Seguir: que te siga": "Follow: make it follow you", "Dejar de seguir": "Stop following",
+  "Elegir dónde se guarda la comida del nido": "Choose where the nest food is stored",
+  "Tomar comida de tu montón (acércate a él)": "Take food from your pile (get close to it)",
+  "Poner comida en tu montón (15 de comida)": "Put food on your pile (15 food)",
+  "Descubrir más mapa": "Discover more map", "Expandir el nido": "Expand the nest",
+  "Descubrir el bosque de otoño": "Discover the autumn forest", "Poner huevo (E)": "Lay egg (E)",
+  "Alimentar a la hormiga cercana (usa 10 de comida)": "Feed the nearby ant (uses 10 food)",
+  "Comer (usa 15% de comida)": "Eat (uses 15% food)",
+  "Para dormir tienes que estar dentro de tu nido": "To sleep you must be inside your nest",
+  "¡Buenos días!": "Good morning!", "Has dormido profundamente. ¡Amaneció un nuevo día!": "You slept deeply. A new day has dawned!",
+  "¡A jugar!": "Let's play!", "No puedes cavar la entrada en el lago": "You can't dig the entrance in the lake",
+  "Acércate más a la hormiga para usar su habilidad.": "Get closer to the ant to use its ability.",
+  "La hormiga Mielera se descolgó. Conserva la miel que le queda.": "The Honey Ant came down. She keeps the honey she has left.",
+  "La hormiga Mielera se colgó: dará su miel a la colonia hasta quedar vacía.": "The Honey Ant hung up: she will give her honey to the colony until she is empty.",
+  "La hormiga Mielera dio toda su miel y murió.": "The Honey Ant gave all her honey and died.",
+  "Llueve…": "Raining…",
+  // Editor de interfaz
+  "Toca un botón o barra para elegirlo y arrástralo para moverlo": "Tap a button or bar to select it and drag it to move it",
+  "Forma": "Shape", "Tamaño": "Size", "Acción": "Action", "Texto": "Text", "Tecla": "Key",
+  "Eliminar": "Delete", "Atajo": "Shortcut", "Mover esta barra": "Move this bar", "Restablecer": "Reset", "Listo": "Done",
+  "Atajo seleccionado": "Shortcut selected",
+  "Círculo": "Circle", "Óvalo": "Oval", "Cuadrado": "Square", "Rectángulo": "Rectangle", "Píldora": "Pill",
+  "Comer": "Eat", "Alimentar hormiga": "Feed ant", "Seguir / soltar": "Follow / release", "Poner huevo": "Lay egg",
+  "Lugar de la comida": "Food spot", "Sacar comida": "Take food", "Poner comida": "Put food", "Atrapar grillo": "Catch cricket",
+  "Acción principal": "Main action", "Habilidad especial": "Special ability",
+  // Lugar de la comida / despensa
+  "Toca el piso de un túnel": "Tap the floor of a tunnel", "Las hormigas dejarán aquí la comida que traigan": "Ants will leave the food they bring here",
+  "Guardar aquí": "Save here",
+  "Toca dentro de un túnel (zona clara) donde quieres tu montón de comida.": "Tap inside a tunnel (light area) where you want your food pile.",
+  "Toca dentro de un túnel (zona clara).": "Tap inside a tunnel (light area).",
+  "Lugar elegido. Toca \"Guardar aquí\" para confirmar.": "Spot chosen. Tap \"Save here\" to confirm.",
+  "¡Listo! Las hormigas dejarán la comida ahí.": "Done! Ants will leave the food there.",
+  "Despensa rota": "Broken pantry", "Entendido": "Got it",
+  "Montón de comida creado aquí": "Food pile created here",
+  "Acércate a tu montón de comida para dejarla": "Get close to your food pile to drop it",
+  "Primero elige dónde guardar la comida.": "First choose where to store the food.",
+  "No hay comida guardada todavía.": "There is no stored food yet.",
+  "Acércate a tu montón de comida para tomarla.": "Get close to your food pile to take it.",
+  "Tu barra de comida ya está casi llena.": "Your food bar is almost full.",
+  "¡Nido ampliado al máximo!": "Nest expanded to the maximum!",
+  "¡Nido ampliado! Ya puedes cavar más a la derecha.": "Nest expanded! You can now dig further to the right.",
+  "elige dónde": "choose where",
+  // Mundo
+  "¡Descubriste las planicies!": "You discovered the plains!",
+  "¡Un lago con árboles de aguacate al otro lado!": "A lake with avocado trees on the other side!",
+  "¡Descubriste el bosque de otoño!": "You discovered the autumn forest!",
+  "¡Lo más profundo del bosque de otoño!": "The deepest part of the autumn forest!",
+  "¡Descubriste las tierras nevadas!": "You discovered the snowy lands!",
+  "¡La tundra helada!": "The frozen tundra!",
+  "¡Grillo atrapado! +25 de comida": "Cricket caught! +25 food",
+  "¡Una hormiga cazó un grillo! +20 de comida": "An ant hunted a cricket! +20 food",
+  "¡Una hormiga agarró un aguacate y lo lleva al nido!": "An ant grabbed an avocado and is taking it to the nest!",
+  "Dejó de llover": "It stopped raining", "Empezó a llover…": "It started raining…",
+  "¡HORDA! Vienen 4 enemigos a la vez… ¡aguanta!": "HORDE! 4 enemies are coming at once… hold on!",
+  "¡Apareció una manzana dorada! Corre por ella (40 s)": "A golden apple appeared! Run for it (40 s)",
+  "¡Manzana dorada! +30 comida, +20 vida y escudo 20 s": "Golden apple! +30 food, +20 life and 20 s shield",
+  "La manzana dorada desapareció…": "The golden apple vanished…",
+  "¡Racha x3! +10 de comida": "Streak x3! +10 food", "¡Racha x5! +25 de vida": "Streak x5! +25 life",
+  // Raids y enemigos
+  "¡A defender!": "Defend!", "¡Genial!": "Great!",
+  "¡Recuperaste lo que te robaron!": "You got back what they stole!",
+  "¡Una hormiga enemiga se robó un huevo!": "An enemy ant stole an egg!",
+  "¡Una hormiga enemiga se lleva comida del nido!": "An enemy ant is taking food from the nest!",
+  "Perdiste tus 3 corazones: tu reina murió de hambre. Esta partida se perdió para siempre.": "You lost your 3 hearts: your queen starved to death. This game is lost forever.",
+  "Perdiste tus 3 corazones: las hormigas enemigas derrotaron a tu reina. Esta partida se perdió para siempre.": "You lost your 3 hearts: the enemy ants defeated your queen. This game is lost forever.",
+  "¡Tu reina murió, pero reviviste como tu Reina de repuesto! Aún puedes conseguir otra.": "Your queen died, but you came back as your spare Queen! You can still get another one.",
+  // Nidos enemigos
+  "¡Encontraste un nido de hormigas enemigas! Sus guardianas te atacarán": "You found an enemy ant nest! Its guards will attack you",
+  "¡Nido enemigo eliminado!": "Enemy nest wiped out!",
+  "La cueva se llenó de tierra, menos lo que está pegado a tus túneles.": "The cave filled with dirt, except what is attached to your tunnels.",
+  "La cueva se llenó de tierra.": "The cave filled with dirt.",
+  "Continuar": "Continue", "¡Venciste a las hormigas del nido!": "You defeated the nest ants!",
+  "El túnel está bloqueado… amplía tu nido primero (➡️ bajo tierra)": "The tunnel is blocked… expand your nest first (➡️ underground)",
+  "Entraste a un nido enemigo… ¡cuidado con las guardianas!": "You entered an enemy nest… watch out for the guards!",
+  "¡Derrota primero a las guardianas del nido!": "Defeat the nest guards first!",
+  "NIDO ENEMIGO": "ENEMY NEST",
+  // Torre e iglú
+  "Calentamiento": "Warm-up", "Velocistas": "Sprinters", "Oleadas": "Waves", "Muros de acero": "Steel walls", "¡EL JEFE!": "THE BOSS!",
+  "¡TORRE COMPLETADA! Vuelve en 10 min para otra vuelta": "TOWER COMPLETED! Come back in 10 min for another round",
+  "¡Sube por las escaleras de la derecha!": "Climb the stairs on the right!",
+  "¡Piso superado! +30 de vida. Abre el cofre": "Floor cleared! +30 life. Open the chest",
+  "Torre": "Tower", "TORRE DE DESAFÍOS": "CHALLENGE TOWER", "Completada": "Completed",
+  "A/D mover · F atacar · E abrir/subir": "A/D move · F attack · E open/climb",
+  "A/D mover · F atacar · E abrir/salir": "A/D move · F attack · E open/exit",
+  "¡Base secreta! Vence a las hormigas y abre los cofres": "Secret base! Defeat the ants and open the chests",
+  "Las hormigas te sacaron de la base… ¡inténtalo otra vez!": "The ants kicked you out of the base… try again!",
+  "¡Base despejada! Abre los cofres con calma": "Base cleared! Open the chests at your leisure",
+  // Mochila, cofres y objetos
+  "Mochila": "Backpack", "¡Cofre!": "Chest!", "¡Guardar en la mochila!": "Save to backpack!",
+  "Cofre": "Chest", "Cofre del igloo": "Igloo chest", "Cofre del nido enemigo": "Enemy nest chest", "Cofre de la torre": "Tower chest",
+  "(premio extra)": "(extra prize)",
+  "¡Úsala desde la mochila para ponerla en tu nido!": "Use it from the backpack to put it in your nest!",
+  "Toca un objeto para mirarlo o usarlo": "Tap an item to look at it or use it",
+  "Vacía… busca cofres en el igloo, en los nidos enemigos y en la torre": "Empty… look for chests in the igloo, in enemy nests and in the tower",
+  "Mirar": "Look", "Usar": "Use", "Mover aquí": "Move here",
+  "Qué hace:": "What it does:", "Dónde sale:": "Where it drops:", "Tienes:": "You have:",
+  "(solo puedes tener 1)": "(you can only have 1)",
+  "Baja a tu nido para mover a la Reina": "Go down to your nest to move the Queen",
+  "Moviste a la Reina aquí. Se queda 45 s y luego vuelve a buscar el lugar más seguro": "You moved the Queen here. She stays 45 s and then goes back to look for the safest place",
+  "Baja a tu nido para colocar la Reina": "Go down to your nest to place the Queen",
+  "Baja a tu nido para usar el huevo dorado": "Go down to your nest to use the golden egg",
+  "listo": "ready",
+  "Comida": "Food", "Estamina": "Stamina", "Vida": "Life", "Hambre": "Hunger", "Suerte": "Luck",
+  "Huevo gratis": "Free egg", "Colocable": "Placeable", "Objeto": "Item",
+  "Manzana": "Apple", "Aguacate": "Avocado", "Calabaza": "Pumpkin", "Poción de energía": "Energy potion",
+  "Gota de miel": "Honey drop", "Moneda dorada": "Golden coin", "Hongo luminoso": "Glowing mushroom",
+  "Terrón de azúcar": "Sugar cube", "Huevo dorado": "Golden egg", "Néctar real": "Royal nectar",
+  "Corazón de miel": "Honey heart", "Hoja de roble": "Oak leaf", "Bola de nieve": "Snowball",
+  "Agua de deshielo": "Meltwater", "Copo eterno": "Eternal flake", "Cristal de hielo": "Ice crystal",
+  "Perla de escarcha": "Frost pearl", "Estrella polar": "Polar star",
+  "Rellena toda tu estamina al instante.": "Instantly refills all your stamina.",
+  "Tu próximo cofre da un premio extra.": "Your next chest gives an extra prize.",
+  "Pone un huevo gratis: gira la ruleta de huevos sin gastar comida ni estamina (hay que estar en el nido).": "Lays a free egg: spins the egg wheel without spending food or stamina (you must be in the nest).",
+  "Cura toda la vida de tu reina.": "Fully heals your queen's life.",
+  "Solo sale en la ruleta de huevos y solo puedes tener 1. Pone huevos sola, pero gasta comida de tu despensa.": "Only drops from the egg wheel and you can only have 1. She lays eggs on her own, but uses food from your pantry.",
+  "El hambre baja a la mitad durante 3 min.": "Hunger drops at half speed for 3 min.",
+  // Compañeras
+  "¿Quién te acompaña?": "Who goes with you?", "Ir con ellas": "Go with them", "Ir solo": "Go alone",
+  // Pantalla completa y mensajes
+  "Pantalla completa": "Fullscreen", "Salir de pantalla completa": "Exit fullscreen",
+  "Tu navegador no permite pantalla completa. En iPhone: Compartir → Añadir a pantalla de inicio": "Your browser doesn't allow fullscreen. On iPhone: Share → Add to Home Screen",
+  "No se pudo: abre el juego en Chrome normal (no dentro de otra app) o usa \"Añadir a pantalla de inicio\"": "It didn't work: open the game in regular Chrome (not inside another app) or use \"Add to Home Screen\"",
+  "Aceptar": "Accept",
+  // Configuración
+  "General": "General", "Interfaz": "Interface", "Gráficos": "Graphics", "Idioma": "Language",
+  "Tipo de juego:": "Game type:", "Simulador de hormigas": "Ant simulator", "Versión:": "Version:",
+  "Interfaz:": "Interface:", "Botones y barras": "Buttons and bars", "Gráficos:": "Graphics:", "Idioma:": "Language:",
+  "Editor:": "Editor:", "Mover y cambiar botones": "Move and change buttons", "Cambiar...": "Change...",
+  "Mueve, agranda y cambia la forma de los botones y barras de la pantalla, y crea botones de atajo.": "Move, resize and change the shape of the on-screen buttons and bars, and create shortcut buttons.",
+  "V-Sync (ajustar a la pantalla)": "V-Sync (match the screen)",
+  "Sincroniza el juego con la frecuencia de tu pantalla (60, 90, 120, 144 Hz…) para que se vea fluido y sin cortes. Pantalla detectada:": "Syncs the game with your screen's refresh rate (60, 90, 120, 144 Hz…) so it looks smooth and without tearing. Detected screen:",
+  ". Si lo desactivas, el juego se limita a 60 FPS.": ". If you turn it off, the game is limited to 60 FPS.",
+  "Modo de bajo detalle": "Low detail mode",
+  "Quita texturas, decoraciones pequeñas, brillos y animaciones para que el juego vaya más fluido y con menos lag.": "Removes textures, small decorations, glows and animations so the game runs smoother with less lag.",
+  "Aplicar": "Apply", "Bajo detalle": "Low detail", "Desactivado (60 FPS)": "Off (60 FPS)", "midiendo…": "measuring…",
+  "Entrar al igloo (W)": "Enter the igloo (W)", "Entrar al nido enemigo (S / ↓)": "Enter the enemy nest (S / ↓)",
+  "Salir a la superficie": "Go up to the surface", "Abrir cofre (1 solo uso)": "Open chest (single use)",
+  "Entrar a la torre (W)": "Enter the tower (W)",
+  "Elige el idioma del juego:": "Choose the game language:",
+  "El idioma se cambia al pulsar Aplicar o Aceptar.": "The language changes when you press Apply or Accept."
+};
+
+// --- Frases con números o partes variables (se prueban sobre el texto completo) ---
+const _ENN = { Normal: 'Normal', Protectora: 'Protector', Guerrera: 'Warrior', Mielera: 'Honey', Constructora: 'Builder' };
+const _ENRE = [
+  [/^¡Hola, (.*)!$/, 'Hello, $1!'],   // el nombre del jugador nunca se traduce
+  [/^Enemigos: (\d+)$/, 'Enemies: $1'],
+  [/^Día (\d+) \((.+)\)$/, 'Day $1 ($2)'],
+  [/^Noche del día (\d+) \((.+)\)$/, 'Night of day $1 ($2)'],
+  [/^Día \((.+)\)$/, 'Day ($1)'],
+  [/^Día (\d+)$/, 'Day $1'],
+  [/^Reposición: (.+)$/, 'Restock: $1'],
+  [/^Largo: (\d+) \/ (\d+)$/, 'Length: $1 / $2'],
+  [/^Comida del nido: (\d+)\/(\d+)(.*)$/, (m, a, b, c) => 'Nest food: ' + a + '/' + b + _trad(c)],
+  [/^Espera ([\d.]+)s para poner otro huevo$/, 'Wait $1s to lay another egg'],
+  [/^No puedes poner un huevo\. Te falta: (.*)$/, (m, a) => "You can't lay an egg. Missing: " + a.split(' y ').map(_trad).join(' and ')],
+  [/^Comida \((\d+)\/(\d+)\)$/, 'Food ($1/$2)'],
+  [/^Estamina \((\d+)\/(\d+)\)$/, 'Stamina ($1/$2)'],
+  [/^Nacerá: (.*)$/, (m, a) => 'Will hatch: ' + _trad(a)],
+  [/^Partida (\d+)$/, 'Game $1'],
+  [/^Tu reina murió\. Te quedan (.*?) \((\d+) de 3\)$/, 'Your queen died. You have $1 left ($2 of 3)'],
+  [/^Necesitas (\d+)% de comida para una obra \(tienes (\d+)%\)\.$/, 'You need $1% food for a construction (you have $2%).'],
+  [/^Necesitas (\d+)% de comida para construir\.$/, 'You need $1% food to build.'],
+  [/^Costo: (\d+)% (\S+) \(tienes (\d+)%\)$/, 'Cost: $1% $2 (you have $3%)'],
+  [/^¡RAID (\d+)!$/, 'RAID $1!'],
+  [/^(\d+) hormigas enemigas vienen por tu comida y tus huevos\. ¡Prepara a tus hormigas!$/, '$1 enemy ants are coming for your food and your eggs. Get your ants ready!'],
+  [/^¡Raid (\d+) repelida!$/, 'Raid $1 repelled!'],
+  [/^Defendiste tu nido\. Premio: (.*)$/, (m, a) => 'You defended your nest. Prize: ' + _trad(a)],
+  [/^Una hormiga enemiga escapó con (un huevo|comida)$/, (m, a) => 'An enemy ant escaped with ' + (a === 'comida' ? 'food' : 'an egg')],
+  [/^¡La despensa quedó flotando muy alto y se rompió! Perdiste toda la comida guardada \((.*)\)$/, 'The pantry floated too high and broke! You lost all the stored food ($1)'],
+  [/^Necesitas al menos 15 de comida para dejarla \(tienes (\d+)\)$/, 'You need at least 15 food to drop it (you have $1)'],
+  [/^La despensa está llena \((\d+)\/(\d+)\)$/, 'The pantry is full ($1/$2)'],
+  [/^Atajo: (.*)$/, (m, a) => 'Shortcut: ' + _trad(a)],
+  [/^Seleccionado: (.*)$/, 'Selected: $1'],
+  [/^Ya tienes (.*) activo$/, (m, a) => 'You already have ' + _trad(a) + ' active'],
+  [/^Usaste (.*)$/, (m, a) => 'You used ' + _trad(a)],
+  [/^(.+): coleccionable$/, (m, a) => _trad(a) + ': collectible'],
+  [/^La Reina puso un huevo \((.*)\) y gastó (\d+) comidas$/, (m, a, b) => 'The Queen laid an egg (' + _trad(a) + ') and spent ' + b + ' food'],
+  [/^Máximo (\d+) hormigas$/, 'Maximum $1 ants'],
+  [/^Toca las hormigas que quieres llevar \(máx\. (\d+)\)$/, 'Tap the ants you want to take (max. $1)'],
+  [/^Te acompañan (\d+) hormigas?$/, (m, n) => n + (n === '1' ? ' ant goes' : ' ants go') + ' with you'],
+  [/^(Normal|Protectora|Guerrera|Mielera|Constructora) #(\d+)$/, (m, a, n) => _ENN[a] + ' #' + n],
+  [/^Premio del nido: (.*)$/, (m, a) => 'Nest prize: ' + _trad(a)],
+  [/^¡Racha x8! Premio: (.*)$/, (m, a) => 'Streak x8! Prize: ' + _trad(a)],
+  [/^Racha x(\d+) \((\d+)s\)$/, 'Streak x$1 ($2s)'],
+  [/^Raid (\d+) en (\d+) día\(s\)$/, 'Raid $1 in $2 day(s)'],
+  [/^Ya completaste la torre\. Vuelve en (.*) min$/, 'You already completed the tower. Come back in $1 min'],
+  [/^La torre te venció en el piso (\d+)… ¡inténtalo otra vez!$/, 'The tower defeated you on floor $1… try again!'],
+  [/^Piso (\d+)\/(\d+)$/, 'Floor $1/$2'],
+  [/^Piso (\d+) · (.*?)(?:: ¡derrota a las (\d+) oleadas!)?$/, (m, n, nom, w) => 'Floor ' + n + ' · ' + _trad(nom) + (w ? ': defeat the ' + w + ' waves!' : '')],
+  [/^Base secreta · (.*)$/, 'Secret base · $1'],
+  [/^Ya está en tu nido \(usa «Mover aquí» estando en el nido para cambiarla de lugar\)\. Próximo huevo en (.*)\.$/, 'She is already in your nest (use "Move here" while in the nest to change her place). Next egg in $1.'],
+  [/^Actualización (.+)$/, 'Update $1'],
+  [/^Activado \((.*)\)$/, 'On ($1)'],
+  [/^Rellena (\d+) de tu barra de comida\.$/, 'Refills $1 of your food bar.'],
+  [/^Cura (\d+) de vida de tu reina\.$/, 'Heals $1 of your queen\'s life.'],
+  [/^Escudo: -50% de daño durante (\d+) s\.$/, 'Shield: -50% damage for $1 s.'],
+  [/^(.+?) ×(\d+)$/, (m, a, n) => _trad(a) + ' ×' + n]
+];
+
+// --- Trozos sueltos (para textos mezclados, como listas de lugares o nombres de reinas) ---
+const _ENFR = [
+  [/ruleta de huevos/g, 'egg wheel'], [/cofres del igloo/g, 'igloo chests'], [/cofres de nidos enemigos/g, 'enemy nest chests'],
+  [/cofres de la torre/g, 'tower chests'], [/raids y rachas/g, 'raids and streaks'],
+  [/Reina de los Prados/g, 'Meadow Queen'], [/Reina Trampa/g, 'Trap-jaw Queen'], [/Reina Negra/g, 'Black Queen'], [/Reina Roja/g, 'Red Queen']
+];
+
+// --- Motor de traducción ---
+const _CH = '[\\s\\p{Extended_Pictographic}\\uFE0F\\u200D·•▶◀✔✕✓↺↩⬍⬆⬇➡⬅●]';
+const _RE_PARTES = new RegExp('^(' + _CH + '*)([\\s\\S]*?)(' + _CH + '*)$', 'u');
+const _cacheEN = new Map();
+function _tcore(c) {
+  if (!/[A-Za-zÁ-ÿ]/.test(c)) return c;
+  const ex = _EN[c]; if (typeof ex === "string") return ex;
+  for (const [re, rep] of _ENRE) if (re.test(c)) return c.replace(re, rep);
+  let x = c; for (const [re, rep] of _ENFR) x = x.replace(re, rep);
+  return x;
+}
+function _trad(t) {
+  if (idioma !== 'en' || !t) return t;
+  let r = _cacheEN.get(t); if (r !== undefined) return r;
+  const m = _RE_PARTES.exec(t);
+  r = m ? m[1] + _tcore(m[2]) + m[3] : t;
+  if (_cacheEN.size > 4000) _cacheEN.clear();
+  _cacheEN.set(t, r); return r;
+}
+
+// --- Aplicar a la pantalla (textos y títulos) ---
+const _tn = new WeakMap(), _an = new WeakMap(), _ATTRS = ['title', 'placeholder'];
+function _txtNodo(n) {
+  const v = n.nodeValue, o = _tn.get(n);
+  if (o && o.en === v) return;
+  const t = _trad(v);
+  if (t !== v) { _tn.set(n, { es: v, en: t }); n.nodeValue = t; } else if (o) _tn.delete(n);
+}
+function _attrEl(el) {
+  for (const a of _ATTRS) {
+    const v = el.getAttribute(a); if (v == null) continue;
+    const r = _an.get(el), o = r && r[a];
+    if (o && o.en === v) continue;
+    const t = _trad(v);
+    if (t !== v) { const rr = r || {}; rr[a] = { es: v, en: t }; _an.set(el, rr); el.setAttribute(a, t); }
+  }
+}
+function _arbol(raiz) {
+  if (raiz.nodeType === 3) { _txtNodo(raiz); return; }
+  if (raiz.nodeType !== 1 || raiz.tagName === 'SCRIPT' || raiz.tagName === 'STYLE') return;
+  _attrEl(raiz);
+  const w = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, { acceptNode: n => n.nodeType === 1 && (n.tagName === 'SCRIPT' || n.tagName === 'STYLE') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+  let n; while ((n = w.nextNode())) { if (n.nodeType === 3) _txtNodo(n); else _attrEl(n); }
+}
+function _restaurar() {
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+  let n; while ((n = w.nextNode())) {
+    if (n.nodeType === 3) { const o = _tn.get(n); if (o && n.nodeValue === o.en) n.nodeValue = o.es; _tn.delete(n); }
+    else { const r = _an.get(n); if (r) { for (const a in r) if (n.getAttribute(a) === r[a].en) n.setAttribute(a, r[a].es); _an.delete(n); } }
+  }
+}
+const _obsIdioma = new MutationObserver(ms => {
+  for (const m of ms) {
+    if (m.type === 'characterData') _txtNodo(m.target);
+    else if (m.type === 'attributes') _attrEl(m.target);
+    else for (const n of m.addedNodes) _arbol(n);
+  }
+});
+function _vigilar(on) {
+  if (on) _obsIdioma.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: _ATTRS });
+  else _obsIdioma.disconnect();
+}
+function aplicarIdioma(l) {
+  l = l === 'en' ? 'en' : 'es';
+  if (l === idioma) return;
+  try { almacen.setItem(IDIOMA_KEY, l); } catch (_) {}
+  if (l === 'en') { idioma = 'en'; document.documentElement.lang = 'en'; _arbol(document.body); _vigilar(true); }
+  else { _vigilar(false); _restaurar(); idioma = 'es'; document.documentElement.lang = 'es'; _cacheEN.clear(); }
+}
+document.documentElement.lang = idioma;
+if (idioma === 'en') { _arbol(document.body); _vigilar(true); }
+
+function idiomaElegido() { const r = document.querySelector('input[name="cfg-idi"]:checked'); return r ? r.value : idioma; }
+function cfgTextoIdioma() {
+  const e = document.getElementById('cfg-idi-txt'); if (e) e.textContent = IDIOMAS[idioma];
+  const r = document.querySelector('input[name="cfg-idi"][value="' + idioma + '"]'); if (r) r.checked = true;
+}
 </script>
 </body>
 </html>
