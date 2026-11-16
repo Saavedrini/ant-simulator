@@ -56,7 +56,7 @@
   
   /* --- Botón Perfil en la esquina --- */
   /* --- Botones planos, estilo simple (como la barra verde de referencia) --- */
-  .btn-juego, #btn-perfil-menu, .btn-menu-principal, #btn-menu {
+  .btn-juego, #btn-perfil-menu, #btn-libro-menu, .btn-menu-principal, #btn-menu {
     --c: #22c55e; --d: #14532d;
     background: var(--c);
     color: #fff;
@@ -71,10 +71,10 @@
     box-shadow: 0 3px 0 var(--d);
     transition: transform .06s, box-shadow .06s, background .12s;
   }
-  .btn-juego:hover, #btn-perfil-menu:hover, .btn-menu-principal:hover, #btn-menu:hover {
+  .btn-juego:hover, #btn-perfil-menu:hover, #btn-libro-menu:hover, .btn-menu-principal:hover, #btn-menu:hover {
     background: color-mix(in srgb, var(--c) 88%, #fff);
   }
-  .btn-juego:active, #btn-perfil-menu:active, .btn-menu-principal:active, #btn-menu:active {
+  .btn-juego:active, #btn-perfil-menu:active, #btn-libro-menu:active, .btn-menu-principal:active, #btn-menu:active {
     transform: translateY(3px);
     box-shadow: none;
   }
@@ -82,6 +82,15 @@
     --c: #f59e0b; --d: #78350f;
     position: absolute;
     top: 25px;
+    right: 25px;
+    padding: 8px 20px;
+    font-size: 15px;
+    z-index: 3500;
+  }
+  #btn-libro-menu {
+    --c: #8b5cf6; --d: #3b1a78;
+    position: absolute;
+    top: 72px;
     right: 25px;
     padding: 8px 20px;
     font-size: 15px;
@@ -602,6 +611,7 @@
     </g>
   </svg>
   <button id="btn-perfil-menu" onclick="abrirPerfil()">Perfil</button>
+  <button id="btn-libro-menu" onclick="abrirLibro()" title="Libro de objetos: qué hace cada uno y su probabilidad">Libro</button>
   
   <h1>ANT SIMULATOR</h1>
   <div id="saludo-jugador">¡Hola, Jugador!</div>
@@ -1528,7 +1538,7 @@ document.addEventListener('keyup', e => {
 });
 
 // Se escucha en toda la ventana: excavas aunque haya paneles encima y sigues cavando al arrastrar sobre botones
-const esUI = t => t && t.closest && t.closest('button, input, #menu-principal, [id^="modal-"], #cab-huevos');
+const esUI = t => t && t.closest && (t.closest('button, input, #menu-principal, [id^="modal-"], #cab-huevos') || (document.body.classList.contains('responsivo') && t.classList.contains('pantalla')));   // con el diseño responsivo, las franjas vacías alrededor del mundo tampoco cavan
 window.addEventListener('mousedown', e => { if (juegoIniciado && modoSubterraneo && !mapaAbierto && !esUI(e.target)) { excavando = true; actualizarCoords(e); } });
 window.addEventListener('mousemove', e => { if (excavando) actualizarCoords(e); });
 window.addEventListener('mouseup', () => excavando = false);
@@ -4014,7 +4024,7 @@ function bucle(ahora) {
     actualizarCamara();
     actualizarCamaraSub();
   }
-  if (baseAbierta && !juegoEnPausa()) { try { if (torreAbierta) actualizarTorre(); else actualizarBase(); actualizarMochila(); } catch (err) { console.error(err); } }
+  if (baseAbierta && !juegoEnPausa()) { try { if (torreAbierta) actualizarTorre(); else if (robleAbierto) actualizarRoble(); else actualizarBase(); actualizarMochila(); } catch (err) { console.error(err); } }
   if (!juegoEnPausa()) { try { actualizarNidosEn(); } catch (err) { console.error(err); } }
   requestAnimationFrame(bucle);
 }
@@ -4044,7 +4054,12 @@ const PREMIOS = [
   { id: 'copo',        n: 'Copo eterno',       p: 14, uso: 'frio',   v: 180, z: ['iglu'], d: 'El hambre baja a la mitad durante 3 min.' },
   { id: 'cristal',     n: 'Cristal de hielo',  p: 10, uso: 'escudo', v: 45,  z: ['iglu'], d: 'Escudo: -50% de daño durante 45 s.' },
   { id: 'perla',       n: 'Perla de escarcha', p: 8,  uso: 'vida',   v: 60,  z: ['iglu'], d: 'Cura 60 de vida de tu reina.' },
-  { id: 'estrella',    n: 'Estrella polar',    p: 4,  uso: 'suerte', v: 1,   z: ['iglu'], d: 'Tu próximo cofre da un premio extra.' }
+  { id: 'estrella',    n: 'Estrella polar',    p: 4,  uso: 'suerte', v: 1,   z: ['iglu'], d: 'Tu próximo cofre da un premio extra.' },
+  // --- Cosas de otoño: solo salen en los cofres del Roble Ancestral ---
+  { id: 'bellota',   n: 'Bellota dorada',   p: 14, uso: 'comida', v: 50,  z: ['roble'], d: 'Rellena 50 de tu barra de comida.' },
+  { id: 'hoja_arce', n: 'Hoja de arce',     p: 12, uso: 'escudo', v: 90,  z: ['roble'], d: 'Escudo: -50% de daño durante 90 s.' },
+  { id: 'savia',     n: 'Savia ancestral',  p: 10, uso: 'vida',   v: 100, z: ['roble'], d: 'Cura toda la vida de tu reina.' },
+  { id: 'ambar',     n: 'Ámbar ancestral',  p: 4,  uso: null,             z: ['roble'], d: 'Un trozo de resina milenaria con una hormiga atrapada. Solo para presumir.' }
 ];
 const ZONAS_TXT = { huevos: 'ruleta de huevos', iglu: 'cofres del igloo', nido: 'cofres de nidos enemigos', torre: 'cofres de la torre', general: 'raids y rachas' };
 const IGLU_X = -3200, BW = 900, SUELO = 300, REAPARECE_COFRE_MS = 5 * 60 * 60 * 1000;   // los cofres reaparecen a las 5 horas (tiempo real)
@@ -4110,7 +4125,7 @@ document.body.insertAdjacentHTML('beforeend', `<style>
     <g id="b-cofres"></g><g id="b-ents"></g><g id="b-jug"></g></svg>
   <div style="display:flex;gap:14px;margin-top:8px;align-items:center">
     <button class="b-btn" data-t="a">◀</button><button class="b-btn" data-t="d">▶</button>
-    <button class="b-btn" id="b-atk" onclick="atacarBase()">⚔️</button><button class="b-btn" id="b-act" onclick="accionBase()" style="display:none"></button>
+    <button class="b-btn" id="b-atk" onclick="atacarBase()">⚔️</button><button class="b-btn b-ali" id="b-ali" title="Alimentar a tus hormigas (G): 10 de comida" onclick="alimentarEstructura()">🍎</button><button class="b-btn" id="b-act" onclick="accionBase()" style="display:none"></button>
   </div>
 </div>`);
 document.querySelectorAll('.b-btn[data-t]').forEach(b => {
@@ -4153,6 +4168,10 @@ function imgPremio(id, px) {
     nectar: '<rect x="-7" y="-12" width="14" height="3.5" rx="1.5" fill="#8d6e63"/><path d="M-6,-8.5 h12 v3 q4,2 4,6 v4 a4,4 0 0 1 -4,4 h-12 a4,4 0 0 1 -4,-4 v-4 q0,-4 4,-6Z" fill="#ffab40" stroke="#e65100" stroke-width="1.5" stroke-linejoin="round"/><ellipse cx="-4" cy="0" rx="1.6" ry="3.4" fill="#ffe0b2" opacity=".8"/>',
     corazon: '<path d="M0,10 C-13,0 -9,-10 -4,-9.5 C-2,-9.3 0,-7 0,-5.5 C0,-7 2,-9.3 4,-9.5 C9,-10 13,0 0,10Z" fill="#ffa000" stroke="#e65100" stroke-width="1.6" stroke-linejoin="round"/><ellipse cx="-5" cy="-4" rx="1.8" ry="2.8" fill="#ffecb3" opacity=".85"/>',
     hoja: '<path d="M-9,8 C-10,-4 -2,-10 9,-9 C10,2 3,9 -9,8Z" fill="#66bb6a" stroke="#2e7d32" stroke-width="1.5" stroke-linejoin="round"/><path d="M-8,7 C-2,2 3,-3 7,-7" stroke="#2e7d32" fill="none" stroke-width="1.3"/>',
+    bellota: '<path d="M-8,-1 Q0,13 8,-1Z" fill="#d4a017" stroke="#8a6200" stroke-width="1.5" stroke-linejoin="round"/><path d="M-10,-1 Q-10,-10 0,-10 Q10,-10 10,-1Z" fill="#8d5a2b" stroke="#3e2410" stroke-width="1.5"/><path d="M0,-10 V-13" stroke="#3e2410" stroke-width="2" stroke-linecap="round"/><ellipse cx="-3" cy="3" rx="1.5" ry="3" fill="#fff59d" opacity=".8"/>',
+    hoja_arce: '<path d="M0,-11 L2.5,-5 L8,-7 L6,-1 L11,0 L6,4 L7,8 L1,6 L0,11 L-1,6 L-7,8 L-6,4 L-11,0 L-6,-1 L-8,-7 L-2.5,-5Z" fill="#e65100" stroke="#8d2c00" stroke-width="1.3" stroke-linejoin="round"/><path d="M0,-6 V11" stroke="#8d2c00" stroke-width="1.3" fill="none"/>',
+    savia: '<path d="M-3,-11 h6 v4 l6,10 a3.4,3.4 0 0 1 -3,5 h-12 a3.4,3.4 0 0 1 -3,-5 l6,-10Z" fill="#dcedc8" stroke="#558b2f" stroke-width="1.5" stroke-linejoin="round"/><rect x="-3.6" y="-12" width="7.2" height="3" rx="1" fill="#8d6e63"/><path d="M0,0 C2,3 4,4 4,6.5 a4,4 0 0 1 -8,0 C-4,4 -2,3 0,0Z" fill="#ffb300"/>',
+    ambar: '<path d="M-8,-6 L0,-11 L9,-5 L8,6 L-1,11 L-9,5Z" fill="#ffb300" stroke="#b36b00" stroke-width="1.5" stroke-linejoin="round"/><ellipse cx="-2" cy="0" rx="3.2" ry="1.8" fill="#3e2723"/><circle cx="2.5" cy="0" r="1.7" fill="#3e2723"/><path d="M-6,-4 L-2,-8" stroke="#fff8e1" stroke-width="1.6" stroke-linecap="round"/>',
     reina: '<g transform="scale(.7) translate(6,6.5)">' + dibujoReinaSVG() + '</g>'
   }[id] || '';
   return `<svg viewBox="-12 -12 24 24" width="${px || 44}" height="${px || 44}" style="width:${px || 44}px;height:${px || 44}px;display:inline-block;overflow:visible">${d}</svg>`;
@@ -4461,6 +4480,7 @@ function entrarBaseReal(sel) {
 }
 function salirBase(derrota) {
   if (torreAbierta) { salirTorre(); return; }
+  if (robleAbierto) { salirRoble(); return; }
   liberarAcomp();
   baseAbierta = false; baseEl.style.display = 'none'; cdIglu = 1;
   for (const k of ['a', 'd', 'arrowleft', 'arrowright']) teclas[k] = false;
@@ -4468,19 +4488,19 @@ function salirBase(derrota) {
   if (derrota) avisar('💀 Las hormigas te sacaron de la base… ¡inténtalo otra vez!');
 }
 function atacarBase() {
-  if (!baseAbierta || torreAbierta || ruletaCofre || bp.cd > 0) return;
+  if (!baseAbierta || torreAbierta || robleAbierto || ruletaCofre || bp.cd > 0) return;
   bp.cd = 0.4;
   const e = bEnem.find(e => Math.abs(e.x - bp.x) < 70);
   if (e) { e.hp -= 25; e.x += bp.dir * 16; e.el.style.opacity = '.45'; setTimeout(() => { e.el.style.opacity = ''; }, 110); }
 }
 function accionBase() {
-  if (!baseAbierta || torreAbierta || ruletaCofre) return;
+  if (!baseAbierta || torreAbierta || robleAbierto || ruletaCofre) return;
   if (bp.x < 100) { salirBase(); return; }
   const c = bCof.find(c => Math.abs(c.x - bp.x) < 45 && cofreCerrado(c.id));
   if (c) { cofresAbiertos[c.id] = Date.now(); girarCofre(null, 'iglu'); }
 }
 document.addEventListener('keydown', ev => {
-  if (!baseAbierta || torreAbierta) return;
+  if (!baseAbierta || torreAbierta || robleAbierto) return;
   const k = ev.key.toLowerCase();
   if (k === 'f') atacarBase(); else if (k === 'e') accionBase();
 });
@@ -4850,7 +4870,7 @@ document.body.insertAdjacentHTML('beforeend', `<style>
     <g id="t-sube"></g><g id="t-cofre"></g><g id="t-ents"></g><g id="t-jug"></g></svg>
   <div style="display:flex;gap:14px;margin-top:8px;align-items:center">
     <button class="b-btn" data-t="a">◀</button><button class="b-btn" data-t="d">▶</button>
-    <button class="b-btn" id="t-atk" onclick="atacarTorre()">⚔️</button><button class="b-btn" id="t-act" onclick="accionTorre()" style="display:none"></button>
+    <button class="b-btn" id="t-atk" onclick="atacarTorre()">⚔️</button><button class="b-btn b-ali" id="t-ali" title="Alimentar a tus hormigas (G): 10 de comida" onclick="alimentarEstructura()">🍎</button><button class="b-btn" id="t-act" onclick="accionTorre()" style="display:none"></button>
   </div>
 </div>`);
 const luvEl = document.getElementById('lluvia'), hudEx = document.getElementById('hud-extra'), btnTorre = document.getElementById('btn-torre');
@@ -4867,7 +4887,7 @@ function actualizarEventos(ds) {
 
 // --- Torre de desafíos (en las planicies) ---
 const TORRE_X = 2150, TORRE_PISOS = 5, TORRE_RESET_MS = 10 * 60 * 1000;
-let torre = { max: 0, ts: 0 };
+let torre = { max: 0, ts: 0 }, roble = { max: 0, ts: 0 };
 const gTorre = document.createElementNS(svgNS, 'g'); gTorre.style.pointerEvents = 'none';
 document.getElementById('grupo-hormigas-sup').parentNode.insertBefore(gTorre, document.getElementById('grupo-hormigas-sup'));
 function estadoTorre() { if (torre.max >= TORRE_PISOS && Date.now() - torre.ts >= TORRE_RESET_MS) torre.max = 0; return torre.max; }
@@ -4906,7 +4926,7 @@ const TT = {
 };
 const torreEl = document.getElementById('torre-ov'), tEnts = document.getElementById('t-ents'), tCofG = document.getElementById('t-cofre'), tSubeG = document.getElementById('t-sube'), tJug = document.getElementById('t-jug');
 const tHp = document.getElementById('t-hp'), tTitulo = document.getElementById('t-titulo'), tAct = document.getElementById('t-act');
-let torreAbierta = false, tp = { x: 90, dir: 1, hp: 100, cd: 0 }, tEnem = [], tPiso = 1, tFase = 'lucha', tOle = null, cdTorre = 0;
+let robleAbierto = false, torreAbierta = false, tp = { x: 90, dir: 1, hp: 100, cd: 0 }, tEnem = [], tPiso = 1, tFase = 'lucha', tOle = null, cdTorre = 0;
 document.querySelectorAll('#torre-ov .b-btn[data-t]').forEach(b => {
   const t = b.dataset.t, soltar = () => { teclas[t] = false; };
   b.addEventListener('pointerdown', e => { e.preventDefault(); try { b.setPointerCapture(e.pointerId); } catch (_) {} teclas[t] = true; });
@@ -5020,22 +5040,25 @@ function actualizarTorre() {
 }
 
 // --- Guardado / reinicio ---
-function datosExtras() { return { t: torre, dia, raidN: raid.n, raidActiva: raid.activa, reina: reinaNido.on ? { x: reinaNido.x, y: reinaNido.y, t: reinaNido.t } : null }; }
+function datosExtras() { return { t: torre, r: roble, dia, raidN: raid.n, raidActiva: raid.activa, reina: reinaNido.on ? { x: reinaNido.x, y: reinaNido.y, t: reinaNido.t } : null }; }
 function cargarExtras(d) {
-  const x = d && d.extras; torre = { max: 0, ts: 0 }; dia = 1; raid.n = 0; raid.activa = false; raid.porSalir = 0; reinaNido = { on: false, t: 0, x: 0, y: 0 }; try { dibujarReina(); } catch (_) {}
+  const x = d && d.extras; torre = { max: 0, ts: 0 }; roble = { max: 0, ts: 0 }; dia = 1; raid.n = 0; raid.activa = false; raid.porSalir = 0; reinaNido = { on: false, t: 0, x: 0, y: 0 }; try { dibujarReina(); } catch (_) {}
   if (x) {
     if (x.t) torre = { max: Math.max(0, Math.min(TORRE_PISOS, +x.t.max || 0)), ts: +x.t.ts || 0 };
+    if (x.r) roble = { max: [0, 3, 6, 8].includes(+x.r.max) ? +x.r.max : 0, ts: +x.r.ts || 0 };
     if (x.dia > 0) dia = Math.floor(x.dia);
     if (x.reina && isFinite(x.reina.x) && isFinite(x.reina.y)) { reinaNido = { on: true, t: +x.reina.t || REINA_HUEVO_S, x: +x.reina.x, y: +x.reina.y }; try { dibujarReina(); } catch (_) {} }
     if (x.raidActiva && x.raidN > 0) iniciarRaid(Math.floor(x.raidN));
   }
-  pintarTorre();
+  pintarTorre(); try { pintarRoble(); } catch (_) {}
 }
 function reiniciarExtras() {
   if (torreAbierta) salirTorre();
+  if (robleAbierto) salirRoble();
+  roble = { max: 0, ts: 0 };
   reinaNido = { on: false, t: 0, x: 0, y: 0 }; try { dibujarReina(); } catch (_) {}
   torre = { max: 0, ts: 0 }; dia = 1; raid.n = 0; raid.activa = false; raid.porSalir = 0; combo.n = 0; combo.t = 0; quitarDorada(); dorada.prox = 45 + Math.random() * 45;
-  evento.prox = 150 + Math.random() * 120; evento.lluvia = 0; pintarTorre();
+  evento.prox = 150 + Math.random() * 120; evento.lluvia = 0; pintarTorre(); try { pintarRoble(); } catch (_) {}
 }
 
 // --- Bucle de lo extra ---
@@ -5048,6 +5071,7 @@ function actualizarExtras() {
   const cercaT = !modoSubterraneo && !enHoja && Math.abs(xSup - TORRE_X) < 55;
   const v = cercaT ? 'block' : 'none'; if (btnTorre.style.display !== v) btnTorre.style.display = v;
   if (cercaT && cdTorre <= 0 && (teclas['w'] || teclas['arrowup'])) entrarTorre();
+  try { actualizarRobleMundo(); } catch (err) { console.error(err); }
 }
 setInterval(() => {
   const ver = juegoIniciado && !baseAbierta && !mapaAbierto && menuPrincipal.style.display !== 'flex';
@@ -5060,6 +5084,266 @@ setInterval(() => {
   hudEx.innerHTML = h;
 }, 400);
 pintarTorre();
+
+// ===== ROBLE ANCESTRAL (bosque de otoño): estructura ULTRA DIFÍCIL; la manzana 🍎 cura a tus hormigas =====
+// 8 pisos · el progreso solo se guarda en los checkpoints (pisos 3 y 6) · con el botón 🍎 gastas comida para curar a tus hormigas acompañantes
+const ROBLE_X = -1850, ROBLE_PISOS = 8, ROBLE_RESET_MS = 30 * 60 * 1000, ROBLE_CHECK = [3, 6], RACION_ROBLE = 10;
+TITULO_COFRE.roble = 'Cofre del Roble Ancestral'; ZONAS_TXT.roble = 'cofres del Roble Ancestral';
+PREMIOS.forEach(p => { if (['nectar', 'corazon', 'hoja', 'huevo_dorado', 'moneda', 'energia', 'calabaza'].includes(p.id)) p.z.push('roble'); });
+
+document.body.insertAdjacentHTML('beforeend', `<style>
+#btn-roble{position:fixed;right:80px;bottom:110px;width:58px;height:58px;border-radius:50%;border:3px solid #fff;background:#bf360c;color:#fff;font-size:26px;cursor:pointer;z-index:4100;display:none;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+#roble-ov{position:fixed;inset:0;z-index:4000;display:none;flex-direction:column;align-items:center;justify-content:center;background:#0d0603;color:#fff;font-family:system-ui}
+#roble-ov svg{width:min(100vw,900px);height:auto;max-height:70vh;max-height:70dvh}
+</style>
+<button id="btn-roble" title="Entrar al Roble Ancestral (W)" onclick="entrarRoble()">🌳</button>
+<div id="roble-ov">
+  <div style="width:min(100vw,900px);padding:6px 12px;box-sizing:border-box;font-weight:700"><span id="r-titulo">🌳 Roble Ancestral</span> · ❤️ <span style="display:inline-block;width:140px;height:10px;background:#400;border-radius:5px;vertical-align:middle"><span id="r-hp" style="display:block;height:100%;width:100%;background:#e53935;border-radius:5px"></span></span> · 🍎 <b id="r-comida">0</b> <span id="r-info" style="font-size:12px;font-weight:400">A/D mover · F atacar · E abrir/subir</span></div>
+  <svg viewBox="0 0 900 360"><defs><linearGradient id="r-fondo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a3216"/><stop offset="1" stop-color="#1a0d05"/></linearGradient></defs>
+    <rect width="900" height="360" fill="url(#r-fondo)"/>
+    <g stroke="#000" opacity=".28" stroke-width="3" fill="none"><path d="M110,0 V300 M220,0 V300 M330,0 V300 M440,0 V300 M550,0 V300 M660,0 V300 M770,0 V300"/></g>
+    <g fill="#2b1708" opacity=".55"><ellipse cx="160" cy="110" rx="9" ry="16"/><ellipse cx="505" cy="70" rx="8" ry="14"/><ellipse cx="720" cy="140" rx="10" ry="17"/><ellipse cx="365" cy="170" rx="7" ry="12"/></g>
+    <path d="M150,0 Q165,50 150,95 M520,0 Q505,60 530,110 M760,0 Q775,40 758,80" stroke="#2b1708" stroke-width="7" fill="none" opacity=".7" stroke-linecap="round"/>
+    <rect y="300" width="900" height="60" fill="#6d4a28"/><rect y="300" width="900" height="6" fill="#b88a50"/>
+    <g transform="translate(150,196)"><rect x="-3" y="0" width="6" height="24" fill="#5d4037"/><circle cy="-4" r="7" fill="#ff9800"><animate attributeName="r" values="6;8;6" dur=".7s" repeatCount="indefinite"/></circle><circle cy="-6" r="3.5" fill="#ffeb3b"/></g>
+    <g transform="translate(450,196)"><rect x="-3" y="0" width="6" height="24" fill="#5d4037"/><circle cy="-4" r="7" fill="#ff9800"><animate attributeName="r" values="8;6;8" dur=".6s" repeatCount="indefinite"/></circle><circle cy="-6" r="3.5" fill="#ffeb3b"/></g>
+    <g transform="translate(690,196)"><rect x="-3" y="0" width="6" height="24" fill="#5d4037"/><circle cy="-4" r="7" fill="#ff9800"><animate attributeName="r" values="6;8;6" dur=".8s" repeatCount="indefinite"/></circle><circle cy="-6" r="3.5" fill="#ffeb3b"/></g>
+    <g><rect x="14" y="238" width="52" height="62" rx="26" fill="#120a05" stroke="#c8a165" stroke-width="3"/></g>
+    <g id="r-sube"></g><g id="r-cofre"></g><g id="r-ents"></g><g id="r-jug"></g></svg>
+  <div style="display:flex;gap:14px;margin-top:8px;align-items:center">
+    <button class="b-btn" data-t="a">◀</button><button class="b-btn" data-t="d">▶</button>
+    <button class="b-btn" id="r-atk" onclick="atacarRoble()">⚔️</button><button class="b-btn b-ali" id="r-ali" title="Alimentar a tus hormigas (G): 10 de comida" onclick="alimentarEstructura()">🍎</button><button class="b-btn" id="r-act" onclick="accionRoble()" style="display:none"></button>
+  </div>
+</div>`);
+const btnRoble = document.getElementById('btn-roble'), robleEl = document.getElementById('roble-ov'), rEnts = document.getElementById('r-ents'), rCofG = document.getElementById('r-cofre'), rSubeG = document.getElementById('r-sube'), rJug = document.getElementById('r-jug');
+const rHp = document.getElementById('r-hp'), rTitulo = document.getElementById('r-titulo'), rAct = document.getElementById('r-act'), rComidaEl = document.getElementById('r-comida');
+
+// --- La estructura en el mundo: un roble gigante y hueco con una puerta de piedra ---
+const gRoble = document.createElementNS(svgNS, 'g'); gRoble.style.pointerEvents = 'none';
+document.getElementById('grupo-hormigas-sup').parentNode.insertBefore(gRoble, document.getElementById('grupo-hormigas-sup'));
+function estadoRoble() { if (roble.max >= ROBLE_PISOS && Date.now() - roble.ts >= ROBLE_RESET_MS) roble.max = 0; return roble.max; }
+function pintarRoble() {
+  const m = estadoRoble(), y = alturaColina(ROBLE_X);
+  let h = `<g transform="translate(${ROBLE_X},${y})"><ellipse cx="0" cy="4" rx="112" ry="10" fill="rgba(0,0,0,.35)"/>`
+    + '<path d="M-48,2 C-70,-2 -88,4 -114,8 C-88,-6 -66,-16 -46,-34Z" fill="#4a2c14" stroke="#2b1708" stroke-width="2"/>'
+    + '<path d="M48,2 C70,-2 88,4 114,8 C88,-6 66,-16 46,-34Z" fill="#4a2c14" stroke="#2b1708" stroke-width="2"/>'
+    + '<path d="M-52,2 C-46,-80 -40,-170 -44,-250 L44,-250 C40,-170 46,-80 52,2Z" fill="#6d4224" stroke="#2b1708" stroke-width="3"/>'
+    + '<path d="M-52,2 C-46,-80 -40,-170 -44,-250 L-22,-250 C-26,-170 -26,-80 -30,2Z" fill="#000" opacity=".18"/>'
+    + '<path d="M-12,-10 C-16,-80 -8,-160 -12,-240 M18,-20 C24,-90 16,-170 20,-244" stroke="#3b2210" stroke-width="2" fill="none" opacity=".6"/>';
+  // copa de otoño
+  const copa = [[-70, -262, 46, '#c0392b'], [-30, -300, 56, '#e67e22'], [20, -312, 60, '#d35400'], [72, -270, 48, '#f5b041'], [0, -262, 50, '#b03a2e'], [-48, -238, 34, '#f39c12'], [50, -236, 34, '#e74c3c']];
+  for (const [cx, cy, r, c] of copa) h += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${c}" stroke="#7b241c" stroke-width="2"/>`;
+  h += '<ellipse cx="-14" cy="-318" rx="30" ry="12" fill="rgba(255,255,190,.22)"/>';
+  // una luz por piso (verde = guardado, amarillo = siguiente, rojo oscuro = pendiente); anillo dorado = checkpoint
+  for (let i = 0; i < ROBLE_PISOS; i++) {
+    const col = i < m ? '#66bb6a' : i === m ? '#ffd54f' : '#7f1d1d', cx = i % 2 ? 26 : -26, cy = -96 - i * 18, chk = ROBLE_CHECK.includes(i + 1);
+    h += `<circle cx="${cx}" cy="${cy}" r="6" fill="${col}" stroke="${chk ? '#ffd54f' : '#1a0d05'}" stroke-width="${chk ? 2.5 : 1.5}"/>`;
+  }
+  // puerta de piedra con brasas y ojos rojos
+  h += '<path d="M-26,0 V-36 A26,26 0 0 1 26,-36 V0Z" fill="#17100a" stroke="#9aa0a6" stroke-width="5"/>'
+    + '<ellipse cx="0" cy="-16" rx="15" ry="24" fill="#ff6d00" opacity=".3"><animate attributeName="opacity" values=".12;.42;.12" dur="1.3s" repeatCount="indefinite"/></ellipse>'
+    + '<circle cx="-9" cy="-72" r="4.5" fill="#ff1744"><animate attributeName="opacity" values="1;.3;1" dur="2.2s" repeatCount="indefinite"/></circle><circle cx="9" cy="-72" r="4.5" fill="#ff1744"><animate attributeName="opacity" values="1;.3;1" dur="2.2s" repeatCount="indefinite"/></circle>'
+    + '<g transform="translate(-40,-14)"><rect x="-2" y="0" width="4" height="12" fill="#5d4037"/><circle cy="-3" r="4" fill="#ff9800"><animate attributeName="r" values="3;5;3" dur=".7s" repeatCount="indefinite"/></circle></g>'
+    + '<g transform="translate(40,-14)"><rect x="-2" y="0" width="4" height="12" fill="#5d4037"/><circle cy="-3" r="4" fill="#ff9800"><animate attributeName="r" values="5;3;5" dur=".6s" repeatCount="indefinite"/></circle></g>';
+  // hojas cayendo
+  h += '<path d="M-5,0 Q0,-3 5,0 Q0,3 -5,0Z" fill="#e67e22"><animateTransform attributeName="transform" type="translate" values="-70,-240;-60,-120;-76,0" dur="6s" repeatCount="indefinite"/></path>'
+    + '<path d="M-5,0 Q0,-3 5,0 Q0,3 -5,0Z" fill="#c0392b"><animateTransform attributeName="transform" type="translate" values="60,-250;72,-130;56,0" dur="7.5s" repeatCount="indefinite"/></path>'
+    + '<path d="M-5,0 Q0,-3 5,0 Q0,3 -5,0Z" fill="#f5b041"><animateTransform attributeName="transform" type="translate" values="10,-260;-4,-140;14,0" dur="5.2s" repeatCount="indefinite"/></path>';
+  h += '<text y="-394" font-size="12" font-weight="800" text-anchor="middle" fill="#ffeb3b" stroke="#000" stroke-width=".8" paint-order="stroke">ROBLE ANCESTRAL</text>'
+    + `<text y="-380" font-size="10" font-weight="800" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".7" paint-order="stroke">${m >= ROBLE_PISOS ? '✔ Completada' : 'Piso ' + (m + 1) + '/' + ROBLE_PISOS}</text>`
+    + '<text y="-366" font-size="10" font-weight="800" text-anchor="middle" fill="#ff5252" stroke="#000" stroke-width=".7" paint-order="stroke">☠ ULTRA DIFÍCIL ☠</text></g>';
+  gRoble.innerHTML = h;
+}
+
+// --- Pisos y enemigos (mucho más duros que la torre) ---
+const PISOS_R = [
+  { n: 'Piso 1 · Raíces', e: ['n', 'n', 'n', 'c'] },
+  { n: 'Piso 2 · Cazadoras', e: ['a', 'a', 'c', 'c'] },
+  { n: 'Piso 3 · Enjambre', o: 12, tp: ['n', 'n', 'c', 'a'] },
+  { n: 'Piso 4 · Corteza de acero', e: ['t', 't', 'a', 'c'] },
+  { n: 'Piso 5 · El Guardián', e: ['g', 'c', 'c'] },
+  { n: 'Piso 6 · Tormenta de hojas', o: 18, tp: ['n', 'c', 'a', 'a', 't'] },
+  { n: 'Piso 7 · Los guardianes gemelos', e: ['g', 'g', 'a', 'a'] },
+  { n: 'Piso 8 · ¡EL REY DEL ROBLE!', e: ['r', 't', 'a', 'a'] }
+];
+const RT = {
+  n: { hp: 80,   vel: 62,  dano: 12, esc: 1.3, cd: 1.0, f: '' },
+  c: { hp: 55,   vel: 125, dano: 10, esc: 1.1, cd: 0.7, f: 'hue-rotate(90deg) saturate(1.6)' },
+  a: { hp: 90,   vel: 165, dano: 17, esc: 1.2, cd: 0.8, f: 'hue-rotate(300deg) saturate(2.2)' },
+  t: { hp: 240,  vel: 40,  dano: 24, esc: 1.9, cd: 1.3, f: 'brightness(.6) saturate(1.8)' },
+  g: { hp: 480,  vel: 52,  dano: 30, esc: 2.3, cd: 1.2, f: 'hue-rotate(35deg) saturate(2.2) brightness(.8)' },
+  r: { hp: 1500, vel: 70,  dano: 34, esc: 3.0, cd: 1.0, f: 'hue-rotate(250deg) saturate(1.9) drop-shadow(0 0 5px #ff1744)' }
+};
+let rp = { x: 90, dir: 1, hp: 100, cd: 0 }, rEnem = [], rPiso = 1, rFase = 'lucha', rOle = null, cdRoble = 0;
+document.querySelectorAll('#roble-ov .b-btn[data-t]').forEach(b => {
+  const t = b.dataset.t, soltar = () => { teclas[t] = false; };
+  b.addEventListener('pointerdown', e => { e.preventDefault(); try { b.setPointerCapture(e.pointerId); } catch (_) {} teclas[t] = true; });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => b.addEventListener(ev, soltar));
+});
+function crearEnemRoble(tipo, x) {
+  const T = RT[tipo], el = document.createElementNS(svgNS, 'g'); el.innerHTML = dibujoEnemigo(); el.style.filter = T.f; rEnts.appendChild(el);
+  rEnem.push({ tipo, x, x0: x, dir: -1, hp: T.hp, max: T.hp, cd: 0.8 + Math.random() * 0.8, T, el, barra: el.querySelector('.e-barra'), ph: Math.random() * 6, furia: false });
+}
+function dibujarCofreR() {
+  rCofG.innerHTML = rFase === 'lucha' ? '' : `<g transform="translate(450,300)">${rFase === 'cofre' ? '<ellipse cx="0" cy="-14" rx="34" ry="20" fill="#ffd54f" opacity=".22"><animate attributeName="opacity" values=".1;.35;.1" dur="1.6s" repeatCount="indefinite"/></ellipse>' + COFRE_CERRADO : COFRE_ABIERTO}</g>`;
+}
+function dibujarSubeR() {
+  rSubeG.innerHTML = rFase === 'sube' ? '<g transform="translate(830,300)"><path d="M-26,0 V-44 A26,26 0 0 1 26,-44 V0Z" fill="#101820" stroke="#ffd54f" stroke-width="3"/><path d="M-18,0 V-10 H-6 V-20 H6 V-30 H18 V0Z" fill="#8d6e63" stroke="#3e2723" stroke-width="1.5"/><text y="-78" font-size="22" text-anchor="middle">⬆️<animateTransform attributeName="transform" type="translate" values="0,0;0,-6;0,0" dur="1s" repeatCount="indefinite"/></text></g>' : '';
+}
+function empezarPisoRoble() {
+  const P = PISOS_R[rPiso - 1];
+  rEnts.innerHTML = ''; rEnem = []; rOle = null; rFase = 'lucha'; dibujarCofreR(); dibujarSubeR(); reponerAcomp(rEnts);
+  if (P.e) P.e.forEach((t, i) => crearEnemRoble(t, 850 - i * 120));
+  if (P.o) rOle = { total: P.o, sp: 0, t: 1, tipos: P.tp };
+  rTitulo.textContent = '🌳 ' + P.n;
+  avisar('🌳 ' + P.n + (P.o ? ': ¡derrota a las ' + P.o + ' oleadas!' : ''));
+}
+
+// --- Entrar y salir (eliges qué hormigas te acompañan, igual que en la torre) ---
+function entrarRoble() {
+  if (baseAbierta || robleAbierto || !juegoIniciado || eligiendoAcomp) return;
+  if (estadoRoble() >= ROBLE_PISOS) { const f = Math.max(1, Math.ceil((ROBLE_RESET_MS - (Date.now() - roble.ts)) / 60000)); avisar(`🌳 Ya conquistaste el Roble Ancestral. Vuelve en ${f} min`); cdRoble = 2; return; }
+  teclas['w'] = teclas['arrowup'] = false; cdRoble = 3;
+  elegirAcompanantes(sel => entrarRobleReal(sel));
+}
+function entrarRobleReal(sel) {
+  if (baseAbierta || robleAbierto) return;
+  baseAbierta = true; robleAbierto = true; teclas['w'] = teclas['arrowup'] = false; excavando = false; btnRoble.style.display = 'none';
+  rPiso = roble.max + 1; rp = { x: 90, dir: 1, hp: 100, cd: 0 };
+  rJug.innerHTML = hormigaSup.innerHTML.replace(/ id="[^"]*"/g, '');
+  robleEl.style.display = 'flex'; empezarPisoRoble();
+  iniciarAcomp(sel || [], rEnts);
+  avisar('🌳 ¡Roble Ancestral! ULTRA DIFÍCIL: tu progreso solo se guarda en los pisos 3 y 6. Cura a tus hormigas con la manzana 🍎');
+}
+function salirRoble(derrota) {
+  liberarAcomp();
+  robleAbierto = false; baseAbierta = false; robleEl.style.display = 'none'; cdRoble = 1.5;
+  for (const k of ['a', 'd', 'arrowleft', 'arrowright']) teclas[k] = false;
+  rEnts.innerHTML = ''; rEnem = []; rCofG.innerHTML = ''; rSubeG.innerHTML = '';
+  if (derrota) avisar(`💀 El Roble Ancestral te venció en el piso ${rPiso}… ¡vuelve con más hormigas y comida!`);
+}
+
+// --- Manzana 🍎 (botón junto a las flechas, en el igloo, la torre y el Roble): gastas 10 de comida y curas a tus hormigas acompañantes ---
+function pagarRacionRoble() {
+  if (comida >= RACION_ROBLE) { comida -= RACION_ROBLE; return true; }
+  const it = PREMIOS.filter(p => p.uso === 'comida' && inventario[p.id] > 0).sort((a, b) => a.v - b.v)[0];   // si te falta, se usa un objeto de comida de la mochila
+  if (!it) return false;
+  inventario[it.id]--; comida = Math.min(100, comida + it.v - RACION_ROBLE); return true;
+}
+let estAliHasta = 0;
+function alimentarEstructura() {
+  if (!baseAbierta || ruletaCofre || Date.now() < estAliHasta) return;
+  const J = robleAbierto ? rp : torreAbierta ? tp : bp, G = robleAbierto ? rEnts : torreAbierta ? tEnts : bEnts;
+  let obj = null, fr = 1;
+  for (const a of acomp) { const f = a.h.vida / a.h.max; if (a.h.vida > 0 && f < 0.999 && f < fr) { fr = f; obj = a; } }   // primero la hormiga más herida
+  if (!obj && J.hp >= 99.5) { avisar(acomp.length ? '🍎 Todas tus hormigas están llenas' : '🍎 Estás en plena forma'); estAliHasta = Date.now() + 500; return; }
+  if (!pagarRacionRoble()) { avisar('🍎 Necesitas 10 de comida (o un objeto de comida en la mochila)'); estAliHasta = Date.now() + 1000; return; }
+  if (obj) { const antes = obj.h.vida; obj.h.vida = Math.min(obj.h.max, obj.h.vida + obj.h.max * 0.5); numFlot(obj.x, SUELO - 62, '+' + Math.round(obj.h.vida - antes), '#69f0ae', G); }
+  else { const antes = J.hp; J.hp = Math.min(100, J.hp + 35); numFlot(J.x, SUELO - 80, '+' + Math.round(J.hp - antes), '#69f0ae', G); }
+  estAliHasta = Date.now() + 600;
+}
+document.addEventListener('keydown', ev => { if (baseAbierta && ev.key.toLowerCase() === 'g') alimentarEstructura(); });
+
+// --- Combate y acciones ---
+function atacarRoble() {
+  if (!robleAbierto || ruletaCofre || rp.cd > 0) return;
+  rp.cd = 0.4;
+  let e = null, md = 1e9;
+  for (const x of rEnem) { const d = Math.abs(x.x - rp.x); if (d < 70 + (x.T.esc - 1) * 25 && d < md) { md = d; e = x; } }
+  if (!e) return;
+  e.hp -= 25; numFlot(e.x, SUELO - 40 * e.T.esc, '-25', '#ffeb3b', rEnts);
+  e.x += rp.dir * (e.tipo === 'r' ? 2 : e.tipo === 'g' ? 3 : e.tipo === 't' ? 6 : 14); e.el.style.opacity = '.45'; setTimeout(() => { e.el.style.opacity = ''; }, 110);
+}
+function accionRoble() {
+  if (!robleAbierto || ruletaCofre) return;
+  if (rp.x < 100) { salirRoble(); return; }
+  if (rFase === 'cofre' && Math.abs(rp.x - 450) < 55) {
+    rFase = 'abriendo'; dibujarCofreR();
+    const fin = () => {
+      if (ROBLE_CHECK.includes(rPiso) && rPiso > roble.max) { roble.max = rPiso; avisar('💾 ¡Checkpoint! Tu progreso quedó guardado en el piso ' + rPiso); }
+      if (rPiso >= ROBLE_PISOS) { roble.max = ROBLE_PISOS; roble.ts = Date.now(); pintarRoble(); salirRoble(); avisar('🏆 ¡ROBLE ANCESTRAL CONQUISTADO! Vuelve en 30 min para otra vuelta'); }
+      else { pintarRoble(); rFase = 'sube'; dibujarSubeR(); avisar('⬆️ ¡Sube por las escaleras de la derecha!'); }
+    };
+    if (rPiso >= ROBLE_PISOS) girarCofre(() => girarCofre(() => girarCofre(fin, 'roble'), 'roble'), 'roble'); else girarCofre(fin, 'roble');
+    return;
+  }
+  if (rFase === 'sube' && rp.x > 780) { rPiso++; rp.x = 90; rp.dir = 1; empezarPisoRoble(); }
+}
+document.addEventListener('keydown', ev => {
+  if (!robleAbierto) return;
+  const k = ev.key.toLowerCase();
+  if (k === 'f') atacarRoble(); else if (k === 'e') accionRoble();
+});
+function actualizarRoble() {
+  const ds = dtFrame / 60; actualizarFlotantes(ds);
+  if (ruletaCofre) return;
+  const vx = ((teclas['d'] || teclas['arrowright']) ? 1 : 0) - ((teclas['a'] || teclas['arrowleft']) ? 1 : 0);
+  if (vx) { rp.dir = vx; rp.x = Math.max(30, Math.min(BW - 30, rp.x + vx * 170 * ds)); }
+  rp.cd -= ds;
+  actualizarAcomp(ds, rEnem, rp.x, rp.dir, rEnts);
+  if (rOle && rOle.sp < rOle.total) {
+    rOle.t -= ds;
+    if (rOle.t <= 0) { rOle.t = 2.6; const k = Math.min(3, rOle.total - rOle.sp); for (let i = 0; i < k; i++) { crearEnemRoble(rOle.tipos[Math.floor(Math.random() * rOle.tipos.length)], 860 - i * 40); rOle.sp++; } }
+  }
+  for (let j = 0; j < rEnem.length; j++) {
+    const e = rEnem[j];
+    if (e.tipo === 'r' && !e.furia && e.hp < e.max * 0.5) { e.furia = true; avisar('🔥 ¡El Rey del Roble se enfureció y llamó refuerzos!'); crearEnemRoble('a', 860); crearEnemRoble('a', 800); }
+    const fu = e.furia ? 1.5 : 1;
+    e.cd -= ds; const tg = objEnemAcomp(e.x, rp.x), d = tg.x - e.x, alc = 28 * e.T.esc + 6;
+    if (Math.abs(d) < 460) {
+      e.dir = Math.sign(d) || 1;
+      if (Math.abs(d) > alc) e.x += e.dir * e.T.vel * fu * ds;
+      else if (e.cd <= 0) { e.cd = e.T.cd / fu; if (tg.a) danarAcomp(tg.a, e.T.dano, rEnts); else { const dm = e.T.dano * factorDano(); rp.hp -= dm; numFlot(rp.x, SUELO - 75, '-' + Math.round(dm), '#ff5252', rEnts); } }
+    } else { e.x += e.dir * 20 * ds; if (Math.abs(e.x - e.x0) > 60) e.dir = -e.dir; }
+    e.x = Math.max(110, Math.min(BW - 30, e.x));
+  }
+  for (let i = rEnem.length - 1; i >= 0; i--) if (rEnem[i].hp <= 0) { numFlot(rEnem[i].x, SUELO - 60, '💀', '#ff8a65', rEnts); rEnem[i].el.remove(); rEnem.splice(i, 1); }
+  if (rFase === 'lucha' && !rEnem.length && (!rOle || rOle.sp >= rOle.total)) {
+    rFase = 'cofre'; rp.hp = Math.min(100, rp.hp + 20); dibujarCofreR(); avisar('🏆 ¡Piso superado! +20 de vida. Abre el cofre y alimenta a tus hormigas');
+  }
+  for (const e of rEnem) {
+    e.barra.setAttribute('width', 36 * Math.max(0, e.hp) / e.max);
+    e.el.setAttribute('transform', `translate(${e.x},${SUELO + Math.sin(performance.now() / 120 + e.ph) * 1.5}) scale(${e.dir * e.T.esc},${e.T.esc})`);
+  }
+  rJug.setAttribute('transform', `translate(${rp.x},${SUELO}) scale(${rp.dir * 1.5},1.5)`);
+  rHp.style.width = Math.max(0, rp.hp) + '%';
+  rComidaEl.textContent = Math.floor(comida);
+  const nearD = rp.x < 100, nearC = rFase === 'cofre' && Math.abs(rp.x - 450) < 55, nearS = rFase === 'sube' && rp.x > 780;
+  rAct.style.display = (nearD || nearC || nearS) ? 'block' : 'none'; rAct.textContent = nearD ? '🚪' : nearC ? '📦' : '⬆️';
+  if (rp.hp <= 0) salirRoble(true);
+}
+
+// --- En el mundo: la estructura solo aparece al descubrir lo más profundo del bosque de otoño ---
+function actualizarRobleMundo() {
+  cdRoble -= dtFrame / 60;
+  const vis = limiteIzq <= -2400, d = vis ? '' : 'none'; if (gRoble.style.display !== d) gRoble.style.display = d;
+  const cerca = vis && juegoIniciado && !baseAbierta && !modoSubterraneo && !enHoja && Math.abs(xSup - ROBLE_X) < 60;
+  const v = cerca ? 'block' : 'none'; if (btnRoble.style.display !== v) btnRoble.style.display = v;
+  if (cerca && cdRoble <= 0 && (teclas['w'] || teclas['arrowup'])) entrarRoble();
+}
+setInterval(() => { if (!(juegoIniciado && !baseAbierta && !mapaAbierto && menuPrincipal.style.display !== 'flex')) btnRoble.style.display = 'none'; }, 400);
+pintarRoble();
+
+document.head.insertAdjacentHTML('beforeend', `<style>
+/* Estructuras (igloo, torre, Roble): se adaptan a celular vertical, horizontal y escritorio */
+#base-secreta,#torre-ov,#roble-ov{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);box-sizing:border-box;overflow:hidden}
+#base-secreta>div:first-child,#torre-ov>div:first-child,#roble-ov>div:first-child{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;font-size:clamp(12px,3.4vw,16px);line-height:1.3}
+#base-secreta>div:first-child span[style*="width:140px"],#torre-ov>div:first-child span[style*="width:140px"],#roble-ov>div:first-child span[style*="width:140px"]{width:clamp(70px,24vw,140px)!important}
+#base-secreta>div:first-child span[style*="font-size:12px"],#torre-ov>div:first-child span[style*="font-size:12px"],#roble-ov>div:first-child span[style*="font-size:12px"]{font-size:clamp(10px,2.8vw,12px)!important}
+#base-secreta svg,#torre-ov svg,#roble-ov svg{width:min(100%,900px,calc((100dvh - 190px) * 2.5));max-height:none}
+#base-secreta>div:last-child,#torre-ov>div:last-child,#roble-ov>div:last-child{flex-wrap:wrap;justify-content:center;gap:10px!important;max-width:100vw;padding:0 8px;box-sizing:border-box}
+#base-secreta .b-btn,#torre-ov .b-btn,#roble-ov .b-btn{width:clamp(48px,14vw,64px);height:clamp(48px,14vw,64px);font-size:clamp(18px,5.4vw,26px)}
+.b-ali{border-color:#ff8a80!important;background:rgba(183,28,28,.75)!important}
+@media (max-height:480px){
+  #base-secreta>div:first-child,#torre-ov>div:first-child,#roble-ov>div:first-child{font-size:12px;padding-top:2px!important;padding-bottom:2px!important}
+  #base-secreta svg,#torre-ov svg,#roble-ov svg{width:min(100%,900px,calc((100dvh - 120px) * 2.5))}
+  #base-secreta .b-btn,#torre-ov .b-btn,#roble-ov .b-btn{width:46px;height:46px;font-size:18px}
+  #base-secreta>div:last-child,#torre-ov>div:last-child,#roble-ov>div:last-child{margin-top:2px!important;gap:8px!important}
+}
+@media (max-width:420px){#btn-roble,#btn-torre,#btn-iglu{right:14px;bottom:96px}}
+#modal-acomp .ac-caja{width:min(420px,94vw)}
+@media (max-width:360px){#acomp-lista{grid-template-columns:1fr}}
+</style>`);
 
 
 window.addEventListener('beforeunload', guardarPartida);
@@ -5240,6 +5524,7 @@ ${[[345,252,1],[1002,445,1],[728,436,1]].map(([x, y]) => `<g transform="translat
 <div class="w-fila"><span class="l">Gráficos:</span><span id="cfg-gra-txt"></span></div>
 <div class="w-fila"><span class="l">Idioma:</span><span id="cfg-idi-txt"></span></div>
 <div class="w-fila"><span class="l">V-Sync:</span><span id="cfg-vs-txt"></span></div>
+<div class="w-fila"><span class="l">Responsivo:</span><span id="cfg-resp-txt"></span></div>
 </div>
 <div id="pag-int" style="display:none">
 <div class="w-fila"><span class="l">Editor:</span><span style="flex:1">Mover y cambiar botones</span><button class="w-btn" onclick="irEditorUI()">Cambiar...</button></div>
@@ -5247,6 +5532,9 @@ ${[[345,252,1],[1002,445,1],[728,436,1]].map(([x, y]) => `<g transform="translat
 <p class="w-nota">Mueve, agranda y cambia la forma de los botones y barras de la pantalla, y crea botones de atajo.</p>
 </div>
 <div id="pag-gra" style="display:none">
+<label class="w-chk"><input type="checkbox" id="chk-resp" onchange="cfgCambio()"> Diseño responsivo (adaptar a la pantalla)</label>
+<p class="w-nota">Adapta el juego a cualquier pantalla: celular vertical u horizontal, tablet, computadora o pantalla grande. El mundo no se deforma y los botones, barras y ventanas cambian de tamaño y lugar para no taparse. Viene activado por defecto.</p>
+<hr class="w-sep">
 <label class="w-chk"><input type="checkbox" id="chk-vsync" onchange="cfgCambio()"> V-Sync (ajustar a la pantalla)</label>
 <p class="w-nota">Sincroniza el juego con la frecuencia de tu pantalla (60, 90, 120, 144 Hz…) para que se vea fluido y sin cortes. Pantalla detectada: <b id="cfg-hz">…</b>. Si lo desactivas, el juego se limita a 60 FPS.</p>
 <hr class="w-sep">
@@ -5272,18 +5560,19 @@ function aplicarBajoDetalle(on) {
 function verTabCfg(t) {
   for (const k of ['gen', 'int', 'gra', 'idi']) { document.getElementById('tab-' + k).classList.toggle('sel', k === t); document.getElementById('pag-' + k).style.display = k === t ? '' : 'none'; }
 }
-function cfgTextoGraficos() { document.getElementById('cfg-gra-txt').textContent = document.body.classList.contains('bajo-detalle') ? 'Bajo detalle' : 'Normal'; document.getElementById('cfg-vs-txt').textContent = vsyncOn ? 'Activado (' + (hzPantalla || '?') + ' Hz)' : 'Desactivado (60 FPS)'; }
+function cfgTextoGraficos() { document.getElementById('cfg-resp-txt').textContent = respOn ? 'Activado' : 'Desactivado'; document.getElementById('cfg-gra-txt').textContent = document.body.classList.contains('bajo-detalle') ? 'Bajo detalle' : 'Normal'; document.getElementById('cfg-vs-txt').textContent = vsyncOn ? 'Activado (' + (hzPantalla || '?') + ' Hz)' : 'Desactivado (60 FPS)'; }
 const VSYNC_KEY = 'antSimulatorVSync';
 let hzPantalla = 0;
 (function medirHz() {   // mide la frecuencia real de la pantalla con unos cuadros de animación
   const t = []; const f = ahora => { t.push(ahora); if (t.length < 40) requestAnimationFrame(f); else { const d = t.slice(1).map((x, i) => x - t[i]).sort((a, b) => a - b), med = d[d.length >> 1]; const hz = 1000 / med; hzPantalla = [30, 48, 50, 60, 72, 75, 90, 100, 120, 144, 165, 240].reduce((p, q) => Math.abs(q - hz) < Math.abs(p - hz) ? q : p); } };
   requestAnimationFrame(f);
 })();
-function cfgCambio() { document.getElementById('btn-cfg-aplicar').disabled = document.getElementById('chk-bajo').checked === document.body.classList.contains('bajo-detalle') && document.getElementById('chk-vsync').checked === vsyncOn && idiomaElegido() === idioma; }
+function cfgCambio() { document.getElementById('btn-cfg-aplicar').disabled = document.getElementById('chk-bajo').checked === document.body.classList.contains('bajo-detalle') && document.getElementById('chk-vsync').checked === vsyncOn && document.getElementById('chk-resp').checked === respOn && idiomaElegido() === idioma; }
 function aplicarCfg() {
   const on = document.getElementById('chk-bajo').checked;
   aplicarBajoDetalle(on); try { almacen.setItem(BAJO_KEY, on ? '1' : '0'); } catch (_) {}
   vsyncOn = document.getElementById('chk-vsync').checked; try { almacen.setItem(VSYNC_KEY, vsyncOn ? '1' : '0'); } catch (_) {}
+  respOn = document.getElementById('chk-resp').checked; try { almacen.setItem(RESP_KEY, respOn ? '1' : '0'); } catch (_) {} respCalc();
   aplicarIdioma(idiomaElegido()); cfgTextoIdioma();
   document.getElementById('btn-cfg-aplicar').disabled = true; cfgTextoGraficos();
 }
@@ -5292,7 +5581,7 @@ function cancelarCfg() { cerrarConfig(); }
 function irEditorUI() { cerrarConfig(); abrirEditorUI(); }
 function abrirConfig() {
   document.getElementById('chk-bajo').checked = document.body.classList.contains('bajo-detalle');
-  document.getElementById('chk-vsync').checked = vsyncOn; document.getElementById('cfg-hz').textContent = hzPantalla ? hzPantalla + ' Hz' : 'midiendo…';
+  document.getElementById('chk-vsync').checked = vsyncOn; document.getElementById('chk-resp').checked = respOn; document.getElementById('cfg-hz').textContent = hzPantalla ? hzPantalla + ' Hz' : 'midiendo…';
   document.getElementById('btn-cfg-aplicar').disabled = true;
   document.getElementById('cfg-version').textContent = VERSION_JUEGO; cfgTextoGraficos(); cfgTextoIdioma(); verTabCfg('gen');
   document.getElementById('menu-config').style.display = 'flex';
@@ -5304,7 +5593,194 @@ let _bajoGuardado = false; try { _bajoGuardado = almacen.getItem(BAJO_KEY) === '
 aplicarBajoDetalle(_bajoGuardado);
 if (_bajoGuardado) setTimeout(() => pausarAnimacionesSVG(true), 1500);
 
-const VERSION_JUEGO = '1.5';   // SUBE ESTE NÚMERO en cada update. Los decimales van de 0 a 9: después de 1.9 viene 2.0 (nunca 1.10 ni 1.11)
+document.head.insertAdjacentHTML('beforeend', `<style id="resp-css">
+/* ===== DISEÑO RESPONSIVO (solo cuando <body> tiene la clase "responsivo") ===== */
+:root{--sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px);--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px)}
+body.responsivo{overscroll-behavior:none}
+/* -- el mundo conserva su proporción; lo que sobra se rellena con cielo (arriba) y tierra (abajo) -- */
+body.responsivo .pantalla{background:linear-gradient(#62cbfc 50%,#2a1409 50%)}
+body.responsivo #pantalla-sub{background:linear-gradient(#62cbfc 50%,#120502 50%)}
+body.responsivo .pantalla>svg{position:absolute;left:calc((100% - var(--mw)) / 2);top:calc((100% - var(--mh)) / 2);width:var(--mw)!important;height:var(--mh)!important}
+body.responsivo.r-fit .pantalla>svg{box-shadow:0 0 0 2px rgba(0,0,0,.3),0 0 26px rgba(0,0,0,.35)}
+/* -- parte de arriba -- */
+body.responsivo #btn-menu{left:calc(var(--m) + var(--sal));top:calc(var(--m) + var(--sat));font-size:calc(var(--tf) + 2px);padding:calc(var(--pn) * .16) calc(var(--pn) * .42)}
+body.responsivo #barra-tiempos{left:calc(var(--tl) + var(--sal));top:calc(var(--tt) + var(--sat))}
+body.responsivo #panel-tiempo,body.responsivo #timer-manzanas{font-size:var(--tf)}
+body.responsivo #btn-pantalla{width:var(--pn);height:var(--pn);font-size:calc(var(--pn) * .48)}
+body.responsivo:not(.r-ancho) #btn-pantalla{left:auto;margin-left:0;right:calc(var(--m) + var(--sar));top:calc(var(--m) + var(--sat))}
+body.responsivo.r-ancho #btn-pantalla{margin-left:calc(var(--pn) / -2);top:calc(var(--ht) + var(--sat))}
+body.responsivo #hud-extra{right:calc(var(--hr) + var(--sar));top:calc(var(--ht) + var(--sat));max-width:min(200px,calc(100vw - var(--hr) - var(--m) - 110px));font-size:var(--tf);padding:4px 9px}
+body.responsivo #btn-mochila{right:calc(var(--m) + var(--sar));top:calc(var(--tr) + var(--sat));width:var(--mo);height:var(--mo);font-size:calc(var(--mo) * .46)}
+body.responsivo #panel-huevos{right:calc(var(--pr) + var(--sar));top:calc(var(--pt) + var(--sat));max-width:min(250px,calc(100vw - var(--pr) - var(--m) - 8px));padding:calc(var(--tf) * .7) calc(var(--tf) * 1.2);font-size:var(--tf)}
+body.responsivo #panel-huevos h4{font-size:calc(var(--tf) + 2px)}
+body.responsivo #panel-huevos.plegado{right:var(--sar);padding:6px 9px}
+body.responsivo #toast{top:calc(var(--toast) + var(--sat));max-width:calc(100vw - 2 * var(--m));font-size:var(--tf)}
+body.responsivo #version-juego{right:calc(var(--sar) + 4px);bottom:calc(var(--sab) + 1px);font-size:9px;padding:2px 6px;opacity:.75}
+/* -- barras de estado (abajo a la izquierda; en vertical, 2 × 2 a lo ancho) -- */
+body.responsivo #barra-stamina-wrapper{left:calc(var(--bl0) + var(--sal));bottom:calc(var(--bb0) + var(--sab))}
+body.responsivo #barra-comida-wrapper{left:calc(var(--bl1) + var(--sal));bottom:calc(var(--bb0) + var(--sab))}
+body.responsivo #barra-hambre-wrapper{left:calc(var(--bl0) + var(--sal));bottom:calc(var(--bb1) + var(--sab))}
+body.responsivo #barra-vida-wrapper{left:calc(var(--bl1) + var(--sal));bottom:calc(var(--bb1) + var(--sab))}
+body.responsivo .barra-container{width:calc(var(--bw) - 4px);height:calc(var(--bh) - 4px);border-radius:var(--bh)}
+body.responsivo .barra-label,body.responsivo .barra-val{font-size:calc(var(--tf) - 0px);line-height:calc(var(--bh) - 8px)}
+body.responsivo .barra-label{left:calc(var(--bh) * .3)} body.responsivo .barra-val{right:calc(var(--bh) * .3)}
+/* -- botones en forma de píldora -- */
+body.responsivo #btn-correr,body.responsivo #btn-atacar,body.responsivo #btn-harvest,body.responsivo #btn-atrapar,body.responsivo #btn-hoja,body.responsivo #btn-esconder,body.responsivo #btn-dormir{
+  box-sizing:border-box;height:var(--ph);padding:0 calc(var(--ph) * .5);font-size:var(--pf);line-height:calc(var(--ph) - 6px);white-space:nowrap}
+body.responsivo #btn-correr{left:calc(var(--m) + var(--sal));bottom:calc(var(--rb) + var(--sab))}
+body.responsivo #btn-atacar{left:calc(var(--m) + var(--sal));bottom:calc(var(--kb) + var(--sab))}
+body.responsivo #btn-dormir{right:calc(var(--m) + var(--sar));bottom:calc(var(--ab) + var(--stp) + var(--sab))}
+body.responsivo #btn-harvest{right:calc(var(--m) + var(--sar));bottom:calc(var(--ab) + var(--stp) * 2 + var(--sab))}
+body.responsivo #btn-atrapar{right:calc(var(--m) + var(--sar));bottom:calc(var(--ab) + var(--stp) * 3 + var(--sab))}
+body.responsivo #btn-hoja,body.responsivo #btn-esconder{right:calc(var(--m) + var(--sar));bottom:calc(var(--ab) + var(--stp) * 4 + var(--sab))}
+body.responsivo #txt-despensa{right:calc(var(--m) + var(--sar));bottom:calc(var(--ab) + var(--stp) * 2 + var(--sab));font-size:var(--tf)}
+body.responsivo.r-vert #txt-despensa{bottom:calc(var(--kb) + var(--ph) + 8px + var(--sab))}
+/* -- botones redondos de acción (fila abajo a la derecha) -- */
+body.responsivo #btn-crear-entrada,body.responsivo #btn-huevo,body.responsivo #btn-follow,body.responsivo #btn-comer,body.responsivo #btn-alimentar,
+body.responsivo #btn-guardar,body.responsivo #btn-sacar,body.responsivo #btn-poner{
+  box-sizing:border-box;width:var(--bs);height:var(--bs);padding:0;font-size:calc(var(--bs) * .42);line-height:calc(var(--bs) - 6px);bottom:calc(var(--ab) + var(--sab))}
+body.responsivo #btn-huevo.enfriando{font-size:calc(var(--bs) * .27);line-height:calc(var(--bs) - 6px)}
+body.responsivo #btn-especial{box-sizing:border-box;height:var(--bs);padding:0 calc(var(--bs) * .36);font-size:var(--pf);line-height:calc(var(--bs) - 6px);bottom:calc(var(--ab) + var(--sab));right:calc(var(--m) + var(--sar) + var(--stp) * 4);white-space:nowrap}
+body.responsivo #btn-crear-entrada,body.responsivo #btn-huevo{right:calc(var(--m) + var(--sar))}
+body.responsivo #btn-follow{right:calc(var(--m) + var(--sar) + var(--stp))}
+body.responsivo #btn-comer{right:calc(var(--m) + var(--sar) + var(--stp) * 2)}
+body.responsivo #btn-alimentar{right:calc(var(--m) + var(--sar) + var(--stp) * 3)}
+body.responsivo #btn-guardar{right:calc(var(--m) + var(--sar) + var(--stp) * 4)}
+body.responsivo #btn-sacar{right:calc(var(--m) + var(--sar) + var(--stp) * 5)}
+body.responsivo #btn-poner{right:calc(var(--m) + var(--sar) + var(--stp) * 6)}
+/* -- flechas para descubrir mapa -- */
+body.responsivo #btn-flecha,body.responsivo #btn-flecha-sub,body.responsivo #btn-flecha-izq{box-sizing:border-box;width:var(--fl);height:var(--fl);margin-top:calc(var(--fl) / -2);font-size:calc(var(--fl) * .44);line-height:calc(var(--fl) - 6px)}
+body.responsivo #btn-flecha,body.responsivo #btn-flecha-sub{right:calc(var(--m) * .6 + var(--sar))}
+body.responsivo #btn-flecha-izq{left:calc(var(--m) * .6 + var(--sal))}
+/* -- botones de estructuras (igloo, torre, roble, nidos enemigos) -- */
+body.responsivo #btn-iglu,body.responsivo #btn-torre,body.responsivo #btn-roble,body.responsivo .btn-nido{box-sizing:border-box;width:var(--sbn);height:var(--sbn);font-size:calc(var(--sbn) * .44);right:calc(var(--m) + var(--sar) + var(--stp))}
+body.responsivo #btn-iglu,body.responsivo #btn-torre,body.responsivo #btn-roble{bottom:calc(var(--ab) + var(--stp) * 1.5 + var(--sab))}
+body.responsivo #btn-nido-cof{bottom:calc(var(--ab) + var(--stp) * 2.1 + var(--sab))}
+body.responsivo #btn-nido-ent{bottom:calc(var(--ab) + var(--stp) * 3 + var(--sab))}
+body.responsivo #btn-nido-sal{bottom:calc(var(--ab) + var(--stp) * 3.3 + var(--sab))}
+/* -- flechas táctiles de movimiento (solo celular/tablet) -- */
+body.responsivo .btn-cel{box-sizing:border-box;width:var(--cb);height:var(--cb);bottom:calc(var(--cbb) + var(--sab));font-size:calc(var(--cb) * .42);line-height:calc(var(--cb) - 6px)}
+body.responsivo #cel-izq{left:calc(var(--m) + var(--sal))}
+body.responsivo #cel-der{left:calc(var(--m) + var(--sal) + var(--cb) + 8px)}
+body.responsivo #cel-arr{left:calc(var(--m) + var(--sal) + (var(--cb) + 8px) * 2 + 12px)}
+body.responsivo #cel-abj{left:calc(var(--m) + var(--sal) + (var(--cb) + 8px) * 3 + 12px)}
+/* -- menú principal -- */
+body.responsivo #menu-principal{padding:calc(var(--sat) + 8px) calc(var(--sar) + 8px) calc(var(--sab) + 8px) calc(var(--sal) + 8px);box-sizing:border-box;overflow:auto}
+body.responsivo #menu-principal h1{font-size:clamp(30px,10.5vw,56px);line-height:1.05;margin:0 8px 16px;text-align:center;letter-spacing:1px}
+body.responsivo #saludo-jugador{font-size:clamp(16px,4.6vw,20px);margin-bottom:12px}
+body.responsivo .menu-botones{flex-wrap:wrap;justify-content:center;gap:12px}
+body.responsivo .btn-menu-principal{padding:12px clamp(18px,6vw,34px);font-size:clamp(16px,4.8vw,19px)}
+body.responsivo #btn-perfil-menu{top:calc(var(--sat) + var(--m));right:calc(var(--sar) + var(--m))}
+body.responsivo:not(.r-ancho) #btn-perfil-menu{right:calc(var(--sar) + var(--m) + var(--pn) + 8px);padding:7px 16px;font-size:14px}
+body.responsivo #btn-libro-menu{top:calc(var(--sat) + var(--m) + 44px);right:calc(var(--sar) + var(--m))}
+body.responsivo:not(.r-ancho) #btn-libro-menu{right:calc(var(--sar) + var(--m) + var(--pn) + 8px);padding:7px 16px;font-size:14px}
+/* -- ventanas (perfil, partidas, game over, confirmar…) -- */
+body.responsivo #modal-perfil,body.responsivo #modal-confirmar,body.responsivo #modal-partidas,body.responsivo #modal-gameover,body.responsivo #modal-mapa,body.responsivo #modal-ruleta{padding:calc(var(--sat) + 6px) calc(var(--sar) + 6px) calc(var(--sab) + 6px) calc(var(--sal) + 6px);box-sizing:border-box}
+body.responsivo .perfil-caja{width:min(100%,320px);box-sizing:border-box;padding:clamp(14px,4vw,30px);max-height:calc(100dvh - 16px);overflow:auto}
+body.responsivo #modal-partidas .perfil-caja{width:min(100%,440px)!important;max-width:100%!important;max-height:calc(100dvh - 16px)!important}
+body.responsivo .perfil-caja h3{font-size:clamp(19px,5.4vw,24px)}
+body.responsivo .slot{flex-wrap:wrap}
+body.responsivo .selector-container{flex-wrap:wrap;gap:10px}
+body.responsivo .opcion-hormiga{padding:12px clamp(10px,3vw,25px);font-size:clamp(14px,4vw,16px)}
+body.responsivo .cofre-caja{max-height:calc(100dvh - 16px);overflow:auto;box-sizing:border-box}
+body.responsivo .mochila-caja{max-height:calc(100dvh - 16px)}
+body.responsivo #modal-acomp .ac-caja{max-height:calc(100dvh - 16px)}
+body.responsivo .mapa-caja{max-height:calc(100dvh - 12px);box-sizing:border-box}
+body.responsivo #mapa-svg{width:min(100%,calc((100dvh - 250px) * 2))}
+body.responsivo #msg-caja{max-height:calc(100dvh - 24px);overflow:auto;box-sizing:border-box}
+body.responsivo #barra-editor{max-height:46dvh;overflow:auto;box-sizing:border-box}
+/* -- Configuración (ventana tipo Propiedades) -- */
+body.responsivo #menu-config{padding:calc(var(--sat) + 8px) calc(var(--sar) + 8px) calc(var(--sab) + 8px) calc(var(--sal) + 8px);box-sizing:border-box}
+body.responsivo #cfg-win{display:flex;flex-direction:column;width:min(100%,460px);max-height:calc(100dvh - 16px)}
+body.responsivo #cfg-win .w-cuerpo{flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
+body.responsivo #cfg-win .w-pag{min-height:min(300px,36dvh)}
+body.responsivo #cfg-win .w-pie{flex:none;flex-wrap:wrap}
+body.responsivo #cfg-win .w-fila{flex-wrap:wrap}
+body.responsivo #cfg-win .w-fila .l{width:clamp(96px,30vw,130px)}
+body.responsivo #cfg-win .w-tab{padding:6px clamp(6px,2vw,10px);font-size:clamp(13px,3.7vw,15px)}
+/* -- pantallas bajitas (celular acostado) -- */
+@media (max-height:520px){
+  body.responsivo #menu-principal h1{font-size:clamp(26px,7vh,40px);margin-bottom:8px}
+  body.responsivo #saludo-jugador{margin-bottom:8px}
+  body.responsivo .btn-menu-principal{padding:9px 22px}
+  body.responsivo .perfil-caja{padding:12px 16px}
+  body.responsivo .perfil-caja h3{margin-bottom:6px}
+  body.responsivo .perfil-caja input{margin:8px 0}
+  body.responsivo .mapa-caja{padding:8px 12px}
+  body.responsivo .mapa-caja h3{font-size:17px}
+  body.responsivo #mapa-ayuda{font-size:11px!important}
+  body.responsivo .mapa-info{font-size:12px;margin:4px 2px 6px}
+  body.responsivo #mapa-svg{width:min(100%,calc((100dvh - 150px) * 2))}
+  body.responsivo #msg-ico{width:60px;height:60px;margin-top:-40px;font-size:32px}
+  body.responsivo #msg-caja{padding:14px 16px 12px}
+  body.responsivo #msg-tit{font-size:20px;margin-bottom:4px}
+  body.responsivo #msg-txt{font-size:14px;margin-bottom:10px}
+  body.responsivo #cfg-win .w-titulo{height:36px}
+  body.responsivo #cfg-win .w-x{height:36px}
+  body.responsivo #cfg-win .w-pag{padding:10px 12px 12px;min-height:0}
+  body.responsivo #cfg-win .w-pie{padding:8px 12px 10px}
+}
+</style>`);
+
+// ===== Diseño responsivo (Configuración → Gráficos → «Diseño responsivo»). Viene ACTIVADO por defecto =====
+// Qué hace cuando está activado:
+//  · El mundo (superficie y nido) mantiene su proporción: en pantallas muy altas (celular vertical) o muy anchas ya no se estira ni se deforma.
+//  · Botones, barras, paneles y ventanas cambian de tamaño y de lugar según la pantalla (celular vertical/horizontal, tablet, PC, pantallas enormes).
+//  · Respeta las "muescas" del celular (safe-area) y no se tapan unos a otros.
+// Todo lo calcula respCalc(): pone variables CSS (--m, --bs, --bw…) en <html> y clases en <body>. Si lo desactivas se quita todo y vuelve el diseño de antes.
+const RESP_KEY = 'antSimulatorResponsivo';
+let respOn = true; try { respOn = almacen.getItem(RESP_KEY) !== '0'; } catch (_) {}
+const RESP_CLASES = ['responsivo', 'r-vert', 'r-ancho', 'r-touch', 'r-fit', 'r-bajo'];
+let _respVars = [];
+function respCalc() {
+  const b = document.body, root = document.documentElement;
+  _respVars.forEach(n => root.style.removeProperty(n)); _respVars = [];
+  if (!respOn) { RESP_CLASES.forEach(c => b.classList.remove(c)); return; }
+  const cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const W = Math.max(240, innerWidth), H = Math.max(240, innerHeight), a = W / H;
+  const vert = a < 1.15, ancho = !vert && W >= 900, touch = !!ES_CEL;
+  // escala general: 1 = el diseño original (1280×720); en celular se reduce y en pantallas grandes crece un poco
+  const k = vert ? cl(W / 430, .85, 1.35) : cl(Math.min(W / 1280, H / 720), .72, 1.3);
+  const m = Math.round(cl(25 * k, 8, 28)), g = Math.round(cl(5 * k, 4, 8));
+  let bs = Math.round(cl(52 * k, 44, 64));
+  if (vert) bs = Math.max(34, Math.min(bs, Math.floor((W - 2 * m) / 7) - g));   // que quepan los 7 botones de abajo
+  const stp = bs + g, cb = Math.round(bs * 1.06), fl = Math.round(bs * 1.15), sbn = Math.round(bs * 1.1);
+  const ph = Math.round(cl(42 * k, 36, 48)), pn = Math.round(cl(44 * k, 38, 50));
+  const bh = Math.round(cl(32 * k, 24, 40)), bt = bh + Math.round(cl(6 * k, 4, 8));
+  const bw = vert ? Math.floor((W - 2 * m - g) / 2) : Math.round(cl(184 * k, 132, 260));
+  const tf = Math.round(cl(12 * k, 11, 15)), pf = Math.round(cl(16 * k, 13, 19));
+  // proporción del mundo: 2:1 (1200×600). Entre 1.6 y 2.4 llena toda la pantalla; fuera de ese rango se "encaja" sin deformarlo
+  const AMIN = 1.6, AMAX = 2.4;
+  let mw = W, mh = H;
+  if (a < AMIN) mh = Math.round(W / AMIN); else if (a > AMAX) mw = Math.round(H * AMAX);
+  const fit = mw < W - 1 || mh < H - 1;
+  const ab = vert ? m + 2 * bt + 4 : m;                       // fila de botones redondos (abajo a la derecha)
+  const rb = vert ? ab + bs + 8 : m + bt + bh + 10;           // «Correr» (abajo a la izquierda)
+  const cbb = touch ? rb + ph + 8 : rb;                       // flechas táctiles
+  const kb = touch ? cbb + cb + 8 : rb + ph + 8;              // «Atacar»
+  const kk = cl(k, .8, 1.3);
+  const tl = vert ? m : m + Math.round(92 * kk), tt = vert ? m + pn + 8 : m;   // reloj y reposición
+  const hr = ancho ? m : m + pn + 8, ht = ancho ? Math.round(8 * kk) : m;       // panel de día/raid
+  const tr = vert ? m + pn + 8 : (ancho ? Math.round(64 * kk) : m + 58);        // segunda fila de la derecha
+  const mochila = Math.round(bs * .95);
+  const pr = vert ? m : m + mochila + 8, pt = vert ? tr + mochila + 8 : tr;     // panel del nido de huevos
+  const V = {
+    '--k': k, '--mw': mw + 'px', '--mh': mh + 'px', '--m': m + 'px', '--g': g + 'px', '--bs': bs + 'px', '--stp': stp + 'px', '--cb': cb + 'px', '--fl': fl + 'px', '--sbn': sbn + 'px',
+    '--ph': ph + 'px', '--pn': pn + 'px', '--bh': bh + 'px', '--bw': bw + 'px', '--tf': tf + 'px', '--pf': pf + 'px', '--mo': mochila + 'px',
+    '--bl0': m + 'px', '--bl1': (m + bw + (vert ? g : 6)) + 'px', '--bb0': m + 'px', '--bb1': (m + bt) + 'px',
+    '--ab': ab + 'px', '--rb': rb + 'px', '--cbb': cbb + 'px', '--kb': kb + 'px',
+    '--tl': tl + 'px', '--tt': tt + 'px', '--hr': hr + 'px', '--ht': ht + 'px', '--tr': tr + 'px', '--pr': pr + 'px', '--pt': pt + 'px',
+    '--toast': (vert ? tt + 40 : Math.round(70 * kk)) + 'px'
+  };
+  for (const n in V) { root.style.setProperty(n, V[n]); _respVars.push(n); }
+  b.classList.add('responsivo'); b.classList.toggle('r-vert', vert); b.classList.toggle('r-ancho', ancho); b.classList.toggle('r-touch', touch); b.classList.toggle('r-fit', fit);
+}
+let _respRaf = 0;
+function respPedir() { if (_respRaf) return; _respRaf = requestAnimationFrame(() => { _respRaf = 0; respCalc(); }); }
+addEventListener('resize', respPedir); addEventListener('orientationchange', () => setTimeout(respPedir, 120));
+respCalc();
+
+const VERSION_JUEGO = '1.9';   // SUBE ESTE NÚMERO en cada update. Los decimales van de 0 a 9: después de 1.9 viene 2.0 (nunca 1.10 ni 1.11)
 // Ayuda para calcular la siguiente update: siguienteVersion('1.9') → '2.0' · siguienteVersion('1.5') → '1.6'
 const siguienteVersion = v => { let [a, b] = String(v).split('.').map(Number); b = (b || 0) + 1; if (b >= 10) { a++; b = 0; } return a + '.' + b; };
 document.head.insertAdjacentHTML('beforeend', `<style>#version-juego{position:fixed;right:8px;bottom:3px;z-index:3600;font:700 11px/1 system-ui,sans-serif;color:#fff;background:rgba(0,0,0,.45);padding:3px 7px;border-radius:8px;pointer-events:none;text-shadow:0 1px 2px #000;letter-spacing:.3px}</style>`);
@@ -5492,6 +5968,9 @@ const _EN = {
   "Sincroniza el juego con la frecuencia de tu pantalla (60, 90, 120, 144 Hz…) para que se vea fluido y sin cortes. Pantalla detectada:": "Syncs the game with your screen's refresh rate (60, 90, 120, 144 Hz…) so it looks smooth and without tearing. Detected screen:",
   ". Si lo desactivas, el juego se limita a 60 FPS.": ". If you turn it off, the game is limited to 60 FPS.",
   "Modo de bajo detalle": "Low detail mode",
+  "Diseño responsivo (adaptar a la pantalla)": "Responsive design (adapt to the screen)",
+  "Adapta el juego a cualquier pantalla: celular vertical u horizontal, tablet, computadora o pantalla grande. El mundo no se deforma y los botones, barras y ventanas cambian de tamaño y lugar para no taparse. Viene activado por defecto.": "Adapts the game to any screen: phone in portrait or landscape, tablet, computer or big display. The world is not stretched, and buttons, bars and windows resize and move so they don't cover each other. It comes turned on by default.",
+  "Responsivo:": "Responsive:", "Activado": "On", "Desactivado": "Off",
   "Quita texturas, decoraciones pequeñas, brillos y animaciones para que el juego vaya más fluido y con menos lag.": "Removes textures, small decorations, glows and animations so the game runs smoother with less lag.",
   "Aplicar": "Apply", "Bajo detalle": "Low detail", "Desactivado (60 FPS)": "Off (60 FPS)", "midiendo…": "measuring…",
   "Entrar al igloo (W)": "Enter the igloo (W)", "Entrar al nido enemigo (S / ↓)": "Enter the enemy nest (S / ↓)",
@@ -5565,6 +6044,42 @@ const _ENFR = [
   [/cofres de la torre/g, 'tower chests'], [/raids y rachas/g, 'raids and streaks'],
   [/Reina de los Prados/g, 'Meadow Queen'], [/Reina Loca/g, 'Crazy Queen'], [/Reina Trampa/g, 'Trap-jaw Queen'], [/Reina Negra/g, 'Black Queen'], [/Reina Roja/g, 'Red Queen']
 ];
+
+
+// --- Roble Ancestral (traducciones) ---
+Object.assign(_EN, {
+  "Roble Ancestral": "Ancient Oak", "ROBLE ANCESTRAL": "ANCIENT OAK", "ULTRA DIFÍCIL": "ULTRA HARD",
+  "Entrar al Roble Ancestral (W)": "Enter the Ancient Oak (W)", "Alimentar a tus hormigas (G): 10 de comida": "Feed your ants (G): 10 food",
+  "Raíces": "Roots", "Cazadoras": "Hunters", "Enjambre": "Swarm", "Corteza de acero": "Steel bark", "El Guardián": "The Guardian",
+  "Tormenta de hojas": "Leaf storm", "Los guardianes gemelos": "The twin guardians", "¡EL REY DEL ROBLE!": "THE KING OF THE OAK!",
+  "¡Roble Ancestral! ULTRA DIFÍCIL: tu progreso solo se guarda en los pisos 3 y 6. Cura a tus hormigas con la manzana": "Ancient Oak! ULTRA HARD: your progress is only saved on floors 3 and 6. Heal your ants with the apple",
+  "Todas tus hormigas están llenas": "All your ants are full", "Estás en plena forma": "You are in top shape",
+  "Necesitas 10 de comida (o un objeto de comida en la mochila)": "You need 10 food (or a food item in your backpack)",
+  "¡Piso superado! +20 de vida. Abre el cofre y alimenta a tus hormigas": "Floor cleared! +20 health. Open the chest and feed your ants",
+  "¡El Rey del Roble se enfureció y llamó refuerzos!": "The King of the Oak got furious and called for backup!",
+  "¡ROBLE ANCESTRAL CONQUISTADO! Vuelve en 30 min para otra vuelta": "ANCIENT OAK CONQUERED! Come back in 30 min for another round",
+  "Cofre del Roble Ancestral": "Ancient Oak chest", "Bellota dorada": "Golden acorn", "Hoja de arce": "Maple leaf", "Savia ancestral": "Ancient sap", "Ámbar ancestral": "Ancient amber",
+  "Un trozo de resina milenaria con una hormiga atrapada. Solo para presumir.": "A piece of ancient resin with a trapped ant. Just for showing off."
+});
+_ENRE.unshift(
+  [/^Ya conquistaste el Roble Ancestral\. Vuelve en (.*) min$/, 'You already conquered the Ancient Oak. Come back in $1 min'],
+  [/^El Roble Ancestral te venció en el piso (\d+)… ¡vuelve con más hormigas y comida!$/, 'The Ancient Oak defeated you on floor $1… come back with more ants and food!'],
+  [/^¡Checkpoint! Tu progreso quedó guardado en el piso (\d+)$/, 'Checkpoint! Your progress was saved on floor $1']
+);
+_ENFR.push([/cofres del Roble Ancestral/g, 'Ancient Oak chests']);
+
+// --- Libro de objetos ---
+Object.assign(_EN, {
+  "Libro": "Book", "Libro de objetos": "Book of items",
+  "Toca un objeto para ver para qué sirve y cómo conseguirlo.": "Tap an item to see what it does and how to get it.",
+  "Las probabilidades cambian según dónde consigas el objeto. La Moneda dorada y la Estrella polar hacen que tu próximo cofre dé un premio extra.": "The odds change depending on where you get the item. The Golden coin and the Polar star make your next chest give an extra prize.",
+  "Índice": "Index", "Anterior": "Previous", "Siguiente": "Next",
+  "Para qué sirve": "What it does", "Dónde sale y probabilidad": "Where it drops and odds",
+  "Común": "Common", "Poco común": "Uncommon", "Raro": "Rare", "Épico": "Epic", "Legendario": "Legendary",
+  "Especiales": "Special", "Coleccionables": "Collectibles", "Otros": "Other",
+  "Solo si aún no tienes una Reina": "Only if you don't have a Queen yet", "Solo puedes tener 1": "You can only have 1",
+  "Libro de objetos: qué hace cada uno y su probabilidad": "Book of items: what each one does and its odds"
+});
 
 // --- Motor de traducción ---
 const _CH = '[\\s\\p{Extended_Pictographic}\\uFE0F\\u200D·•▶◀✔✕✓↺↩⬍⬆⬇➡⬅●]';
@@ -5643,6 +6158,120 @@ function cfgTextoIdioma() {
   const e = document.getElementById('cfg-idi-txt'); if (e) e.textContent = IDIOMAS[idioma];
   const r = document.querySelector('input[name="cfg-idi"][value="' + idioma + '"]'); if (r) r.checked = true;
 }
+
+// ===== Libro de objetos (botón «Libro» del menú): para qué sirve cada objeto y la probabilidad de conseguirlo =====
+// Se arma solo a partir de la lista PREMIOS (más arriba): si agregas un premio nuevo, aparece aquí sin tocar nada más.
+const LIBRO_GRUPOS = [
+  ['Comida', p => p.uso === 'comida'], ['Vida', p => p.uso === 'vida'], ['Estamina', p => p.uso === 'energia'],
+  ['Defensa', p => p.uso === 'escudo'], ['Hambre', p => p.uso === 'frio'], ['Suerte', p => p.uso === 'suerte'],
+  ['Especiales', p => p.uso === 'huevo' || p.uso === 'reina'], ['Coleccionables', p => !p.uso]
+];
+const LIBRO_ZONAS = ['nido', 'torre', 'general', 'roble', 'iglu', 'huevos'];   // orden en que se listan los lugares
+const LIBRO_REINA_PCT = 2;   // la Reina no sale de cofres: sale en la ruleta de huevos (2 %, solo si aún no tienes una)
+let libroPag = -1;           // -1 = índice; 0… = página de un objeto
+
+function libroOrden() {
+  const usados = new Set(), o = [];
+  LIBRO_GRUPOS.forEach(([, f]) => PREMIOS.forEach(p => { if (!usados.has(p.id) && f(p)) { usados.add(p.id); o.push(p); } }));
+  PREMIOS.forEach(p => { if (!usados.has(p.id)) o.push(p); });
+  return o;
+}
+function libroProbs(p) {
+  if (p.id === 'reina') return [{ z: 'huevos', pct: LIBRO_REINA_PCT }];
+  const zs = p.z.filter(z => z !== 'huevos').sort((a, b) => LIBRO_ZONAS.indexOf(a) - LIBRO_ZONAS.indexOf(b));
+  return zs.map(z => {
+    const tot = PREMIOS.filter(q => q.z.includes(z) && q.id !== 'reina').reduce((a, q) => a + q.p, 0);
+    return { z, pct: p.p / tot * 100 };
+  });
+}
+const libroPct = n => (n < 10 ? n.toFixed(1).replace(/\.0$/, '') : String(Math.round(n))) + '%';
+const libroRareza = p => p >= 20 ? 'Común' : p >= 10 ? 'Poco común' : p >= 6 ? 'Raro' : p >= 3.5 ? 'Épico' : 'Legendario';
+const libroImg = (id, px) => { try { return imgPremio(id, px); } catch (_) { return ''; } };
+
+document.head.insertAdjacentHTML('beforeend', `<style>
+#modal-libro{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:5000;padding:8px;box-sizing:border-box;font-family:system-ui,Verdana,sans-serif}
+.lb-libro{width:min(96vw,390px);max-height:min(92vh,92dvh,660px);display:flex;flex-direction:column;box-sizing:border-box;padding:12px 12px 10px;border-radius:16px;color:#fff;
+  background:linear-gradient(145deg,#7a3d12,#4a2209 60%,#3a1a07);border:3px solid #1f0e04;box-shadow:0 12px 34px rgba(0,0,0,.85),inset 0 0 0 3px #b8860b,inset 0 0 18px rgba(0,0,0,.55)}
+.lb-tit{margin:2px 0 8px;text-align:center;font-size:19px;font-weight:800;letter-spacing:1px;color:#ffd54f;text-shadow:0 2px 3px #000}
+.lb-hoja{flex:1;min-height:0;overflow:auto;border-radius:8px;padding:12px 12px 14px;color:#3b2a14;background:linear-gradient(90deg,rgba(0,0,0,.14),rgba(0,0,0,0) 7%),#f3e3b8;box-shadow:inset 0 0 22px rgba(120,80,20,.35);animation:lbPasar .22s ease-out}
+.lb-hoja.atras{animation-name:lbPasarAtras}
+@keyframes lbPasar{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes lbPasarAtras{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+.lb-sub{margin:0 0 8px;font-size:12.5px;line-height:1.35;text-align:center;opacity:.85}
+.lb-gh{margin:10px 0 5px;padding-bottom:2px;border-bottom:2px solid rgba(90,45,12,.35);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#7a3d12}
+.lb-rej{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.lb-ico{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px 4px;border-radius:10px;border:2px solid var(--c);background:radial-gradient(circle at 50% 35%,#8a5a28,#3a2210);color:#fff;cursor:pointer;font:700 10px/1.1 system-ui,sans-serif;text-align:center;transition:transform .12s}
+.lb-ico:hover{transform:translateY(-2px)}
+.lb-ico span{min-height:22px;display:flex;align-items:center;text-shadow:0 1px 2px #000,0 0 3px #000}
+.lb-lista{margin:4px 0 0}
+.lb-li{display:flex;align-items:center;gap:12px;padding:5px 4px;border-bottom:1px solid rgba(90,45,12,.25);cursor:pointer}
+.lb-li:hover{background:rgba(90,45,12,.1)}
+.lb-li b{flex:0 0 38px;height:38px;display:flex;align-items:center;justify-content:center}
+.lb-li span{font-size:14px;color:#3b2a14}
+.lb-nota{margin:12px 0 0;padding:8px 10px;border-radius:10px;background:rgba(90,45,12,.12);font-size:12px;line-height:1.4}
+.lb-cab{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.lb-chip{display:inline-block;padding:2px 10px;border-radius:10px;color:#111;font-weight:800;font-size:12px}
+.lb-rz{font-size:12px;font-weight:800}
+.lb-img{display:flex;justify-content:center;padding:10px 0 4px;animation:mirarGira 3s ease-in-out infinite}
+.lb-hoja h4{margin:2px 0 6px;text-align:center;font-size:21px;color:#4a2209}
+.lb-que{margin:0 0 4px;font-size:12px;font-weight:800;color:#7a3d12;text-transform:uppercase;letter-spacing:.5px}
+.lb-d{margin:0 0 10px;font-size:14.5px;line-height:1.4}
+.lb-fila{display:grid;grid-template-columns:minmax(0,1fr) 78px 46px;align-items:center;gap:7px;margin:5px 0}
+.lb-zona{font-size:13px;line-height:1.2}.lb-zona::first-letter{text-transform:uppercase}
+.lb-barra{height:9px;border-radius:5px;background:rgba(60,35,10,.28);overflow:hidden}
+.lb-barra i{display:block;height:100%;border-radius:5px;background:var(--c)}
+.lb-fila b{text-align:right;font-size:14px}
+.lb-peq{display:block;margin:2px 0 0;font-size:11.5px;opacity:.75}
+.lb-nav{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:9px}
+.lb-nav button{flex:1;padding:8px 4px;border:none;border-radius:11px;font:700 13px system-ui,sans-serif;color:#fff;cursor:pointer;background:#5c6bc0}
+.lb-nav button:disabled{opacity:.4;cursor:default}
+.lb-nav .lb-idx{background:#8d6e63}.lb-nav .lb-x{background:#e53935;flex:0 0 auto;padding:8px 12px}
+.lb-pg{flex:0 0 auto;min-width:46px;text-align:center;font-size:11.5px;opacity:.8}
+@media (max-height:520px){.lb-img svg{width:56px!important;height:56px!important}.lb-tit{font-size:16px;margin-bottom:5px}}
+</style>`);
+document.body.insertAdjacentHTML('beforeend', `<div id="modal-libro" onclick="if(event.target===this)cerrarLibro()"><div class="lb-libro">
+  <div class="lb-tit">Libro de objetos</div>
+  <div class="lb-hoja" id="lb-hoja"></div>
+  <div class="lb-nav"><button id="lb-ant" onclick="libroIr(-1)">◀ Anterior</button><button class="lb-idx" onclick="libroIndice()">Índice</button><span class="lb-pg" id="lb-pg"></span><button id="lb-sig" onclick="libroIr(1)">Siguiente ▶</button><button class="lb-x" onclick="cerrarLibro()">Cerrar</button></div>
+</div></div>`);
+
+function libroRender(atras) {
+  const hoja = document.getElementById('lb-hoja'), L = libroOrden();
+  hoja.classList.toggle('atras', !!atras);
+  hoja.style.animation = 'none'; void hoja.offsetWidth; hoja.style.animation = '';
+  hoja.scrollTop = 0;
+  if (libroPag < 0) {
+    let h = '<p class="lb-sub">Toca un objeto para ver para qué sirve y cómo conseguirlo.</p><div class="lb-lista">';
+    h += L.map((p, i) => `<div class="lb-li" onclick="libroAbrirPag('${p.id}')"><b>${libroImg(p.id, 32)}</b><span>${p.n}</span></div>`).join('');
+    h += '</div><div class="lb-nota">Las probabilidades cambian según dónde consigas el objeto. La Moneda dorada y la Estrella polar hacen que tu próximo cofre dé un premio extra.</div>';
+    hoja.innerHTML = h;
+  } else {
+    const p = L[libroPag], col = colorProb(p.p);
+    const efecto = { comida: 'Comida', energia: 'Estamina', vida: 'Vida', escudo: 'Defensa', frio: 'Hambre', suerte: 'Suerte', huevo: 'Huevo gratis', reina: 'Colocable' }[p.uso] || 'Objeto';
+    const filas = libroProbs(p).map(r => `<div class="lb-fila" style="--c:${col}"><div class="lb-zona">${ZONAS_TXT[r.z] || r.z}</div><div class="lb-barra"><i style="width:${Math.max(4, Math.min(100, r.pct * 2.5))}%"></i></div><b>${libroPct(r.pct)}</b></div>`).join('');
+    const extra = p.unica ? '<small class="lb-peq">Solo si aún no tienes una Reina</small><small class="lb-peq">Solo puedes tener 1</small>' : '';
+    hoja.innerHTML = `<div class="lb-cab"><span class="lb-chip" style="background:${col}">${efecto}</span><span class="lb-rz" style="color:${col === '#9e9e9e' ? '#6b6b6b' : col}">${libroRareza(p.p)}</span></div>`
+      + `<div class="lb-img">${libroImg(p.id, 88)}</div><h4>${p.n}</h4>`
+      + `<div class="lb-que">Para qué sirve</div><p class="lb-d">${p.d}</p>`
+      + `<div class="lb-que">Dónde sale y probabilidad</div>${filas}${extra}`;
+  }
+  document.getElementById('lb-ant').disabled = libroPag < 0;
+  document.getElementById('lb-sig').disabled = libroPag >= L.length - 1;
+  document.getElementById('lb-pg').textContent = libroPag < 0 ? '' : (libroPag + 1) + ' / ' + L.length;
+}
+function libroAbrirPag(id) { libroPag = Math.max(0, libroOrden().findIndex(p => p.id === id)); libroRender(false); }
+function libroIr(d) { const n = libroOrden().length, v = Math.max(-1, Math.min(n - 1, libroPag + d)); if (v === libroPag) return; libroPag = v; libroRender(d < 0); }
+function libroIndice() { if (libroPag < 0) return; libroPag = -1; libroRender(true); }
+function abrirLibro() { libroPag = -1; libroRender(false); document.getElementById('modal-libro').style.display = 'flex'; }
+function cerrarLibro() { document.getElementById('modal-libro').style.display = 'none'; }
+window.addEventListener('keydown', e => {
+  if (document.getElementById('modal-libro').style.display !== 'flex') return;
+  if (e.key === 'Escape') cerrarLibro();
+  else if (e.key === 'ArrowRight') libroIr(1);
+  else if (e.key === 'ArrowLeft') libroIr(-1);
+  else return;
+  e.preventDefault(); e.stopPropagation();
+}, true);
 </script>
 </body>
 </html>
