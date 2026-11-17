@@ -8186,13 +8186,37 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       if (!nidoPos) { crearNido(); return; }
       if (cercaNido(4.5)) irA(true); else toast('Acércate a la entrada de tu nido para entrar.');
     }
-    function nacer(h) {
+    // Tipos de hormiga que pueden salir de un huevo (como en el 2D): Obrera, Protectora y Guerrera
+    // Equipo: la protectora lleva un casquito y la guerrera una espadita
+    const mMetal = new T.MeshPhongMaterial({ color: 0xb8c0c8, shininess: 90 }), mCasco = new T.MeshPhongMaterial({ color: 0x8d97a3, shininess: 70 }), mMango = new T.MeshLambertMaterial({ color: 0x5a3418 }), mOro = new T.MeshPhongMaterial({ color: 0xd9a830, shininess: 80 });
+    const cascoG = new T.SphereGeometry(1, 16, 10, 0, 6.2832, 0, 1.45), hojaG = new T.BoxGeometry(0.05, 0.015, 0.62), guardaG = new T.BoxGeometry(0.17, 0.03, 0.04), mangoG = new T.BoxGeometry(0.035, 0.035, 0.16);
+    function equipar(h, tipo) {
+      if (tipo === 'protectora') {
+        const c = new T.Mesh(cascoG, mCasco); c.scale.set(0.37, 0.27, 0.36); c.position.set(0, 0.7, 0.56); c.rotation.x = -0.12; h.cuerpo.add(c);
+        const borde = new T.Mesh(new T.TorusGeometry(1, 0.1, 6, 20), mMetal); borde.rotation.x = Math.PI / 2; borde.scale.set(0.37, 0.36, 0.3); borde.position.set(0, 0.7, 0.57); h.cuerpo.add(borde);
+        const cresta = new T.Mesh(new T.BoxGeometry(0.035, 0.09, 0.3), mMetal); cresta.position.set(0, 0.99, 0.55); h.cuerpo.add(cresta);
+      } else if (tipo === 'guerrera') {
+        const e = new T.Group(); e.position.set(0.33, 0.66, 0.42); e.rotation.set(-0.7, -0.15, 0.1);
+        const mg = new T.Mesh(mangoG, mMango); mg.position.z = -0.06; const gd = new T.Mesh(guardaG, mOro); gd.position.z = 0.03; const hj = new T.Mesh(hojaG, mMetal); hj.position.z = 0.34;
+        e.add(mg, gd, hj); h.cuerpo.add(e);
+      }
+    }
+    const TIPOS3 = {
+      obrera:     { nom: 'obrera',     esc: 0.75, dps: 8,  vel: 3.8, rango: 7,  msg: '¡Nació una hormiga obrera! Junta comida sola.' },
+      protectora: { nom: 'protectora', esc: 0.9,  dps: 14, vel: 4.2, rango: 12, msg: '¡Nació una hormiga protectora! Te defiende y te cura si estás cerca.' },
+      guerrera:   { nom: 'guerrera',   esc: 1.0,  dps: 34, vel: 5.6, rango: 10, msg: '¡Nació una hormiga guerrera! Ataca muy fuerte.' }
+    };
+    const tipoAlAzar = () => { const r = Math.random(); return r < 0.5 ? 'obrera' : r < 0.78 ? 'protectora' : 'guerrera'; };
+    const TIEMPO_HUEVO = { obrera: 15, protectora: 20, guerrera: 26 };
+    function nacer(h, callado) {
+      const tipo = TIPOS3[h.tipo] ? h.tipo : 'obrera', T3 = TIPOS3[tipo];
       const ang = rng() * 6.28, x = nidoPos.x + Math.cos(ang) * 4.4, z = nidoPos.z + Math.sin(ang) * 4.4;   // salen junto al montículo, no dentro de él
-      const d = datosHormiga(), a = hormiga(d.c1, d.c2, d.pata, d.mand, d.mandCol), b = hormiga(d.c1, d.c2, d.pata, d.mand, d.mandCol);
-      a.g.scale.setScalar(0.75); a.g.position.set(x, alt(x, z), z); scene.add(a.g);
-      b.g.scale.setScalar(0.75); b.g.position.set(h.x, h.y, h.z); scene2.add(b.g);
-      aliadas.push({ a, b, x, z, rot: rng() * 6, obj: null, tg: 18, be: { x: h.x, y: h.y, z: h.z, vy: 0 }, brot: 0, bo: null, bs: 0 });
-      toast('¡Nació una hormiga obrera!');
+      const d = datosHormiga(), mk = () => { const q = hormiga(d.c1, d.c2, d.pata, d.mand, d.mandCol); equipar(q, tipo); return q; };   // todas del color de tu colonia
+      const a = mk(), b = mk();
+      a.g.scale.setScalar(T3.esc); a.g.position.set(x, alt(x, z), z); scene.add(a.g);
+      b.g.scale.setScalar(T3.esc); b.g.position.set(h.x, h.y, h.z); scene2.add(b.g);
+      aliadas.push({ tipo, a, b, x, z, rot: rng() * 6, obj: null, tg: 18, be: { x: h.x, y: h.y, z: h.z, vy: 0 }, brot: 0, bo: null, bs: 0 });
+      if (!callado) toast(T3.msg);
     }
     function ponerHuevo() {
       if (P.muerta > 0) return;
@@ -8202,8 +8226,8 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       if (P.desp < 3) { toast('Necesitas 3 de comida en la despensa.'); return; }
       let ex = P.x + Math.sin(P.rot) * 1.1, ez = P.z + Math.cos(P.rot) * 1.1;
       if (choca(ex, P.y, ez)) { ex = P.x; ez = P.z; }
-      P.desp -= 3; P.cdHuevo = 20; huevos.push({ t: 15, x: ex, y: alSuelo(ex, P.y, ez), z: ez });
-      toast('Pusiste un huevo. Nacerá en 15 segundos.');
+      P.desp -= 3; P.cdHuevo = 20; const tp = tipoAlAzar(); huevos.push({ t: TIEMPO_HUEVO[tp], tipo: tp, x: ex, y: alSuelo(ex, P.y, ez), z: ez });
+      toast('Pusiste un huevo. ¿Qué nacerá: obrera, protectora o guerrera?');
     }
     function dormir() {
       if (P.muerta > 0) return;
@@ -8477,11 +8501,12 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       P.cdHuevo = Math.max(0, P.cdHuevo - dt);
       for (let i = huevos.length - 1; i >= 0; i--) { const h = huevos[i]; h.t -= dt; if (h.t <= 0) { huevos.splice(i, 1); nacer(h); } }
       aliadas.forEach((al, i) => {
-        let tx = al.x, tz = al.z, v = 0, foe = null, fd = 7;
+        const T3 = TIPOS3[al.tipo] || TIPOS3.obrera;
+        let tx = al.x, tz = al.z, v = 0, foe = null, fd = T3.rango;
         for (const e of enemigos) if (e.vivo) { const d = Math.hypot(e.x - al.x, e.z - al.z); if (d < fd) { fd = d; foe = e; } }
         if (foe) {
           tx = foe.x; tz = foe.z;
-          if (fd < 1.6) { foe.hp -= 18 * dt; foe.flash = 0.1; if (foe.hp <= 0) matar(foe); } else v = 3.8;
+          if (fd < 1.6) { foe.hp -= T3.dps * dt; foe.flash = 0.1; if (foe.hp <= 0) matar(foe); } else v = T3.vel;
         } else if (seguir && P.muerta <= 0 && !dentro) {
           const ang = i * 1.05; tx = P.x + Math.cos(ang) * 2.6; tz = P.z + Math.sin(ang) * 2.6;
           const dd = Math.hypot(tx - al.x, tz - al.z); v = dd > 1 ? Math.min(6, 2 + dd * 1.2) : 0;
@@ -8489,7 +8514,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
           const cx = nidoPos ? nidoPos.x : 0, cz = nidoPos ? nidoPos.z : 0;
           if (!al.obj || Math.hypot(al.obj.x - al.x, al.obj.z - al.z) < 0.8) al.obj = { x: cx + (rng() - 0.5) * 16, z: cz + (rng() - 0.5) * 16 };
           tx = al.obj.x; tz = al.obj.z; v = 1.6;
-          al.tg -= dt; if (al.tg <= 0) { al.tg = 18; if (P.desp < CAP_DESP) P.desp++; }   // las obreras juntan comida solas
+          if (al.tipo === 'obrera') { al.tg -= dt; if (al.tg <= 0) { al.tg = 18; if (P.desp < CAP_DESP) P.desp++; } }   // solo las obreras juntan comida
         }
         const dx = tx - al.x, dz = tz - al.z, dl = Math.hypot(dx, dz) || 0.001;
         if (v > 0) { al.x += dx / dl * v * dt; al.z += dz / dl * v * dt; }
@@ -8497,6 +8522,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         al.x = Math.max(-LIM, Math.min(LIM, al.x)); al.z = Math.max(-LIM, Math.min(LIM, al.z));
         al.a.g.position.set(al.x, alt(al.x, al.z), al.z); al.a.g.rotation.y = al.rot;
         patas(al.a, tt + i, v);
+        if (al.tipo === 'protectora' && !dentro && P.muerta <= 0 && P.hp < 100 && Math.hypot(P.x - al.x, P.z - al.z) < 4) P.hp = Math.min(100, P.hp + 2 * dt);   // la protectora te cura
       });
 
       // enemigas
@@ -8561,7 +8587,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 
       // pantalla
       hv.style.width = P.hp + '%'; he.style.width = P.est + '%'; hc.style.width = P.com + '%'; hd.style.opacity = Math.min(1, P.dano * 1.6);
-      const info = `Tierra ${P.tierra}/${CAP_TIERRA}${P.tierra >= CAP_TIERRA ? ' (¡llena!)' : ''}\nMochila ${P.mochila}/${CAP_MOCHILA} · Despensa ${P.desp}/${CAP_DESP}\n` + (nidoPos ? `Hormigas: ${aliadas.length} · Huevos: ${huevos.length}` : 'Sin nido todavía (⛏️)') + `\nManzanas comidas: ${P.n} · Enemigas derrotadas: ${P.kills}`;
+      const info = `Tierra ${P.tierra}/${CAP_TIERRA}${P.tierra >= CAP_TIERRA ? ' (¡llena!)' : ''}\nMochila ${P.mochila}/${CAP_MOCHILA} · Despensa ${P.desp}/${CAP_DESP}\n` + (nidoPos ? `Hormigas: ${aliadas.length} (🧺${aliadas.filter(a => a.tipo === 'obrera').length} 🛡️${aliadas.filter(a => a.tipo === 'protectora').length} ⚔️${aliadas.filter(a => a.tipo === 'guerrera').length}) · Huevos: ${huevos.length}` : 'Sin nido todavía (⛏️)') + `\nManzanas comidas: ${P.n} · Enemigas derrotadas: ${P.kills}`;
       if (info !== infoTxt) { infoTxt = info; hi.textContent = info; }
       let p = '';
       if (P.muerta <= 0) {
@@ -8595,8 +8621,8 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       for (let i = 0; i < tierraG.length; i++) { if (tierraG[i] === v) n++; else { r.push(n); v = v ? 0 : 1; n = 1; } }
       r.push(n);
       return { v: 1, x: fuera ? nidoPos.x : P.x, z: fuera ? nidoPos.z + RADIO_NIDO + 0.8 : P.z, hp: P.hp, est: P.est, com: P.com, mochila: P.mochila, tierra: P.tierra, desp: P.desp, n: P.n, kills: P.kills, cavado: P.cavado, cdHuevo: P.cdHuevo, fase,
-        nido: nidoPos ? { x: nidoPos.x, z: nidoPos.z } : null, pantry: pantry ? { x: pantry.x, y: pantry.y, z: pantry.z } : null, aliadas: aliadas.length,
-        huevos: huevos.map(h => ({ t: h.t, x: h.x, y: h.y, z: h.z })), seguir, cav: r };
+        nido: nidoPos ? { x: nidoPos.x, z: nidoPos.z } : null, pantry: pantry ? { x: pantry.x, y: pantry.y, z: pantry.z } : null, aliadas: aliadas.length, tipos: aliadas.map(a => a.tipo),
+        huevos: huevos.map(h => ({ t: h.t, tipo: h.tipo, x: h.x, y: h.y, z: h.z })), seguir, cav: r };
     }
     function importar(e) {
       if (!e || e.v !== 1) return;
@@ -8608,8 +8634,8 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       }
       if (e.nido) { nidoPos = { x: e.nido.x, z: e.nido.z }; nido.position.set(e.nido.x, alt(e.nido.x, e.nido.z), e.nido.z); nido.visible = true; }
       if (e.pantry) colocarDespensa(e.pantry.x, e.pantry.y, e.pantry.z);
-      (e.huevos || []).forEach(h => huevos.push({ t: h.t, x: h.x, y: h.y, z: h.z }));
-      if (nidoPos) for (let i = 0; i < Math.min(12, e.aliadas | 0); i++) nacer({ x: 0, y: SUELO_ENT + 0.02, z: 0.3 });
+      (e.huevos || []).forEach(h => huevos.push({ t: h.t, tipo: TIPOS3[h.tipo] ? h.tipo : 'obrera', x: h.x, y: h.y, z: h.z }));
+      if (nidoPos) for (let i = 0; i < Math.min(12, e.aliadas | 0); i++) nacer({ x: 0, y: SUELO_ENT + 0.02, z: 0.3, tipo: (e.tipos || [])[i] }, true);
       if (e.seguir) alternarSeguir();
     }
     const setRaza = r => { if (RAZAS_OK.includes(r)) razaSel = r; };
