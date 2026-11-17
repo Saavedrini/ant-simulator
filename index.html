@@ -1282,7 +1282,7 @@ function resetEstado() {
   btnHarvest.style.display = 'none'; btnDormir.style.display = 'none';
   actualizarPanelHuevos();
   hambre = 100;
-  limiteDer = 1200; limiteIzq = 0; enHoja = false; hoja.x = LAGO_IZQ + 40; camX = 0; limiteSub = 1200; camSubX = 0;
+  limiteDer = LIMITE_MAX; limiteIzq = LIMITE_MIN; enHoja = false; hoja.x = LAGO_IZQ + 40; camX = 0; limiteSub = 1200; camSubX = 0;   // mundo nuevo: ya trae TODOS los biomas
   grillos.forEach(g => g.el.remove()); grillos.length = 0; proxGrilloS = 60 + Math.random() * 240;
   aguacates.forEach((a, i) => a.n = AGUACATES_INI[i]); pintarAguacates(); calabazas.forEach((c, i) => c.n = CALABAZAS_INI[i]); pintarCalabazas();
   btnFlecha.style.display = 'none'; btnFlechaIzq.style.display = 'none'; btnAtrapar.style.display = 'none'; btnHoja.style.display = 'none'; ocultarDespensa();
@@ -2173,7 +2173,7 @@ function alturaColina(px) {
 
 function actualizarSubterraneo() {
   // Red de seguridad: si la reina quedó fuera del túnel o cae al vacío, vuelve al hoyo
-  if (fuera(antSub.x, antSub.y) >= 5 || antSub.y > 590 || !isFinite(antSub.y)) { antSub.x = xEntSub; antSub.y = 58; antSub.vy = 0; }
+  if (fueraR(antSub.x, antSub.y) >= 5 || antSub.y > 590 || !isFinite(antSub.y)) { antSub.x = xEntSub; antSub.y = 58; antSub.vy = 0; }
   if (excavando && !ruletaActiva) {
     const distanciaAlPuntero = Math.hypot(mouseSvgX - antSub.x, mouseSvgY - antSub.y);
     if (distanciaAlPuntero < 42 && stamina > 0 && Math.hypot(mouseSvgX - ultCavar.x, mouseSvgY - ultCavar.y) >= 3) {
@@ -2216,12 +2216,13 @@ function actualizarSubterraneo() {
   if (vx !== 0) {
     antSub.dir = vx;
     let nx = Math.max(25, Math.min(limiteSub - 25, antSub.x + vx * 2.2 * (esLoca() ? VEL_LOCA : 1) * dtFrame * velCorrer()));
-    if (fuera(nx, antSub.y) <= fuera(antSub.x, antSub.y)) {
+    const fAct = fueraR(antSub.x, antSub.y), fTol = Math.max(fAct, 1);   // tolera rozar una esquina para no trabarse en la tierra
+    if (fueraR(nx, antSub.y) <= fTol) {
       antSub.x = nx;
     } else {
-      // Intentar subir pequeños escalones
-      for (let s = 1; s <= 8; s++) {
-        if (fuera(nx, antSub.y - s) <= fuera(antSub.x, antSub.y)) {
+      // Intentar subir escalones y rampas (más altos que antes)
+      for (let s = 1; s <= 14; s++) {
+        if (fueraR(nx, antSub.y - s) <= fTol) {
           antSub.x = nx;
           antSub.y -= s;
           break;
@@ -2243,7 +2244,7 @@ function actualizarSubterraneo() {
     const pasos = Math.max(1, Math.ceil(Math.abs(antSub.vy * dtFrame)));
     const dy = (antSub.vy * dtFrame) / pasos;
     for (let i = 0; i < pasos; i++) {
-      if (fuera(antSub.x, antSub.y + dy) <= fuera(antSub.x, antSub.y)) {
+      if (fueraR(antSub.x, antSub.y + dy) <= fueraR(antSub.x, antSub.y)) {
         antSub.y += dy;
       } else {
         antSub.vy = 0;
@@ -2393,7 +2394,9 @@ function fuera(cx, cy, a = 15, arr = 11, abj = 7) {
   return n;
 }
 function cuerpoCabeEnTunel(cx, cy) { return fuera(cx, cy) === 0; }
-function tocadoSuelo() { return fuera(antSub.x, antSub.y + 2) > fuera(antSub.x, antSub.y); }
+// La reina usa una caja más chica que la de antes (15/11/7) para no trabarse en los túneles que cava (~28 px de ancho)
+const fueraR = (x, y) => fuera(x, y, 9, 8, 6);
+function tocadoSuelo() { return fueraR(antSub.x, antSub.y + 2) > fueraR(antSub.x, antSub.y); }
 
 // Campo de flujo: distancia (en celdas) desde cada punto del túnel hasta el hoyo de entrada
 function calcularCampo() {
@@ -4540,7 +4543,6 @@ function actualizarReinaNido() {
   }
 }
 function ponerHuevoReina() {
-  if (huevosEnIncubacion.length >= 6 || hormigasNacidas.length >= 40) { reinaNido.t = 10; return; }   // nido lleno: espera
   if (!puntoComida || itemsComida.length < REINA_COSTO) {   // sin comida en la despensa no pone huevos
     reinaNido.t = 10;
     if (Date.now() - (reinaNido.avisoT || 0) > 60000) { reinaNido.avisoT = Date.now(); avisarEsquina('La Reina no puede poner huevos: no hay comida en la despensa'); }
@@ -6290,6 +6292,9 @@ const LOG_TXT = {
       <li><b>🌙 Noches en el desierto.</b> El desierto ahora también se oscurece con el ciclo del día, con estrellas y luna incluidas.</li>
       <li><b>🕷️ Templo de las Arañas.</b> Una pirámide en lo profundo del desierto con <b>3 pisos</b> de arañas. Es más fácil que la Torre de Desafíos, pero sus cofres guardan <b>recompensas exclusivas</b>: Gema solar, Ojo de araña, Ambrosía del templo, Amuleto del templo y Escarabajo de oro.</li>
       <li><b>🐜 Hormigas en el templo.</b> Ahora el templo está lleno de arañas (4, 6 y 6 por piso) y entre ellas se escondieron solo <b>2 hormigas enemigas</b>: una en el piso 2 y otra en el piso 3.</li>
+      <li><b>🌍 Mundo completo.</b> Ya no hay que descubrir los biomas: al crear una partida aparece el mundo entero (otoño, nieve, planicies, lago y desierto).</li>
+      <li><b>🐜 Sin límite de hormigas.</b> Puedes tener todas las hormigas que quieras. Los huevos siguen gastando comida (40 si los pones tú, 2 de la despensa si los pone la Reina).</li>
+      <li><b>⛏️ Sin trabarte al cavar.</b> La reina ahora es más estrecha para los túneles y sube rampas y escalones más altos, así que ya no se queda pegada en la tierra al caminar mientras cavas.</li>
       <li><b>📜 Registro de cambios.</b> Toca la etiqueta «Actualización ${VERSION_JUEGO}» de la esquina para abrir este registro cuando quieras; aquí se irán sumando todas las actualizaciones.</li>
     </ul>`,
     `<h4>📖 Historial de actualizaciones</h4><p class="rch-sub">Todo lo que se agregó antes</p><ul class="rch-lista">
@@ -6304,6 +6309,9 @@ const LOG_TXT = {
       <li><b>🌙 Desert nights.</b> The desert now darkens with the day cycle too, with stars and a moon included.</li>
       <li><b>🕷️ Spider Temple.</b> A pyramid deep in the desert with <b>3 floors</b> of spiders. It is easier than the Tower of Challenges, but its chests hold <b>exclusive rewards</b>: Sun gem, Spider eye, Temple ambrosia, Temple amulet and Golden scarab.</li>
       <li><b>🐜 Ants in the temple.</b> The temple is now full of spiders (4, 6 and 6 per floor) with only <b>2 enemy ants</b> hiding among them: one on floor 2 and one on floor 3.</li>
+      <li><b>🌍 Full world.</b> You no longer have to discover the biomes: a new game starts with the whole world (autumn, snow, plains, lake and desert).</li>
+      <li><b>🐜 No ant limit.</b> You can have as many ants as you want. Eggs still cost food (40 if you lay them, 2 from the pantry if the Queen does).</li>
+      <li><b>⛏️ No more getting stuck while digging.</b> The queen now fits tunnels better and climbs taller steps and ramps, so she no longer sticks to the dirt while walking and digging.</li>
       <li><b>📜 Changelog.</b> Tap the "Update ${VERSION_JUEGO}" tag in the corner to open this log whenever you want.</li>
     </ul>`,
     `<h4>📖 Update history</h4><p class="rch-sub">Everything added before</p><ul class="rch-lista">
@@ -7308,7 +7316,6 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     <div class="p3-pie"><button class="p3-b azul" onclick="p3Nueva()">➕ Nueva partida</button><button class="p3-b gris" onclick="p3Cerrar()">Volver</button></div></div>
   <div id="p3-nueva-v" style="display:none">
     <div class="p3-lbl">Nombre</div><input id="p3-nombre" maxlength="20" placeholder="Mi mundo...">
-    <div class="p3-lbl">Bioma</div><div class="p3-opts" id="p3-biomas"></div>
     <div class="p3-lbl">Raza de hormiga</div><div class="p3-opts" id="p3-razas"></div>
     <div class="p3-lbl">Semilla (opcional)</div><input id="p3-semilla" maxlength="24" placeholder="Vacío = un mundo nuevo al azar">
     <div class="p3-pie"><button class="p3-b" onclick="p3Crear()">▶ Empezar</button><button class="p3-b gris" onclick="p3Lista()">Atrás</button></div>
@@ -7349,7 +7356,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
   window.jugarPartidas = () => { cerrarJugar(); abrirPartidas(); };
 
   // ----- Partidas 3D: se guardan en este navegador (cada mundo tiene su semilla, bioma y raza) -----
-  const BIO_UI = { pradera: ['🌳', 'Pradera'], otono: ['🍂', 'Otoño'], desierto: ['🏜️', 'Desierto'], azar: ['🎲', 'Al azar'] };
+  const BIO_UI = { pradera: ['🌳', 'Pradera'], otono: ['🍂', 'Otoño'], desierto: ['🏜️', 'Desierto'], azar: ['🎲', 'Al azar'], mundo: ['🌍', 'Todos los biomas'] };
   const RAZAS_UI = { red: '🔴 Roja', and: '⚫ Negra', trampa: '⚫ Trampa', prados: '🟡 Prados', loca: '⚫ Loca', tridente: '🔱 Tridente' };
   const LS3D = 'hormigas3d_partidas_v1';
   let part3 = [], actual = null, selBio = 'azar', selRaza = 'red', ultGuard = 0;
@@ -7368,7 +7375,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     if (!part3.length) { const e = document.createElement('p'); e.style.cssText = 'text-align:center;opacity:.8;font-size:13px;margin:14px 0'; e.textContent = 'Aún no tienes partidas 3D. ¡Crea una!'; l.appendChild(e); }
     part3.slice().sort((a, b) => (b.fecha || 0) - (a.fecha || 0)).forEach(p => {
       const it = document.createElement('div'); it.className = 'p3-item';
-      const bi = BIO_UI[p.bioma] || BIO_UI.pradera, f = new Date(p.fecha || Date.now());
+      const bi = BIO_UI.mundo, f = new Date(p.fecha || Date.now());
       it.innerHTML = '<span class="ic"></span><div class="t"><b></b><small></small></div>';
       it.querySelector('.ic').textContent = bi[0]; it.querySelector('b').textContent = p.nombre;
       it.querySelector('small').textContent = bi[1] + ' · ' + (RAZAS_UI[p.raza] || p.raza) + ' · ' + f.toLocaleDateString() + ' ' + f.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -7384,14 +7391,12 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
   window.p3Nueva = () => {
     $('p3-lista-v').style.display = 'none'; $('p3-nueva-v').style.display = 'block';
     $('p3-nombre').value = 'Mundo ' + (leer3().length + 1); $('p3-semilla').value = '';
-    opciones('p3-biomas', BIO_UI, selBio, k => { selBio = k; });
     opciones('p3-razas', RAZAS_UI, selRaza, k => { selRaza = k; });
   };
   window.p3Crear = () => {
     const txt = $('p3-semilla').value.trim();
     const sd = txt ? [...txt].reduce((h, ch) => Math.imul(h, 31) + ch.charCodeAt(0) | 0, 7) : Math.floor(Math.random() * 2147483647);
-    const bios = ['pradera', 'otono', 'desierto'];
-    const bioma = selBio === 'azar' ? bios[Math.abs(txt ? sd : Math.floor(Math.random() * 1e6)) % 3] : selBio;
+    const bioma = 'mundo';   // un solo mundo con todos los biomas
     part3 = leer3();
     const slot = { id: Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36), nombre: ($('p3-nombre').value.trim() || 'Mundo ' + (part3.length + 1)).slice(0, 20), bioma, raza: selRaza, seed: sd, fecha: Date.now(), estado: null };
     part3.push(slot);
@@ -7426,7 +7431,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     catch (err) { console.error(err); estado.innerHTML = 'Tu navegador no pudo iniciar el 3D (WebGL).'; return; }
     W.generarMundo(actual.seed, actual.bioma); W.setRaza(actual.raza); W.reset(); W.ajustar();
     if (actual.estado) { try { W.importar(actual.estado); } catch (err) { console.error(err); } }
-    $('m3-tag').textContent = actual.nombre + ' · ' + (BIO_UI[actual.bioma] || BIO_UI.pradera)[1];
+    $('m3-tag').textContent = actual.nombre + ' · ' + BIO_UI.mundo[1];
     estado.style.display = 'none';
     ultGuard = last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
   };
@@ -7527,8 +7532,22 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     let LX = 40, LZ = -35;
     const NIVEL_AGUA = -1.0, LIM = 88;
     const TP = { f1: 0.08, f2: 0.07, f3: 0.15, p1: 0, p2: 0, p3: 0, a1: 1.3, a2: 1.1, a3: 0.45 };   // forma del terreno (cambia con la semilla)
-    const alt = (x, z) => {   // altura del terreno en (x, z): colinas / dunas, plano junto al nido y un lago
-      let base = Math.sin(x * TP.f1 + TP.p1) * TP.a1 + Math.cos(z * TP.f2 + TP.p2) * TP.a2 + Math.sin((x + z) * TP.f3 + TP.p3) * TP.a3;
+    // Mundo con TODOS los biomas: tres sectores alrededor del nido (pradera, otoño, desierto) que se mezclan suavemente en sus bordes; junto al nido siempre hay pradera
+    const BIO_LISTA = [BIOMAS.pradera, BIOMAS.otono, BIOMAS.desierto], OFS = { a: 0, p: 0 };
+    const pesos = (x, z) => {
+      const r = Math.hypot(x, z);
+      let m = (Math.atan2(z, x) + OFS.a + 0.4 * Math.sin(r * 0.035 + OFS.p)) / 6.2832 * 3;
+      m = ((m % 3) + 3) % 3;
+      const w = [0, 0, 0]; let tot = 0;
+      for (let k = 0; k < 3; k++) { let d = Math.abs(m - (k + 0.5)); d = Math.min(d, 3 - d); w[k] = 1 - sstep(0.3, 0.7, d); tot += w[k]; }
+      const cn = 1 - sstep(16, 36, r);
+      for (let k = 0; k < 3; k++) w[k] = (w[k] / tot) * (1 - cn) + (k === 0 ? cn : 0);
+      return w;
+    };
+    const elige = (x, z) => { const w = pesos(x, z), r = rng(); return r < w[0] ? 0 : r < w[0] + w[1] ? 1 : 2; };
+    const alt = (x, z) => {   // altura del terreno en (x, z): colinas / dunas (más altas en el desierto), plano junto al nido y un lago
+      const pw = pesos(x, z), amp = pw[0] + pw[1] * 1.15 + pw[2] * 1.7;
+      let base = (Math.sin(x * TP.f1 + TP.p1) * TP.a1 + Math.cos(z * TP.f2 + TP.p2) * TP.a2 + Math.sin((x + z) * TP.f3 + TP.p3) * TP.a3) * amp;
       if (base < -0.5) base = -0.5 + (base + 0.5) * 0.15;   // sin hondonadas fantasma que parezcan agua
       const k = sstep(5, 16, Math.hypot(x, z));
       const lago = Math.max(0, 1 - Math.hypot(x - LX, z - LZ) / 17);
@@ -7547,8 +7566,10 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     agua.rotation.x = -Math.PI / 2; scene.add(agua);
 
     // ----- Genera TODO el mundo (terreno, pasto, flores, piedras, árboles / cactus, lago) a partir de una semilla y un bioma -----
+    const mPiedras = BIO_LISTA.map(b => new T.MeshLambertMaterial({ color: b.piedra })), mFrutas = BIO_LISTA.map(b => new T.MeshPhongMaterial({ color: b.fruta, shininess: 60 }));
+    const cCielo = BIO_LISTA.map(b => new T.Color(b.cielo)), cHemiC = BIO_LISTA.map(b => new T.Color(b.hemiC)), cHemiG = BIO_LISTA.map(b => new T.Color(b.hemiG)), cSolC = BIO_LISTA.map(b => new T.Color(b.solC)), AMB = [1, 0, 0];
     function generarMundo(sd, bk) {
-      B = BIOMAS[bk] || BIOMAS.pradera; biomaAct = BIOMAS[bk] ? bk : 'pradera';
+      B = BIOMAS.pradera; biomaAct = 'mundo';
       mundoObjs.forEach(o => { scene.remove(o); o.traverse(q => { if (q.geometry) q.geometry.dispose(); }); }); mundoObjs.length = 0;
       manzanas.length = 0; troncos.length = 0;
       seed = sd | 0;
@@ -7556,11 +7577,12 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       // forma del terreno distinta en cada mundo
       TP.f1 = 0.05 + rng() * 0.05; TP.f2 = 0.045 + rng() * 0.045; TP.f3 = 0.11 + rng() * 0.07;
       TP.p1 = rng() * 6.28; TP.p2 = rng() * 6.28; TP.p3 = rng() * 6.28;
-      TP.a1 = (0.9 + rng() * 0.7) * B.amp; TP.a2 = (0.8 + rng() * 0.7) * B.amp; TP.a3 = (0.25 + rng() * 0.3) * B.amp;
+      TP.a1 = 0.9 + rng() * 0.7; TP.a2 = 0.8 + rng() * 0.7; TP.a3 = 0.25 + rng() * 0.3;
+      OFS.a = rng() * 6.2832; OFS.p = rng() * 6.2832; AMB[0] = 1; AMB[1] = 0; AMB[2] = 0;
       const ang0 = rng() * 6.2832, dl0 = 38 + rng() * 22; LX = Math.cos(ang0) * dl0; LZ = Math.sin(ang0) * dl0;
       agua.position.set(LX, NIVEL_AGUA, LZ);
       // cielo y luz del bioma
-      cDia.setHex(B.cielo); hemi.color.setHex(B.hemiC); hemi.groundColor.setHex(B.hemiG); sol.color.setHex(B.solC);
+      cDia.copy(cCielo[0]); hemi.color.copy(cHemiC[0]); hemi.groundColor.copy(cHemiG[0]); sol.color.copy(cSolC[0]);   // el cielo y la luz cambian según el bioma por el que andes
       mPiedra.color.setHex(B.piedra); mManzana.color.setHex(B.fruta);
       const lejos = (x, z, r0, r1) => Math.hypot(x, z) < r0 || Math.hypot(x - LX, z - LZ) < r1;
 
@@ -7571,7 +7593,9 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       for (let i = 0; i < pos.count; i++) {
         const x = pos.getX(i), z = pos.getZ(i);
         pos.setY(i, alt(x, z));
-        c.setHSL(B.suelo[0] + 0.035 * Math.sin(x * 0.31) * Math.cos(z * 0.27) + (rng() - 0.5) * 0.02, B.suelo[1], B.suelo[2] + 0.07 * Math.sin(x * 0.13 + z * 0.17) + (rng() - 0.5) * 0.03);
+        const pw = pesos(x, z), j1 = (rng() - 0.5) * 0.02, j2 = (rng() - 0.5) * 0.03; let cr = 0, cg = 0, cb = 0;
+        for (let q = 0; q < 3; q++) { const sb = BIO_LISTA[q].suelo; c.setHSL(sb[0] + 0.035 * Math.sin(x * 0.31) * Math.cos(z * 0.27) + j1, sb[1], sb[2] + 0.07 * Math.sin(x * 0.13 + z * 0.17) + j2); cr += c.r * pw[q]; cg += c.g * pw[q]; cb += c.b * pw[q]; }
+        c.setRGB(cr, cg, cb);
         const dn = Math.hypot(x, z); if (dn < 9) c.lerp(tierra, 1 - sstep(4, 9, dn));
         const dl = Math.hypot(x - LX, z - LZ); if (dl < 16) c.lerp(arena, 1 - sstep(9, 16, dl));
         cols[i * 3] = c.r; cols[i * 3 + 1] = c.g; cols[i * 3 + 2] = c.b;
@@ -7583,47 +7607,50 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 
       // pasto (en el desierto, matas secas; en otoño, pasto dorado)
       const hGeo = new T.ConeGeometry(0.07, 0.75, 4); hGeo.translate(0, 0.375, 0);
-      const hierba = new T.InstancedMesh(hGeo, new T.MeshLambertMaterial({ color: 0xffffff }), B.nh);
-      for (let i = 0; i < B.nh; i++) {
-        let x, z;
-        do { x = (rng() - 0.5) * 200; z = (rng() - 0.5) * 200; } while (lejos(x, z, 6, 11));
+      const NH = 7000, DENS = [1, 0.85, 0.3], hierba = new T.InstancedMesh(hGeo, new T.MeshLambertMaterial({ color: 0xffffff }), NH);
+      for (let i = 0; i < NH; i++) {
+        let x, z, bi;
+        do { x = (rng() - 0.5) * 200; z = (rng() - 0.5) * 200; bi = elige(x, z); } while (lejos(x, z, 6, 11) || rng() > DENS[bi]);
+        const Bq = BIO_LISTA[bi];
         dm.position.set(x, alt(x, z), z);
         dm.rotation.set((rng() - 0.5) * 0.4, rng() * 6.28, (rng() - 0.5) * 0.4);
         const sc = 0.7 + rng() * 1.1; dm.scale.set(sc, sc * (0.8 + rng() * 0.8), sc);
         dm.updateMatrix(); hierba.setMatrixAt(i, dm.matrix);
-        c.setHSL(B.pasto[0] + rng() * B.pasto[1], B.pasto[2], B.pasto[3] + rng() * B.pasto[4]); hierba.setColorAt(i, c);
+        c.setHSL(Bq.pasto[0] + rng() * Bq.pasto[1], Bq.pasto[2], Bq.pasto[3] + rng() * Bq.pasto[4]); hierba.setColorAt(i, c);
       }
       add(hierba);
 
       // flores (en otoño son hojas caídas)
-      const floresM = new T.InstancedMesh(new T.SphereGeometry(0.16, 6, 5), new T.MeshLambertMaterial({ color: 0xffffff }), B.nf);
-      for (let i = 0; i < B.nf; i++) {
-        let x, z;
-        do { x = (rng() - 0.5) * 190; z = (rng() - 0.5) * 190; } while (lejos(x, z, 8, 13));
-        dm.position.set(x, alt(x, z) + (B.arbol === 'copa' && bk === 'otono' ? 0.08 : 0.45), z); dm.rotation.set(0, 0, 0); dm.scale.set(1, bk === 'otono' ? 0.3 : 1, 1); dm.updateMatrix();
-        floresM.setMatrixAt(i, dm.matrix); c.setHex(B.flores[Math.floor(rng() * B.flores.length)]); floresM.setColorAt(i, c);
+      const floresM = new T.InstancedMesh(new T.SphereGeometry(0.16, 6, 5), new T.MeshLambertMaterial({ color: 0xffffff }), 480);
+      const DF = [1, 1, 0.25];
+      for (let i = 0; i < 480; i++) {
+        let x, z, bi;
+        do { x = (rng() - 0.5) * 190; z = (rng() - 0.5) * 190; bi = elige(x, z); } while (lejos(x, z, 8, 13) || rng() > DF[bi]);
+        const Bq = BIO_LISTA[bi];
+        dm.position.set(x, alt(x, z) + (bi === 1 ? 0.08 : 0.45), z); dm.rotation.set(0, 0, 0); dm.scale.set(1, bi === 1 ? 0.3 : 1, 1); dm.updateMatrix();
+        floresM.setMatrixAt(i, dm.matrix); c.setHex(Bq.flores[Math.floor(rng() * Bq.flores.length)]); floresM.setColorAt(i, c);
       }
       add(floresM);
 
       // piedras
-      for (let i = 0; i < B.np; i++) {
-        let x, z;
-        do { x = (rng() - 0.5) * 180; z = (rng() - 0.5) * 180; } while (lejos(x, z, 10, 14));
-        const r = new T.Mesh(new T.DodecahedronGeometry(1, 0), mPiedra);
+      for (let i = 0; i < 40; i++) {
+        let x, z, bi;
+        do { x = (rng() - 0.5) * 180; z = (rng() - 0.5) * 180; bi = elige(x, z); } while (lejos(x, z, 10, 14) || rng() > (bi === 2 ? 1 : 0.55));
+        const r = new T.Mesh(new T.DodecahedronGeometry(1, 0), mPiedras[bi]);
         const sz = 0.6 + rng() * 1.3; r.scale.set(sz, sz * 0.7, sz * (0.8 + rng() * 0.5));
         r.position.set(x, alt(x, z) + sz * 0.25, z); r.rotation.y = rng() * 6; r.castShadow = true; r.receiveShadow = true; add(r);
       }
 
       // árboles (pradera / otoño) o cactus (desierto), cada uno con sus frutos en el suelo
-      const nArb = B.arboles[0] + Math.floor(rng() * (B.arboles[1] - B.arboles[0] + 1)), def = [];
+      const nArb = 34 + Math.floor(rng() * 10), def = [];
       for (let i = 0; i < nArb; i++) {
         let x, z, n = 0;
         do { x = (rng() - 0.5) * 170; z = (rng() - 0.5) * 170; n++; } while ((lejos(x, z, 14, 19) || def.some(d => Math.hypot(d.x - x, d.z - z) < 8)) && n < 50);
-        def.push({ x, z, n: 2 + Math.floor(rng() * 3) });
+        def.push({ x, z, n: 2 + Math.floor(rng() * 3), bi: elige(x, z) });
       }
       def.forEach(d => {
-        const g = new T.Group(); g.position.set(d.x, alt(d.x, d.z), d.z);
-        if (B.arbol === 'cactus') {
+        const Bq = BIO_LISTA[d.bi], g = new T.Group(); g.position.set(d.x, alt(d.x, d.z), d.z);
+        if (Bq.arbol === 'cactus') {
           const alto = 3.4 + rng() * 2.2, tr = new T.Mesh(new T.CylinderGeometry(0.42, 0.5, alto, 8), mCactus); tr.position.y = alto / 2; tr.castShadow = true; g.add(tr);
           const top = new T.Mesh(new T.SphereGeometry(0.42, 8, 6), mCactus); top.position.y = alto; g.add(top);
           [-1, 1].forEach(sd2 => {
@@ -7635,7 +7662,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
           g.rotation.y = rng() * 6.28; troncos.push({ x: d.x, z: d.z, r: 0.75 });
         } else {
           const tr = new T.Mesh(new T.CylinderGeometry(0.55, 0.8, 5, 8), mTronco); tr.position.y = 2.5; tr.castShadow = true; g.add(tr);
-          const mh = new T.MeshLambertMaterial({ color: new T.Color().setHSL(B.hojas[0] + rng() * B.hojas[1], B.hojas[2], B.hojas[3] + rng() * B.hojas[4]) });
+          const mh = new T.MeshLambertMaterial({ color: new T.Color().setHSL(Bq.hojas[0] + rng() * Bq.hojas[1], Bq.hojas[2], Bq.hojas[3] + rng() * Bq.hojas[4]) });
           [[0, 6.2, 0, 3], [1.6, 5.4, 0.6, 2.2], [-1.5, 5.6, -0.5, 2.3], [0.3, 7.8, -0.3, 2]].forEach(([x, y, z, r]) => {
             const f = new T.Mesh(new T.IcosahedronGeometry(r, 1), mh); f.position.set(x, y, z); f.castShadow = true; g.add(f);
           });
@@ -7644,7 +7671,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         add(g);
         for (let k = 0; k < d.n; k++) {
           const a = rng() * 6.28, r = 2.2 + rng() * 2.6, x = d.x + Math.cos(a) * r, z = d.z + Math.sin(a) * r;
-          const m = new T.Mesh(aGeo, mManzana); m.position.set(x, alt(x, z) + 0.3, z); m.castShadow = true; add(m);
+          const m = new T.Mesh(aGeo, mFrutas[d.bi]); m.position.set(x, alt(x, z) + 0.3, z); m.castShadow = true; add(m);
           manzanas.push({ m, x, z, vis: true, t: 0 });
         }
       });
@@ -7823,7 +7850,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     const cTop = new T.Color(0x7d5430), cDeep = new T.Color(0x3a2312), cPeb = new T.Color(0x8c8575), cc = new T.Color();
     // Los túneles se dibujan como una superficie suave y orgánica (no como cubos): se suaviza la tierra y se genera la malla sobre ella.
     const SD = CH + 2, DENS = new Float32Array(SD * SD * SD);
-    const OFS = [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]];
+    const OFS_C = [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]];
     const ARI = [[0, 1], [2, 3], [4, 5], [6, 7], [0, 2], [1, 3], [4, 6], [5, 7], [0, 4], [1, 5], [2, 6], [3, 7]];
     const dv = new Float32Array(8);
     function reconstruir(cx, cy, cz) {
@@ -7845,12 +7872,12 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
           const key = ((dk - ok) * SD + (dj - oj)) * SD + (di - oi);
           let v = cache.get(key); if (v !== undefined) return v;
           let ns = 0;
-          for (let q = 0; q < 8; q++) { const d = dn(di + OFS[q][0], dj + OFS[q][1], dk + OFS[q][2]); dv[q] = d; if (d >= 0.5) ns++; }
+          for (let q = 0; q < 8; q++) { const d = dn(di + OFS_C[q][0], dj + OFS_C[q][1], dk + OFS_C[q][2]); dv[q] = d; if (d >= 0.5) ns++; }
           if (ns === 0 || ns === 8) { cache.set(key, -1); return -1; }
           let ax = 0, ay = 0, az = 0, ne = 0;
           for (const e of ARI) {
             const da = dv[e[0]], db = dv[e[1]]; if ((da >= 0.5) === (db >= 0.5)) continue;
-            const t = (0.5 - da) / (db - da), A = OFS[e[0]], Bq = OFS[e[1]];
+            const t = (0.5 - da) / (db - da), A = OFS_C[e[0]], Bq = OFS_C[e[1]];
             ax += A[0] + t * (Bq[0] - A[0]); ay += A[1] + t * (Bq[1] - A[1]); az += A[2] + t * (Bq[2] - A[2]); ne++;
           }
           const x = OX + (di + 0.5 + ax / ne) * CE, y = OY + (dj + 0.5 + ay / ne) * CE, z = OZ + (dk + 0.5 + az / ne) * CE;
@@ -8207,6 +8234,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       guerrera:   { nom: 'guerrera',   esc: 1.0,  dps: 34, vel: 5.6, rango: 10, msg: '¡Nació una hormiga guerrera! Ataca muy fuerte.' }
     };
     const tipoAlAzar = () => { const r = Math.random(); return r < 0.5 ? 'obrera' : r < 0.78 ? 'protectora' : 'guerrera'; };
+    const COSTE_HUEVO = 4;
     const TIEMPO_HUEVO = { obrera: 15, protectora: 20, guerrera: 26 };
     function nacer(h, callado) {
       const tipo = TIPOS3[h.tipo] ? h.tipo : 'obrera', T3 = TIPOS3[tipo];
@@ -8222,12 +8250,12 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       if (P.muerta > 0) return;
       if (!dentro) { toast(nidoPos ? 'Entra al nido (N) para poner huevos.' : 'Primero crea el nido (⛏️).'); return; }
       if (P.cdHuevo > 0) { toast('Espera ' + Math.ceil(P.cdHuevo) + ' s para otro huevo.'); return; }
-      if (aliadas.length + huevos.length >= 6) { toast('Tu colonia ya tiene 6 hormigas.'); return; }
-      if (P.desp < 3) { toast('Necesitas 3 de comida en la despensa.'); return; }
+      if (P.desp + P.mochila < COSTE_HUEVO) { toast('Poner un huevo gasta ' + COSTE_HUEVO + ' de comida (despensa + mochila). Junta más.'); return; }
       let ex = P.x + Math.sin(P.rot) * 1.1, ez = P.z + Math.cos(P.rot) * 1.1;
       if (choca(ex, P.y, ez)) { ex = P.x; ez = P.z; }
-      P.desp -= 3; P.cdHuevo = 20; const tp = tipoAlAzar(); huevos.push({ t: TIEMPO_HUEVO[tp], tipo: tp, x: ex, y: alSuelo(ex, P.y, ez), z: ez });
-      toast('Pusiste un huevo. ¿Qué nacerá: obrera, protectora o guerrera?');
+      { const deDesp = Math.min(P.desp, COSTE_HUEVO); P.desp -= deDesp; P.mochila -= COSTE_HUEVO - deDesp; }   // el huevo se paga con comida
+      P.cdHuevo = 6; const tp = tipoAlAzar(); huevos.push({ t: TIEMPO_HUEVO[tp], t0: TIEMPO_HUEVO[tp], tipo: tp, x: ex, y: alSuelo(ex, P.y, ez), z: ez });
+      toast('Pusiste un huevo (−' + COSTE_HUEVO + ' de comida). ¿Qué nacerá: obrera, protectora o guerrera?');
     }
     function dormir() {
       if (P.muerta > 0) return;
@@ -8433,6 +8461,10 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       fase += dt * 6.2832 / 240;
       const sh = Math.sin(fase) + 0.3, k = sstep(-0.12, 0.3, sh);
       esNoche = sh < 0.05;
+      { const qx = dentro && nidoPos ? nidoPos.x : P.x, qz = dentro && nidoPos ? nidoPos.z : P.z, wp = pesos(qx, qz), f = Math.min(1, dt * 0.8);
+        for (let q = 0; q < 3; q++) AMB[q] += (wp[q] - AMB[q]) * f;
+        cDia.setRGB(0, 0, 0); hemi.color.setRGB(0, 0, 0); hemi.groundColor.setRGB(0, 0, 0); sol.color.setRGB(0, 0, 0);
+        for (let q = 0; q < 3; q++) { const a = AMB[q]; cDia.r += cCielo[q].r * a; cDia.g += cCielo[q].g * a; cDia.b += cCielo[q].b * a; hemi.color.r += cHemiC[q].r * a; hemi.color.g += cHemiC[q].g * a; hemi.color.b += cHemiC[q].b * a; hemi.groundColor.r += cHemiG[q].r * a; hemi.groundColor.g += cHemiG[q].g * a; hemi.groundColor.b += cHemiG[q].b * a; sol.color.r += cSolC[q].r * a; sol.color.g += cSolC[q].g * a; sol.color.b += cSolC[q].b * a; } }
       cielo.copy(cNoche).lerp(cDia, k).lerp(cOcaso, Math.max(0, 1 - Math.abs(sh) / 0.25) * 0.45);
       scene.background.copy(cielo); scene.fog.color.copy(cielo);
       sol.intensity = 0.95 * k; hemi.intensity = 0.18 + 0.5 * k; estrellas.material.opacity = 1 - k;
@@ -8565,9 +8597,10 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         if (P.muerta <= 0) P.a.g.visible = false;
         luzNido.position.set(P.x, P.y + 1.1, P.z);
         for (let q = 0; q < 24; q++) pilaMan[q].visible = !!pantry && q < P.desp;
-        for (let q = 0; q < 6; q++) {
+        while (huevosN.length < huevos.length) { const m = new T.Mesh(sph, mHuevo); m.scale.set(0.3, 0.24, 0.3); scene2.add(m); huevosN.push(m); }
+        for (let q = 0; q < huevosN.length; q++) {
           const hm = huevosN[q], h = huevos[q]; hm.visible = !!h;
-          if (h) { const sc = 0.2 + 0.14 * (1 - h.t / 15); hm.scale.set(sc, sc * 0.8, sc); hm.position.set(h.x, h.y + sc * 0.8, h.z); }
+          if (h) { const sc = 0.2 + 0.14 * (1 - h.t / (h.t0 || 15)); hm.scale.set(sc, sc * 0.8, sc); hm.position.set(h.x, h.y + sc * 0.8, h.z); }
         }
         aliadas.forEach((al, q) => {
           const e = al.be;
@@ -8596,7 +8629,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
           else if (P.tierra >= CAP_TIERRA) p = 'Mochila de tierra llena · sube a la luz de la entrada y pulsa B';
           else if (pantry && cercaDesp(9) && (P.mochila > 0 || P.desp > 0)) p = P.mochila > 0 ? 'G · guardar comida   E · comer' : 'E · comer de la despensa';
           else if (!pantry && P.mochila > 0) p = 'G · crear la despensa aquí y guardar la comida';
-          else if (P.desp >= 3 && P.cdHuevo <= 0 && aliadas.length + huevos.length < 6) p = 'H · poner un huevo aquí';
+          else if (P.desp + P.mochila >= COSTE_HUEVO && P.cdHuevo <= 0) p = 'H · poner un huevo aquí (gasta ' + COSTE_HUEVO + ' de comida)';
           else if (esNoche) p = 'Z · dormir';
           else if (P.cavado < 6) p = 'Mantén el clic izquierdo para cavar (o C / Q / X) · mueve el ratón para mirar';
         } else if (manzanaCerca()) p = 'R · cosechar   E · comer';
@@ -8634,8 +8667,8 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       }
       if (e.nido) { nidoPos = { x: e.nido.x, z: e.nido.z }; nido.position.set(e.nido.x, alt(e.nido.x, e.nido.z), e.nido.z); nido.visible = true; }
       if (e.pantry) colocarDespensa(e.pantry.x, e.pantry.y, e.pantry.z);
-      (e.huevos || []).forEach(h => huevos.push({ t: h.t, tipo: TIPOS3[h.tipo] ? h.tipo : 'obrera', x: h.x, y: h.y, z: h.z }));
-      if (nidoPos) for (let i = 0; i < Math.min(12, e.aliadas | 0); i++) nacer({ x: 0, y: SUELO_ENT + 0.02, z: 0.3, tipo: (e.tipos || [])[i] }, true);
+      (e.huevos || []).forEach(h => huevos.push({ t: h.t, t0: TIEMPO_HUEVO[TIPOS3[h.tipo] ? h.tipo : 'obrera'], tipo: TIPOS3[h.tipo] ? h.tipo : 'obrera', x: h.x, y: h.y, z: h.z }));
+      if (nidoPos) for (let i = 0; i < (e.aliadas | 0); i++) nacer({ x: 0, y: SUELO_ENT + 0.02, z: 0.3, tipo: (e.tipos || [])[i] }, true);
       if (e.seguir) alternarSeguir();
     }
     const setRaza = r => { if (RAZAS_OK.includes(r)) razaSel = r; };
