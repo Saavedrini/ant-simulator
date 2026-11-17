@@ -7274,6 +7274,20 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 #m3-mira:before{left:8px;top:0;width:2px;height:18px}
 #m3-mira:after{top:8px;left:0;height:2px;width:18px}
 #m3-fade{inset:0;background:#000;opacity:0;transition:opacity .22s;z-index:2}
+#modal-3d{position:fixed;inset:0;z-index:5400;display:none;align-items:center;justify-content:center;background:rgba(14,5,2,.86);font-family:system-ui,sans-serif;color:#ffe9b8}
+#modal-3d .p3-caja{width:min(94vw,470px);max-height:92vh;overflow:auto;background:linear-gradient(145deg,#7a3d12,#4a2209 60%,#3a1a07);border:3px solid #1f0e04;border-radius:16px;box-shadow:inset 0 0 0 3px #b8860b;padding:16px}
+#modal-3d h2{margin:0 0 10px;text-align:center;font-size:26px;text-shadow:0 2px 0 #000}
+.p3-item{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.3);border:2px solid rgba(255,255,255,.15);border-radius:12px;padding:8px 10px;margin-bottom:8px}
+.p3-item .ic{font-size:26px}.p3-item .t{flex:1;min-width:0}
+.p3-item b{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.p3-item small{opacity:.8;font-size:11.5px}
+.p3-b{border:none;border-radius:10px;padding:9px 14px;font:800 13px system-ui,sans-serif;color:#fff;cursor:pointer;background:#43a047}
+.p3-b.rojo{background:#c62828}.p3-b.gris{background:#5b5b64}.p3-b.azul{background:#3b6fb5}
+.p3-lbl{margin:10px 0 5px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#ffd77a}
+.p3-opts{display:flex;flex-wrap:wrap;gap:6px}
+.p3-op{padding:8px 11px;border-radius:10px;border:2px solid rgba(255,255,255,.25);background:rgba(0,0,0,.3);color:#fff;font:700 13px system-ui,sans-serif;cursor:pointer}
+.p3-op.sel{border-color:#ffd54f;background:rgba(255,213,79,.25)}
+#modal-3d input{width:100%;box-sizing:border-box;padding:9px;border-radius:9px;border:2px solid #1f0e04;font:600 14px system-ui,sans-serif}
+.p3-pie{display:flex;gap:8px;margin-top:14px;justify-content:center}
 `;
   document.head.insertAdjacentHTML('beforeend', '<style id="modo3d-css">' + css + '</style>');
   document.body.insertAdjacentHTML('beforeend', `
@@ -7282,12 +7296,24 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     <h2>Jugar</h2>
     <div class="jg-botones">
       <button class="btn-menu-principal" onclick="jugarPartidas()">Partidas</button>
-      <button class="btn-menu-principal jg-3d" onclick="jugar3D()">Partidas 3D (test)</button>
+      <button class="btn-menu-principal jg-3d" onclick="abrirPartidas3D()">Partidas 3D (test)</button>
     </div>
     <p class="jg-nota">El modo 3D es un experimento: solo se carga si lo eliges y la primera vez necesita internet.</p>
     <button class="btn-menu-principal jg-volver" onclick="cerrarJugar()">Volver</button>
   </div>
 </div>
+<div id="modal-3d"><div class="p3-caja">
+  <h2>Partidas 3D</h2>
+  <div id="p3-lista-v"><div id="p3-lista"></div>
+    <div class="p3-pie"><button class="p3-b azul" onclick="p3Nueva()">➕ Nueva partida</button><button class="p3-b gris" onclick="p3Cerrar()">Volver</button></div></div>
+  <div id="p3-nueva-v" style="display:none">
+    <div class="p3-lbl">Nombre</div><input id="p3-nombre" maxlength="20" placeholder="Mi mundo...">
+    <div class="p3-lbl">Bioma</div><div class="p3-opts" id="p3-biomas"></div>
+    <div class="p3-lbl">Raza de hormiga</div><div class="p3-opts" id="p3-razas"></div>
+    <div class="p3-lbl">Semilla (opcional)</div><input id="p3-semilla" maxlength="24" placeholder="Vacío = un mundo nuevo al azar">
+    <div class="p3-pie"><button class="p3-b" onclick="p3Crear()">▶ Empezar</button><button class="p3-b gris" onclick="p3Lista()">Atrás</button></div>
+  </div>
+</div></div>
 <div id="modo3d">
   <div class="m3-capa" id="m3-dano"></div>
   <div class="m3-capa" id="m3-hud">
@@ -7303,7 +7329,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
   <div class="m3-capa" id="m3-joy"><i></i></div>
   <div id="m3-botones">
     <button id="m3-b-correr"><i>🏃</i>Correr</button><button id="m3-b-salto"><i>⬆️</i>Saltar</button><button id="m3-b-morder"><i>🦷</i>Morder</button><button id="m3-b-comer"><i>🍖</i>Comer</button>
-    <button id="m3-b-cosechar"><i>🧺</i>Cosechar</button><button id="m3-b-guardar"><i>📦</i>Guardar</button><button id="m3-b-nido"><i>⛏️</i>Nido</button><button id="m3-b-huevo"><i>🥚</i>Huevo</button>
+    <button id="m3-b-cosechar"><i>🧺</i>Cosechar</button><button id="m3-b-guardar"><i>📦</i>Guardar</button><button id="m3-b-botar"><i>🗑️</i>Botar</button><button id="m3-b-nido"><i>⛏️</i>Nido</button><button id="m3-b-huevo"><i>🥚</i>Huevo</button>
     <button id="m3-b-dormir"><i>💤</i>Dormir</button><button id="m3-b-seguir"><i>👣</i>Seguir</button>
     <button id="m3-b-cavar"><i>🪨</i>Cavar</button><button id="m3-b-cavarU"><i>🪨</i>Cavar ↑</button><button id="m3-b-cavarD"><i>🪨</i>Cavar ↓</button>
   </div>
@@ -7322,6 +7348,57 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
   window.cerrarJugar = () => { $('modal-jugar').style.display = 'none'; };
   window.jugarPartidas = () => { cerrarJugar(); abrirPartidas(); };
 
+  // ----- Partidas 3D: se guardan en este navegador (cada mundo tiene su semilla, bioma y raza) -----
+  const BIO_UI = { pradera: ['🌳', 'Pradera'], otono: ['🍂', 'Otoño'], desierto: ['🏜️', 'Desierto'], azar: ['🎲', 'Al azar'] };
+  const RAZAS_UI = { red: '🔴 Roja', and: '⚫ Negra', trampa: '⚫ Trampa', prados: '🟡 Prados', loca: '⚫ Loca', tridente: '🔱 Tridente' };
+  const LS3D = 'hormigas3d_partidas_v1';
+  let part3 = [], actual = null, selBio = 'azar', selRaza = 'red', ultGuard = 0;
+  const leer3 = () => { try { const a = JSON.parse(localStorage.getItem(LS3D)); return Array.isArray(a) ? a : []; } catch (_) { return []; } };
+  const escribir3 = () => { try { localStorage.setItem(LS3D, JSON.stringify(part3)); return true; } catch (_) { return false; } };
+  function guardarActual() {
+    if (!actual || !W) return;
+    try { part3 = leer3(); const i = part3.findIndex(p => p.id === actual.id); if (i < 0) return; actual.estado = W.exportar(); actual.fecha = Date.now(); part3[i] = actual; if (!escribir3()) toast('No se pudo guardar la partida (almacenamiento lleno)'); }
+    catch (err) { console.error(err); }
+  }
+  window.abrirPartidas3D = () => { cerrarJugar(); $('modal-3d').style.display = 'flex'; p3Lista(); };
+  window.p3Cerrar = () => { $('modal-3d').style.display = 'none'; abrirJugar(); };
+  window.p3Lista = () => {
+    $('p3-nueva-v').style.display = 'none'; $('p3-lista-v').style.display = 'block';
+    part3 = leer3(); const l = $('p3-lista'); l.innerHTML = '';
+    if (!part3.length) { const e = document.createElement('p'); e.style.cssText = 'text-align:center;opacity:.8;font-size:13px;margin:14px 0'; e.textContent = 'Aún no tienes partidas 3D. ¡Crea una!'; l.appendChild(e); }
+    part3.slice().sort((a, b) => (b.fecha || 0) - (a.fecha || 0)).forEach(p => {
+      const it = document.createElement('div'); it.className = 'p3-item';
+      const bi = BIO_UI[p.bioma] || BIO_UI.pradera, f = new Date(p.fecha || Date.now());
+      it.innerHTML = '<span class="ic"></span><div class="t"><b></b><small></small></div>';
+      it.querySelector('.ic').textContent = bi[0]; it.querySelector('b').textContent = p.nombre;
+      it.querySelector('small').textContent = bi[1] + ' · ' + (RAZAS_UI[p.raza] || p.raza) + ' · ' + f.toLocaleDateString() + ' ' + f.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const j = document.createElement('button'); j.className = 'p3-b'; j.textContent = '▶ Jugar'; j.onclick = () => jugar3D(p.id);
+      const d = document.createElement('button'); d.className = 'p3-b rojo'; d.textContent = '🗑'; d.title = 'Borrar'; d.onclick = () => { if (confirm('¿Borrar la partida «' + p.nombre + '»?')) { part3 = leer3().filter(q => q.id !== p.id); escribir3(); p3Lista(); } };
+      it.appendChild(j); it.appendChild(d); l.appendChild(it);
+    });
+  };
+  function opciones(id, tabla, sel, cb) {
+    const c = $(id); c.innerHTML = '';
+    Object.keys(tabla).forEach(k => { const b = document.createElement('button'); b.className = 'p3-op' + (k === sel ? ' sel' : ''); b.textContent = Array.isArray(tabla[k]) ? tabla[k][0] + ' ' + tabla[k][1] : tabla[k]; b.onclick = () => { cb(k); opciones(id, tabla, k, cb); }; c.appendChild(b); });
+  }
+  window.p3Nueva = () => {
+    $('p3-lista-v').style.display = 'none'; $('p3-nueva-v').style.display = 'block';
+    $('p3-nombre').value = 'Mundo ' + (leer3().length + 1); $('p3-semilla').value = '';
+    opciones('p3-biomas', BIO_UI, selBio, k => { selBio = k; });
+    opciones('p3-razas', RAZAS_UI, selRaza, k => { selRaza = k; });
+  };
+  window.p3Crear = () => {
+    const txt = $('p3-semilla').value.trim();
+    const sd = txt ? [...txt].reduce((h, ch) => Math.imul(h, 31) + ch.charCodeAt(0) | 0, 7) : Math.floor(Math.random() * 2147483647);
+    const bios = ['pradera', 'otono', 'desierto'];
+    const bioma = selBio === 'azar' ? bios[Math.abs(txt ? sd : Math.floor(Math.random() * 1e6)) % 3] : selBio;
+    part3 = leer3();
+    const slot = { id: Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36), nombre: ($('p3-nombre').value.trim() || 'Mundo ' + (part3.length + 1)).slice(0, 20), bioma, raza: selRaza, seed: sd, fecha: Date.now(), estado: null };
+    part3.push(slot);
+    if (!escribir3()) { alert('No se pudo guardar la partida: el almacenamiento del navegador no está disponible.'); }
+    jugar3D(slot.id);
+  };
+
   function cargarThree() {
     if (window.THREE) return Promise.resolve();
     if (window.__threeP) return window.__threeP;
@@ -7335,8 +7412,10 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     return window.__threeP;
   }
 
-  window.jugar3D = async () => {
-    cerrarJugar();
+  window.jugar3D = async id => {
+    part3 = leer3(); actual = part3.find(p => p.id === id) || null;
+    if (!actual) { abrirPartidas3D(); return; }
+    cerrarJugar(); $('modal-3d').style.display = 'none';
     abierto = true; m3.style.display = 'block';
     for (const k in K) K[k] = false;
     estado.style.display = 'flex'; estado.textContent = 'Cargando el motor 3D…';
@@ -7345,12 +7424,17 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     if (!abierto) return;
     try { if (!W) W = construir(); }
     catch (err) { console.error(err); estado.innerHTML = 'Tu navegador no pudo iniciar el 3D (WebGL).'; return; }
-    W.reset(); W.ajustar(); estado.style.display = 'none';
-    last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
+    W.generarMundo(actual.seed, actual.bioma); W.setRaza(actual.raza); W.reset(); W.ajustar();
+    if (actual.estado) { try { W.importar(actual.estado); } catch (err) { console.error(err); } }
+    $('m3-tag').textContent = actual.nombre + ' · ' + (BIO_UI[actual.bioma] || BIO_UI.pradera)[1];
+    estado.style.display = 'none';
+    ultGuard = last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
   };
   let W_soltarBloqueo = null;
   const RAT = { libre: false, toggle: null };   // libre: el cursor está suelto (Alt / Esc) para poder clickear las habilidades
   window.salir3D = () => {
+    try { if (W && W.terminarCine) W.terminarCine(); } catch (_) {}
+    try { if (abierto) guardarActual(); } catch (_) {}
     abierto = false; try { if (W_soltarBloqueo) W_soltarBloqueo(); else if (document.pointerLockElement) document.exitPointerLock(); } catch (_) {} cancelAnimationFrame(raf); m3.style.display = 'none';
     for (const k in K) K[k] = false;
     joy.id = null; joy.x = joy.y = 0; $('m3-joy').style.display = 'none';
@@ -7360,11 +7444,15 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     raf = requestAnimationFrame(loop);
     const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000)); last = now;
     W.actualizar(dt);
+    if (now - ultGuard > 15000) { ultGuard = now; guardarActual(); }   // guardado automático cada 15 s
   }
 
+  window.addEventListener('pagehide', () => { if (abierto) guardarActual(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden && abierto) guardarActual(); });
+
   // ----- Teclado (mientras el 3D está abierto, el juego 2D no recibe las teclas) -----
-  const TECLAS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft', 'ShiftRight', 'Space', 'KeyE', 'KeyF', 'KeyR', 'KeyG', 'KeyH', 'KeyN', 'KeyZ', 'KeyV', 'KeyC', 'KeyQ', 'KeyX', 'Escape']);
-  const ACC_TECLA = { KeyE: 'comer', KeyR: 'cosechar', KeyG: 'guardar', KeyN: 'nido', KeyH: 'huevo', KeyZ: 'dormir', KeyV: 'seguir' };
+  const TECLAS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft', 'ShiftRight', 'Space', 'KeyE', 'KeyF', 'KeyR', 'KeyG', 'KeyH', 'KeyN', 'KeyZ', 'KeyV', 'KeyB', 'KeyC', 'KeyQ', 'KeyX', 'Escape']);
+  const ACC_TECLA = { KeyE: 'comer', KeyR: 'cosechar', KeyG: 'guardar', KeyN: 'nido', KeyH: 'huevo', KeyZ: 'dormir', KeyV: 'seguir', KeyB: 'botar' };
   const libre = e => e.ctrlKey || e.metaKey || e.altKey || /^F\d+$/.test(e.code);
   window.addEventListener('keydown', e => {
     if (!abierto) { if (e.code === 'Escape' && $('modal-jugar').style.display === 'flex') cerrarJugar(); return; }
@@ -7398,7 +7486,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
   ligar('m3-b-salto', () => { K.Space = true; }, () => { K.Space = false; });
   ligar('m3-b-correr', () => { K.run = true; }, () => { K.run = false; });
   ligar('m3-b-morder', () => { if (acc.morder) acc.morder(); });
-  ['comer', 'cosechar', 'guardar', 'nido', 'huevo', 'dormir', 'seguir'].forEach(n => ligar('m3-b-' + n, () => { if (acc[n]) acc[n](); }));
+  ['comer', 'cosechar', 'guardar', 'botar', 'nido', 'huevo', 'dormir', 'seguir'].forEach(n => ligar('m3-b-' + n, () => { if (acc[n]) acc[n](); }));
   ligar('m3-b-cavar', () => { K.KeyC = true; }, () => { K.KeyC = false; });
   ligar('m3-b-cavarU', () => { K.KeyQ = true; }, () => { K.KeyQ = false; });
   ligar('m3-b-cavarD', () => { K.KeyX = true; }, () => { K.KeyX = false; });
@@ -7422,107 +7510,218 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     scene.fog = new T.Fog(0x8fd3f4, 45, 140);
     const camera = new T.PerspectiveCamera(60, 1, 0.1, 400);
 
-    // números al azar siempre iguales (el mundo es el mismo cada vez)
+    // números al azar a partir de una semilla: la misma semilla = el mismo mundo, otra semilla = otro mundo
     let seed = 1234;
     const rng = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
     const sstep = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 
-    const LX = 40, LZ = -35, NIVEL_AGUA = -1.0, LIM = 88;
-    const alt = (x, z) => {   // altura del terreno en (x, z): colinas suaves, plano junto al nido y un lago
-      const base = Math.sin(x * 0.08) * 1.3 + Math.cos(z * 0.07) * 1.1 + Math.sin((x + z) * 0.15) * 0.45;
+    // ----- Biomas -----  suelo: [matiz, saturación, luz] · pasto/hojas: [matiz, rango de matiz, sat, luz, rango de luz]
+    const BIOMAS = {
+      pradera:  { n: 'Pradera',  cielo: 0x8fd3f4, hemiC: 0xbfe6ff, hemiG: 0x4a6b2a, solC: 0xfff2d0, suelo: [0.26, 0.5, 0.3],  pasto: [0.24, 0.08, 0.55, 0.25, 0.15], nh: 6000, flores: [0xffd84a, 0xffffff, 0xff7aa8, 0xb48cff, 0xff9040], nf: 260, piedra: 0x6e6256, np: 22, fruta: 0xd62c2c, arbol: 'copa',   hojas: [0.29, 0.05, 0.5, 0.25, 0.08],  arboles: [12, 16], amp: 1 },
+      otono:    { n: 'Otoño',    cielo: 0xb9cfdc, hemiC: 0xffe2c0, hemiG: 0x7a4a22, solC: 0xffd29a, suelo: [0.08, 0.55, 0.3],  pasto: [0.06, 0.07, 0.7, 0.3, 0.14],   nh: 5000, flores: [0xd2691e, 0xc0392b, 0xf1c40f, 0x8b4513, 0xe67e22], nf: 480, piedra: 0x6f6358, np: 22, fruta: 0xe08a1e, arbol: 'copa',   hojas: [0.02, 0.11, 0.8, 0.38, 0.1],   arboles: [16, 22], amp: 1.15 },
+      desierto: { n: 'Desierto', cielo: 0xe6d5a8, hemiC: 0xfff0d0, hemiG: 0xb08a50, solC: 0xfff0c0, suelo: [0.12, 0.5, 0.62], pasto: [0.11, 0.04, 0.4, 0.5, 0.1],    nh: 1800, flores: [0xd94f8a, 0xf2c14e], nf: 70, piedra: 0x9a825a, np: 34, fruta: 0xe0408a, arbol: 'cactus', hojas: [0.3, 0.04, 0.45, 0.3, 0.06],  arboles: [18, 26], amp: 1.7 }
+    };
+    let B = BIOMAS.pradera, biomaAct = 'pradera';
+    let razaSel = (typeof tipoHormigaSeleccionada !== 'undefined' && tipoHormigaSeleccionada) || 'red';   // raza de esta partida 3D
+
+    let LX = 40, LZ = -35;
+    const NIVEL_AGUA = -1.0, LIM = 88;
+    const TP = { f1: 0.08, f2: 0.07, f3: 0.15, p1: 0, p2: 0, p3: 0, a1: 1.3, a2: 1.1, a3: 0.45 };   // forma del terreno (cambia con la semilla)
+    const alt = (x, z) => {   // altura del terreno en (x, z): colinas / dunas, plano junto al nido y un lago
+      let base = Math.sin(x * TP.f1 + TP.p1) * TP.a1 + Math.cos(z * TP.f2 + TP.p2) * TP.a2 + Math.sin((x + z) * TP.f3 + TP.p3) * TP.a3;
+      if (base < -0.5) base = -0.5 + (base + 0.5) * 0.15;   // sin hondonadas fantasma que parezcan agua
       const k = sstep(5, 16, Math.hypot(x, z));
       const lago = Math.max(0, 1 - Math.hypot(x - LX, z - LZ) / 17);
       return base * k - lago * lago * 6;
     };
 
-    // ----- Suelo -----
-    const geo = new T.PlaneGeometry(240, 240, 140, 140);
-    geo.rotateX(-Math.PI / 2);
-    const pos = geo.attributes.position, cols = new Float32Array(pos.count * 3), c = new T.Color();
+    // piezas que se reutilizan al regenerar el mundo
+    const c = new T.Color(), dm = new T.Object3D();
     const tierra = new T.Color(0x6a4524), arena = new T.Color(0xcdb77f);
-    for (let i = 0; i < pos.count; i++) {
-      const x = pos.getX(i), z = pos.getZ(i);
-      pos.setY(i, alt(x, z));
-      c.setHSL(0.26 + 0.035 * Math.sin(x * 0.31) * Math.cos(z * 0.27) + (rng() - 0.5) * 0.02, 0.5, 0.3 + 0.07 * Math.sin(x * 0.13 + z * 0.17) + (rng() - 0.5) * 0.03);
-      const dn = Math.hypot(x, z); if (dn < 9) c.lerp(tierra, 1 - sstep(4, 9, dn));
-      const dl = Math.hypot(x - LX, z - LZ); if (dl < 16) c.lerp(arena, 1 - sstep(9, 16, dl));
-      cols[i * 3] = c.r; cols[i * 3 + 1] = c.g; cols[i * 3 + 2] = c.b;
-    }
-    geo.setAttribute('color', new T.BufferAttribute(cols, 3));
-    geo.computeVertexNormals();
-    const suelo = new T.Mesh(geo, new T.MeshLambertMaterial({ vertexColors: true }));
-    suelo.receiveShadow = true; scene.add(suelo);
-
-    // ----- Pasto -----
-    const NH = 6000, hGeo = new T.ConeGeometry(0.07, 0.75, 4); hGeo.translate(0, 0.375, 0);
-    const hierba = new T.InstancedMesh(hGeo, new T.MeshLambertMaterial({ color: 0xffffff }), NH);
-    const dm = new T.Object3D();
-    for (let i = 0; i < NH; i++) {
-      let x, z;
-      do { x = (rng() - 0.5) * 200; z = (rng() - 0.5) * 200; } while (Math.hypot(x, z) < 6 || Math.hypot(x - LX, z - LZ) < 11);
-      dm.position.set(x, alt(x, z), z);
-      dm.rotation.set((rng() - 0.5) * 0.4, rng() * 6.28, (rng() - 0.5) * 0.4);
-      const sc = 0.7 + rng() * 1.1; dm.scale.set(sc, sc * (0.8 + rng() * 0.8), sc);
-      dm.updateMatrix(); hierba.setMatrixAt(i, dm.matrix);
-      c.setHSL(0.24 + rng() * 0.08, 0.55, 0.25 + rng() * 0.15); hierba.setColorAt(i, c);
-    }
-    scene.add(hierba);
-
-    // ----- Flores -----
-    const NF = 260, floresM = new T.InstancedMesh(new T.SphereGeometry(0.16, 6, 5), new T.MeshLambertMaterial({ color: 0xffffff }), NF);
-    const paleta = [0xffd84a, 0xffffff, 0xff7aa8, 0xb48cff, 0xff9040];
-    for (let i = 0; i < NF; i++) {
-      let x, z;
-      do { x = (rng() - 0.5) * 190; z = (rng() - 0.5) * 190; } while (Math.hypot(x, z) < 8 || Math.hypot(x - LX, z - LZ) < 13);
-      dm.position.set(x, alt(x, z) + 0.45, z); dm.rotation.set(0, 0, 0); dm.scale.set(1, 1, 1); dm.updateMatrix();
-      floresM.setMatrixAt(i, dm.matrix); c.setHex(paleta[Math.floor(rng() * paleta.length)]); floresM.setColorAt(i, c);
-    }
-    scene.add(floresM);
-
-    // ----- Piedras -----
-    const mPiedra = new T.MeshLambertMaterial({ color: 0x8a8a86 });
-    for (let i = 0; i < 22; i++) {
-      let x, z;
-      do { x = (rng() - 0.5) * 180; z = (rng() - 0.5) * 180; } while (Math.hypot(x, z) < 10 || Math.hypot(x - LX, z - LZ) < 14);
-      const r = new T.Mesh(new T.DodecahedronGeometry(1, 0), mPiedra);
-      const s = 0.6 + rng() * 1.3; r.scale.set(s, s * 0.7, s * (0.8 + rng() * 0.5));
-      r.position.set(x, alt(x, z) + s * 0.25, z); r.rotation.y = rng() * 6; r.castShadow = true; r.receiveShadow = true; scene.add(r);
-    }
-
-    // ----- Árboles (los mismos que tiene tu mapa) con manzanas caídas en el suelo -----
-    const defArb = [];
-    try { arboles.forEach((a, i) => defArb.push({ x: (a.x - 600) / 9, z: ((i * 37) % 50) - 25, n: Math.max(2, Math.min(6, (a.manzanas | 0) || 3)) })); } catch (_) {}
-    if (!defArb.length) defArb.push({ x: -40, z: -10, n: 3 }, { x: 45, z: 10, n: 4 });
-    for (let i = 0; i < 12; i++) {
-      let x, z;
-      do { x = (rng() - 0.5) * 170; z = (rng() - 0.5) * 170; } while (Math.hypot(x, z) < 14 || Math.hypot(x - LX, z - LZ) < 19);
-      defArb.push({ x, z, n: 2 + Math.floor(rng() * 3) });
-    }
+    const mPiedra = new T.MeshLambertMaterial({ color: 0x6e6256 });
     const mTronco = new T.MeshLambertMaterial({ color: 0x5b3a1e }), mManzana = new T.MeshPhongMaterial({ color: 0xd62c2c, shininess: 60 });
+    const mCactus = new T.MeshLambertMaterial({ color: 0x3f8a3a });
     const aGeo = new T.SphereGeometry(0.34, 10, 8);
-    const manzanas = [], troncos = [];
-    defArb.forEach(d => {
-      const g = new T.Group(); g.position.set(d.x, alt(d.x, d.z), d.z);
-      const tr = new T.Mesh(new T.CylinderGeometry(0.55, 0.8, 5, 8), mTronco); tr.position.y = 2.5; tr.castShadow = true; g.add(tr);
-      const mh = new T.MeshLambertMaterial({ color: new T.Color().setHSL(0.29 + rng() * 0.05, 0.5, 0.25 + rng() * 0.08) });
-      [[0, 6.2, 0, 3], [1.6, 5.4, 0.6, 2.2], [-1.5, 5.6, -0.5, 2.3], [0.3, 7.8, -0.3, 2]].forEach(([x, y, z, r]) => {
-        const f = new T.Mesh(new T.IcosahedronGeometry(r, 1), mh); f.position.set(x, y, z); f.castShadow = true; g.add(f);
-      });
-      scene.add(g); troncos.push({ x: d.x, z: d.z, r: 0.9 });
-      for (let k = 0; k < d.n; k++) {
-        const a = rng() * 6.28, r = 2.2 + rng() * 2.6, x = d.x + Math.cos(a) * r, z = d.z + Math.sin(a) * r;
-        const m = new T.Mesh(aGeo, mManzana); m.position.set(x, alt(x, z) + 0.3, z); m.castShadow = true; scene.add(m);
-        manzanas.push({ m, x, z, vis: true, t: 0 });
-      }
-    });
-
-    // ----- Lago -----
+    const manzanas = [], troncos = [], mundoObjs = [];
     const agua = new T.Mesh(new T.CircleGeometry(16, 40), new T.MeshPhongMaterial({ color: 0x2f9be0, transparent: true, opacity: 0.78, shininess: 90, specular: 0xffffff }));
-    agua.rotation.x = -Math.PI / 2; agua.position.set(LX, NIVEL_AGUA, LZ); scene.add(agua);
+    agua.rotation.x = -Math.PI / 2; scene.add(agua);
+
+    // ----- Genera TODO el mundo (terreno, pasto, flores, piedras, árboles / cactus, lago) a partir de una semilla y un bioma -----
+    function generarMundo(sd, bk) {
+      B = BIOMAS[bk] || BIOMAS.pradera; biomaAct = BIOMAS[bk] ? bk : 'pradera';
+      mundoObjs.forEach(o => { scene.remove(o); o.traverse(q => { if (q.geometry) q.geometry.dispose(); }); }); mundoObjs.length = 0;
+      manzanas.length = 0; troncos.length = 0;
+      seed = sd | 0;
+      const add = o => { scene.add(o); mundoObjs.push(o); return o; };
+      // forma del terreno distinta en cada mundo
+      TP.f1 = 0.05 + rng() * 0.05; TP.f2 = 0.045 + rng() * 0.045; TP.f3 = 0.11 + rng() * 0.07;
+      TP.p1 = rng() * 6.28; TP.p2 = rng() * 6.28; TP.p3 = rng() * 6.28;
+      TP.a1 = (0.9 + rng() * 0.7) * B.amp; TP.a2 = (0.8 + rng() * 0.7) * B.amp; TP.a3 = (0.25 + rng() * 0.3) * B.amp;
+      const ang0 = rng() * 6.2832, dl0 = 38 + rng() * 22; LX = Math.cos(ang0) * dl0; LZ = Math.sin(ang0) * dl0;
+      agua.position.set(LX, NIVEL_AGUA, LZ);
+      // cielo y luz del bioma
+      cDia.setHex(B.cielo); hemi.color.setHex(B.hemiC); hemi.groundColor.setHex(B.hemiG); sol.color.setHex(B.solC);
+      mPiedra.color.setHex(B.piedra); mManzana.color.setHex(B.fruta);
+      const lejos = (x, z, r0, r1) => Math.hypot(x, z) < r0 || Math.hypot(x - LX, z - LZ) < r1;
+
+      // suelo
+      const geo = new T.PlaneGeometry(240, 240, 140, 140);
+      geo.rotateX(-Math.PI / 2);
+      const pos = geo.attributes.position, cols = new Float32Array(pos.count * 3);
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i), z = pos.getZ(i);
+        pos.setY(i, alt(x, z));
+        c.setHSL(B.suelo[0] + 0.035 * Math.sin(x * 0.31) * Math.cos(z * 0.27) + (rng() - 0.5) * 0.02, B.suelo[1], B.suelo[2] + 0.07 * Math.sin(x * 0.13 + z * 0.17) + (rng() - 0.5) * 0.03);
+        const dn = Math.hypot(x, z); if (dn < 9) c.lerp(tierra, 1 - sstep(4, 9, dn));
+        const dl = Math.hypot(x - LX, z - LZ); if (dl < 16) c.lerp(arena, 1 - sstep(9, 16, dl));
+        cols[i * 3] = c.r; cols[i * 3 + 1] = c.g; cols[i * 3 + 2] = c.b;
+      }
+      geo.setAttribute('color', new T.BufferAttribute(cols, 3));
+      geo.computeVertexNormals();
+      const suelo = new T.Mesh(geo, new T.MeshLambertMaterial({ vertexColors: true }));
+      suelo.receiveShadow = true; add(suelo);
+
+      // pasto (en el desierto, matas secas; en otoño, pasto dorado)
+      const hGeo = new T.ConeGeometry(0.07, 0.75, 4); hGeo.translate(0, 0.375, 0);
+      const hierba = new T.InstancedMesh(hGeo, new T.MeshLambertMaterial({ color: 0xffffff }), B.nh);
+      for (let i = 0; i < B.nh; i++) {
+        let x, z;
+        do { x = (rng() - 0.5) * 200; z = (rng() - 0.5) * 200; } while (lejos(x, z, 6, 11));
+        dm.position.set(x, alt(x, z), z);
+        dm.rotation.set((rng() - 0.5) * 0.4, rng() * 6.28, (rng() - 0.5) * 0.4);
+        const sc = 0.7 + rng() * 1.1; dm.scale.set(sc, sc * (0.8 + rng() * 0.8), sc);
+        dm.updateMatrix(); hierba.setMatrixAt(i, dm.matrix);
+        c.setHSL(B.pasto[0] + rng() * B.pasto[1], B.pasto[2], B.pasto[3] + rng() * B.pasto[4]); hierba.setColorAt(i, c);
+      }
+      add(hierba);
+
+      // flores (en otoño son hojas caídas)
+      const floresM = new T.InstancedMesh(new T.SphereGeometry(0.16, 6, 5), new T.MeshLambertMaterial({ color: 0xffffff }), B.nf);
+      for (let i = 0; i < B.nf; i++) {
+        let x, z;
+        do { x = (rng() - 0.5) * 190; z = (rng() - 0.5) * 190; } while (lejos(x, z, 8, 13));
+        dm.position.set(x, alt(x, z) + (B.arbol === 'copa' && bk === 'otono' ? 0.08 : 0.45), z); dm.rotation.set(0, 0, 0); dm.scale.set(1, bk === 'otono' ? 0.3 : 1, 1); dm.updateMatrix();
+        floresM.setMatrixAt(i, dm.matrix); c.setHex(B.flores[Math.floor(rng() * B.flores.length)]); floresM.setColorAt(i, c);
+      }
+      add(floresM);
+
+      // piedras
+      for (let i = 0; i < B.np; i++) {
+        let x, z;
+        do { x = (rng() - 0.5) * 180; z = (rng() - 0.5) * 180; } while (lejos(x, z, 10, 14));
+        const r = new T.Mesh(new T.DodecahedronGeometry(1, 0), mPiedra);
+        const sz = 0.6 + rng() * 1.3; r.scale.set(sz, sz * 0.7, sz * (0.8 + rng() * 0.5));
+        r.position.set(x, alt(x, z) + sz * 0.25, z); r.rotation.y = rng() * 6; r.castShadow = true; r.receiveShadow = true; add(r);
+      }
+
+      // árboles (pradera / otoño) o cactus (desierto), cada uno con sus frutos en el suelo
+      const nArb = B.arboles[0] + Math.floor(rng() * (B.arboles[1] - B.arboles[0] + 1)), def = [];
+      for (let i = 0; i < nArb; i++) {
+        let x, z, n = 0;
+        do { x = (rng() - 0.5) * 170; z = (rng() - 0.5) * 170; n++; } while ((lejos(x, z, 14, 19) || def.some(d => Math.hypot(d.x - x, d.z - z) < 8)) && n < 50);
+        def.push({ x, z, n: 2 + Math.floor(rng() * 3) });
+      }
+      def.forEach(d => {
+        const g = new T.Group(); g.position.set(d.x, alt(d.x, d.z), d.z);
+        if (B.arbol === 'cactus') {
+          const alto = 3.4 + rng() * 2.2, tr = new T.Mesh(new T.CylinderGeometry(0.42, 0.5, alto, 8), mCactus); tr.position.y = alto / 2; tr.castShadow = true; g.add(tr);
+          const top = new T.Mesh(new T.SphereGeometry(0.42, 8, 6), mCactus); top.position.y = alto; g.add(top);
+          [-1, 1].forEach(sd2 => {
+            if (rng() < 0.3) return;
+            const ya = alto * (0.35 + rng() * 0.25), h2 = 1 + rng() * 1.1;
+            const cx2 = new T.Mesh(new T.CylinderGeometry(0.22, 0.22, 0.9, 6), mCactus); cx2.rotation.z = Math.PI / 2; cx2.position.set(sd2 * 0.65, ya, 0); g.add(cx2);
+            const cv = new T.Mesh(new T.CylinderGeometry(0.24, 0.26, h2, 6), mCactus); cv.position.set(sd2 * 1.1, ya + h2 / 2, 0); cv.castShadow = true; g.add(cv);
+          });
+          g.rotation.y = rng() * 6.28; troncos.push({ x: d.x, z: d.z, r: 0.75 });
+        } else {
+          const tr = new T.Mesh(new T.CylinderGeometry(0.55, 0.8, 5, 8), mTronco); tr.position.y = 2.5; tr.castShadow = true; g.add(tr);
+          const mh = new T.MeshLambertMaterial({ color: new T.Color().setHSL(B.hojas[0] + rng() * B.hojas[1], B.hojas[2], B.hojas[3] + rng() * B.hojas[4]) });
+          [[0, 6.2, 0, 3], [1.6, 5.4, 0.6, 2.2], [-1.5, 5.6, -0.5, 2.3], [0.3, 7.8, -0.3, 2]].forEach(([x, y, z, r]) => {
+            const f = new T.Mesh(new T.IcosahedronGeometry(r, 1), mh); f.position.set(x, y, z); f.castShadow = true; g.add(f);
+          });
+          troncos.push({ x: d.x, z: d.z, r: 0.9 });
+        }
+        add(g);
+        for (let k = 0; k < d.n; k++) {
+          const a = rng() * 6.28, r = 2.2 + rng() * 2.6, x = d.x + Math.cos(a) * r, z = d.z + Math.sin(a) * r;
+          const m = new T.Mesh(aGeo, mManzana); m.position.set(x, alt(x, z) + 0.3, z); m.castShadow = true; add(m);
+          manzanas.push({ m, x, z, vis: true, t: 0 });
+        }
+      });
+    }
+
+    // ----- Textura de tierra: la misma del 2D (ruido fractal con relieve iluminado + piedritas claras), aplicada sin estirarse en cualquier pared -----
+    let texTierra = null; const mediaTierra = new T.Vector3(0.2, 0.12, 0.07);
+    function crearTexTierra() {
+      const N = 256, cv = document.createElement('canvas'); cv.width = cv.height = N;
+      const ctx = cv.getContext('2d'), img = ctx.createImageData(N, N), d = img.data;
+      let sd = 77; const rr = () => { sd = (sd * 1664525 + 1013904223) >>> 0; return sd / 4294967296; };
+      const H = new Float32Array(N * N);
+      [8, 16, 32, 64].forEach((n, o) => {                         // 4 capas de ruido repetible (como el feTurbulence del 2D)
+        const g = new Float32Array(n * n).map(() => rr()), amp = 1 / (1 << o), st = N / n;
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+          const fx = x / st, fy = y / st, ix = Math.floor(fx), iy = Math.floor(fy), tx = fx - ix, ty = fy - iy;
+          const sx = tx * tx * (3 - 2 * tx), sy = ty * ty * (3 - 2 * ty);
+          const a = g[iy % n * n + ix % n], b = g[iy % n * n + (ix + 1) % n], c2 = g[(iy + 1) % n * n + ix % n], d2 = g[(iy + 1) % n * n + (ix + 1) % n];
+          H[y * N + x] += amp * ((a + (b - a) * sx) * (1 - sy) + (c2 + (d2 - c2) * sx) * sy);
+        }
+      });
+      const L = [-0.406, -0.579, 0.707], SS = 7;                   // luz como la del 2D (azimut 235°, elevación 45°)
+      for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+        const nx = -SS * (H[y * N + (x + 1) % N] - H[y * N + (x + N - 1) % N]) * 0.5, ny = -SS * (H[((y + 1) % N) * N + x] - H[((y + N - 1) % N) * N + x]) * 0.5;
+        const ndl = Math.max(0, (nx * L[0] + ny * L[1] + L[2]) / Math.sqrt(nx * nx + ny * ny + 1)), q = (y * N + x) * 4;
+        const hv = H[y * N + x], mix = Math.min(1, Math.max(0, (hv - 0.55) * 1.6 + (rr() - 0.5) * 0.12)), gr = 0.9 + rr() * 0.2;   // zonas húmedas oscuras / secas rojizas + grano fino
+        const sh = ndl * (0.55 + 0.6 * hv) * gr;
+        d[q] = 255 * (0.26 + 0.2 * mix) * sh * 1.25; d[q + 1] = 255 * (0.165 + 0.13 * mix) * sh * 1.25; d[q + 2] = 255 * (0.09 + 0.07 * mix) * sh * 1.25; d[q + 3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+      const bola = (x, y, rx, ry, ro, c1, c2) => {                    // terrón / piedrita de tierra: sombra, cuerpo con degradado y un reflejo suave
+        for (const ox of [0, N, -N]) for (const oy of [0, N, -N]) {
+          const px = x + ox, py = y + oy; if (px < -9 || py < -9 || px > N + 9 || py > N + 9) continue;
+          ctx.save(); ctx.translate(px, py); ctx.rotate(ro);
+          ctx.fillStyle = 'rgba(15,7,2,.45)'; ctx.beginPath(); ctx.ellipse(1.1, 1.4, rx + 0.5, ry + 0.5, 0, 0, 6.2832); ctx.fill();
+          const gr = ctx.createRadialGradient(-rx * 0.3, -ry * 0.35, 0.1, 0, 0, Math.max(rx, ry) * 1.05);
+          gr.addColorStop(0, c1); gr.addColorStop(1, c2);
+          ctx.fillStyle = gr; ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, 6.2832); ctx.fill();
+          ctx.restore();
+        }
+      };
+      for (let i = 0; i < 34; i++) {                                // terrones oscuros y blandos (la mayoría de lo que se ve)
+        const l = 14 + rr() * 12; bola(rr() * N, rr() * N, 2.5 + rr() * 4, 1.6 + rr() * 2.6, rr() * 3.14, `hsl(${22 + rr() * 8},${32 + rr() * 14}%,${l + 6}%)`, `hsl(${20 + rr() * 8},${35 + rr() * 12}%,${l - 4}%)`);
+      }
+      for (let i = 0; i < 16; i++) {                                // piedritas pequeñas de color tierra (sin blancos)
+        const l = 26 + rr() * 16; bola(rr() * N, rr() * N, 1.3 + rr() * 2.1, 0.9 + rr() * 1.4, rr() * 3.14, `hsl(${26 + rr() * 12},${18 + rr() * 16}%,${l + 8}%)`, `hsl(${24 + rr() * 10},${22 + rr() * 14}%,${l - 6}%)`);
+      }
+      for (let i = 0; i < 520; i++) {                               // granitos finos claros y oscuros
+        const x = rr() * N, y = rr() * N, c = rr() < 0.5;
+        ctx.fillStyle = c ? `rgba(${120 + rr() * 40},${88 + rr() * 30},${55 + rr() * 25},${0.25 + rr() * 0.3})` : `rgba(18,9,3,${0.25 + rr() * 0.3})`;
+        ctx.fillRect(x, y, 1 + (rr() < 0.25 ? 1 : 0), 1);
+      }
+      try {
+        const dd = ctx.getImageData(0, 0, N, N).data; let r = 0, g = 0, b = 0;
+        for (let q = 0; q < dd.length; q += 4) { r += dd[q]; g += dd[q + 1]; b += dd[q + 2]; }
+        const nPx = dd.length / 4 * 255; if (nPx > 0 && isFinite(r / nPx)) mediaTierra.set(r / nPx, g / nPx, b / nPx);
+      } catch (_) {}
+      const tx = new T.CanvasTexture(cv); tx.wrapS = tx.wrapT = T.RepeatWrapping; tx.anisotropy = 4; return tx;
+    }
+    function conTexturaTierra(mat) {   // mapeo triplanar: la textura se proyecta según hacia dónde mira cada pared
+      if (!texTierra) texTierra = crearTexTierra();
+      mat.onBeforeCompile = sh => {
+        sh.uniforms.mapaTierra = { value: texTierra }; sh.uniforms.mediaTierra = { value: mediaTierra };
+        sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vTP; varying vec3 vTN;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvTP = position; vTN = normal;');
+        sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vTP; varying vec3 vTN; uniform sampler2D mapaTierra; uniform vec3 mediaTierra;')
+          .replace('#include <color_fragment>', `#include <color_fragment>
+          { vec3 bw = pow(abs(normalize(vTN)), vec3(4.0)); bw /= (bw.x + bw.y + bw.z + 0.0001);
+            vec3 tt = texture2D(mapaTierra, vTP.zy * 0.42).rgb * bw.x + texture2D(mapaTierra, vTP.xz * 0.42).rgb * bw.y + texture2D(mapaTierra, vTP.xy * 0.42).rgb * bw.z;
+            diffuseColor.rgb *= tt / mediaTierra; }`);
+      };
+      mat.needsUpdate = true; return mat;
+    }
 
     // ----- Nido (entrada) -----
     const nido = new T.Group();
     const monte = new T.Mesh(new T.CylinderGeometry(1.3, 3.4, 1.5, 24), new T.MeshLambertMaterial({ color: 0x6b4423 }));
+    conTexturaTierra(monte.material);
     monte.position.y = 0.75; monte.castShadow = true; monte.receiveShadow = true; nido.add(monte);
     // falda enterrada: rellena por debajo del montículo para que no flote cuando el terreno tiene pendiente
     const falda = new T.Mesh(new T.CylinderGeometry(3.4, 3.4, 3.2, 24, 1), monte.material);
@@ -7588,11 +7787,11 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     const giro = (a, b, k) => { let d = b - a; d = Math.atan2(Math.sin(d), Math.cos(d)); return a + d * Math.min(1, k); };
 
     // ----- Estado del jugador y de las enemigas -----
-    const P = { y: -3, cavado: 0, x: 0, z: 7, h: 0, vy: 0, rot: Math.PI, hp: 100, est: 100, com: 80, agot: false, cdAt: 0, atT: 0, muerta: 0, n: 0, kills: 0, dano: 0, vel: 0, a: null, mochila: 0, desp: 0, cdHuevo: 0 };
+    const P = { y: -3, cavado: 0, x: 0, z: 7, h: 0, vy: 0, rot: Math.PI, hp: 100, est: 100, com: 80, agot: false, cdAt: 0, atT: 0, muerta: 0, n: 0, kills: 0, dano: 0, vel: 0, a: null, mochila: 0, tierra: 0, desp: 0, cdHuevo: 0 };
     let yaw = 0, pitch = 0.45, dist = 7, fase = 1.0, tt = 0, promptTxt = '', infoTxt = '', dentroPrev = null;
     let mouseDig = null; const ptr = { x: 0, y: 0 };   // mouseDig: el ratón está cavando (clic izquierdo mantenido)
     let nidoPos = null, seguir = false, esNoche = false, dentro = false, trans = false, nidoLbl = '';
-    const aliadas = [], huevos = [], CAP_MOCHILA = 8, CAP_DESP = 24;
+    const aliadas = [], huevos = [], CAP_MOCHILA = 8, CAP_DESP = 24, CAP_TIERRA = 45;   // CAP_TIERRA: cuánta tierra aguanta la mochila antes de tener que botarla
     const mHuevo = new T.MeshLambertMaterial({ color: 0xfdfefe });
 
     // ----- El nido por dentro (otra escena): un bloque de tierra que TÚ cavas, igual que en el 2D -----
@@ -7605,7 +7804,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     const NCX = Math.ceil(NX / CH), NCY = Math.ceil(NY / CH), NCZ = Math.ceil(NZ / CH);
     const tierraG = new Uint8Array(NX * NY * NZ);                    // 1 = tierra · 0 = túnel ya cavado
     const chunks = new Array(NCX * NCY * NCZ).fill(null), sucios = new Set();
-    const mTierraV = new T.MeshLambertMaterial({ vertexColors: true });
+    const mTierraV = conTexturaTierra(new T.MeshLambertMaterial({ vertexColors: true }));
     const SUELO_ENT = -3.0, R_POZO = 1.5;                            // el hoyo de entrada: un pozo corto en el centro
     const gi = (i, j, k) => (j * NZ + k) * NX + i;
     const acota = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -7622,24 +7821,62 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       [0, 0, 1, [[0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]]], [0, 0, -1, [[0, 0, 0], [0, 1, 0], [1, 1, 0], [1, 0, 0]]]
     ];
     const cTop = new T.Color(0x7d5430), cDeep = new T.Color(0x3a2312), cPeb = new T.Color(0x8c8575), cc = new T.Color();
+    // Los túneles se dibujan como una superficie suave y orgánica (no como cubos): se suaviza la tierra y se genera la malla sobre ella.
+    const SD = CH + 2, DENS = new Float32Array(SD * SD * SD);
+    const OFS = [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]];
+    const ARI = [[0, 1], [2, 3], [4, 5], [6, 7], [0, 2], [1, 3], [4, 6], [5, 7], [0, 4], [1, 5], [2, 6], [3, 7]];
+    const dv = new Float32Array(8);
     function reconstruir(cx, cy, cz) {
-      const pos = [], nor = [], col = [], ind = [];
       const i0 = cx * CH, j0 = cy * CH, k0 = cz * CH, i1 = Math.min(NX, i0 + CH), j1 = Math.min(NY, j0 + CH), k1 = Math.min(NZ, k0 + CH);
-      for (let j = j0; j < j1; j++) for (let k = k0; k < k1; k++) for (let i = i0; i < i1; i++) {
-        if (!tierraG[gi(i, j, k)]) continue;
-        let listo = false;
-        for (let f = 0; f < 6; f++) {
-          const cf = CARAS[f], ni = i + cf[0], nj = j + cf[1], nk = k + cf[2];
-          if (ni < 0 || nj < 0 || nk < 0 || ni >= NX || nj >= NY || nk >= NZ || tierraG[gi(ni, nj, nk)]) continue;
-          if (!listo) {
-            listo = true;
-            const h = (Math.imul(i, 73856093) ^ Math.imul(j, 19349663) ^ Math.imul(k, 83492791)) >>> 0, r = (h % 997) / 997;
-            cc.copy(cTop).lerp(cDeep, 1 - j / NY);                   // más profundo = más oscuro
-            if (r > 0.965) cc.lerp(cPeb, 0.7); else cc.multiplyScalar(0.88 + r * 0.24);
+      const oi = i0 - 1, oj = j0 - 1, ok = k0 - 1;
+      const sol = (i, j, k) => (i < 0 || j < 0 || k < 0 || i >= NX || j >= NY || k >= NZ) ? 1 : (tierraG[gi(i, j, k)] ? 1 : 0);
+      let hayHueco = false;   // si todo alrededor es tierra maciza no hay superficie que dibujar
+      for (let k = ok - 1; k <= ok + SD && !hayHueco; k++) for (let j = oj - 1; j <= oj + SD && !hayHueco; j++) for (let i = oi - 1; i <= oi + SD; i++) if (!sol(i, j, k)) { hayHueco = true; break; }
+      const pos = [], nor = [], col = [], ind = [];
+      if (hayHueco) {
+        for (let k = 0; k < SD; k++) for (let j = 0; j < SD; j++) for (let i = 0; i < SD; i++) {
+          let t = 0; const I = oi + i, J = oj + j, K = ok + k;
+          for (let dz = -1; dz <= 1; dz++) for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) t += sol(I + dx, J + dy, K + dz);
+          DENS[(k * SD + j) * SD + i] = t / 27;
+        }
+        const dn = (i, j, k) => DENS[((k - ok) * SD + (j - oj)) * SD + (i - oi)];
+        const cache = new Map();
+        const vert = (di, dj, dk) => {
+          const key = ((dk - ok) * SD + (dj - oj)) * SD + (di - oi);
+          let v = cache.get(key); if (v !== undefined) return v;
+          let ns = 0;
+          for (let q = 0; q < 8; q++) { const d = dn(di + OFS[q][0], dj + OFS[q][1], dk + OFS[q][2]); dv[q] = d; if (d >= 0.5) ns++; }
+          if (ns === 0 || ns === 8) { cache.set(key, -1); return -1; }
+          let ax = 0, ay = 0, az = 0, ne = 0;
+          for (const e of ARI) {
+            const da = dv[e[0]], db = dv[e[1]]; if ((da >= 0.5) === (db >= 0.5)) continue;
+            const t = (0.5 - da) / (db - da), A = OFS[e[0]], Bq = OFS[e[1]];
+            ax += A[0] + t * (Bq[0] - A[0]); ay += A[1] + t * (Bq[1] - A[1]); az += A[2] + t * (Bq[2] - A[2]); ne++;
           }
-          const base = pos.length / 3;
-          for (const v of cf[3]) { pos.push(OX + (i + v[0]) * CE, OY + (j + v[1]) * CE, OZ + (k + v[2]) * CE); nor.push(cf[0], cf[1], cf[2]); col.push(cc.r, cc.g, cc.b); }
-          ind.push(base, base + 1, base + 2, base, base + 2, base + 3);
+          const x = OX + (di + 0.5 + ax / ne) * CE, y = OY + (dj + 0.5 + ay / ne) * CE, z = OZ + (dk + 0.5 + az / ne) * CE;
+          const gx = (dv[1] + dv[3] + dv[5] + dv[7]) - (dv[0] + dv[2] + dv[4] + dv[6]), gy = (dv[2] + dv[3] + dv[6] + dv[7]) - (dv[0] + dv[1] + dv[4] + dv[5]), gz = (dv[4] + dv[5] + dv[6] + dv[7]) - (dv[0] + dv[1] + dv[2] + dv[3]);
+          const l = Math.hypot(gx, gy, gz) || 1;
+          // color: más oscuro con la profundidad, capas de tierra y piedritas sueltas
+          cc.copy(cTop).lerp(cDeep, acota(-y / 28, 0, 1));
+          cc.multiplyScalar(0.92 + 0.08 * Math.sin(y * 2.3 + Math.sin(x * 0.6 + z * 0.45) * 1.6));
+          const h = (Math.imul(Math.round(x * 5), 73856093) ^ Math.imul(Math.round(y * 5), 19349663) ^ Math.imul(Math.round(z * 5), 83492791)) >>> 0, r = (h % 997) / 997;
+          cc.multiplyScalar(0.92 + r * 0.16);
+          v = pos.length / 3; pos.push(x, y, z); nor.push(-gx / l, -gy / l, -gz / l); col.push(cc.r, cc.g, cc.b);
+          cache.set(key, v); return v;
+        };
+        const quad = (a, b, c, d) => {
+          if (a < 0 || b < 0 || c < 0 || d < 0) return;
+          const ux = pos[b * 3] - pos[a * 3], uy = pos[b * 3 + 1] - pos[a * 3 + 1], uz = pos[b * 3 + 2] - pos[a * 3 + 2];
+          const vx = pos[c * 3] - pos[a * 3], vy = pos[c * 3 + 1] - pos[a * 3 + 1], vz = pos[c * 3 + 2] - pos[a * 3 + 2];
+          const nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+          const dot = nx * (nor[a * 3] + nor[b * 3] + nor[c * 3]) + ny * (nor[a * 3 + 1] + nor[b * 3 + 1] + nor[c * 3 + 1]) + nz * (nor[a * 3 + 2] + nor[b * 3 + 2] + nor[c * 3 + 2]);
+          if (dot >= 0) ind.push(a, b, c, a, c, d); else ind.push(a, c, b, a, d, c);
+        };
+        for (let k = k0; k < k1; k++) for (let j = j0; j < j1; j++) for (let i = i0; i < i1; i++) {
+          const s0 = dn(i, j, k) >= 0.5;
+          if ((dn(i + 1, j, k) >= 0.5) !== s0) quad(vert(i, j - 1, k - 1), vert(i, j, k - 1), vert(i, j, k), vert(i, j - 1, k));
+          if ((dn(i, j + 1, k) >= 0.5) !== s0) quad(vert(i - 1, j, k - 1), vert(i, j, k - 1), vert(i, j, k), vert(i - 1, j, k));
+          if ((dn(i, j, k + 1) >= 0.5) !== s0) quad(vert(i - 1, j - 1, k), vert(i, j - 1, k), vert(i, j, k), vert(i - 1, j, k));
         }
       }
       const key = (cx * NCY + cy) * NCZ + cz;
@@ -7677,7 +7914,8 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         for (let k = acota(k0, 1, NZ - 2); k <= acota(k1, 1, NZ - 2); k++)
           for (let i = acota(i0, 1, NX - 2); i <= acota(i1, 1, NX - 2); i++) {
             const dx = OX + (i + 0.5) * CE - x, dy = OY + (j + 0.5) * CE - y, dz = OZ + (k + 0.5) * CE - z;
-            if (dy >= 0 ? dx * dx + dy * dy + dz * dz > r * r : (dy < -hb || dx * dx + dz * dz > r * r)) continue;
+            const hh = ((Math.imul(i, 374761393) ^ Math.imul(j, 668265263) ^ Math.imul(k, 1274126177)) >>> 0) % 100 / 100, rr = r * r * (0.78 + 0.44 * hh);   // paredes irregulares, no un círculo perfecto
+            if (dy >= 0 ? dx * dx + dy * dy + dz * dz > rr : (dy < -hb || dx * dx + dz * dz > rr)) continue;
             const q = gi(i, j, k); if (tierraG[q]) { tierraG[q] = 0; n++; }
           }
       if (n) marcar(i0, j0, k0, i1, j1, k1);
@@ -7741,7 +7979,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       else v2.set(ptr.x / window.innerWidth * 2 - 1, -(ptr.y / window.innerHeight) * 2 + 1);
       rc.setFromCamera(v2, camera); return rc.ray;
     }
-    let ultHit = null, cdCavar = 0, avisoEst = 0;
+    let ultHit = null, cdCavar = 0, avisoEst = 0, sacudida = 0;
     function cavarHacia(ox, oy, oz, dx, dy, dz, alcance) {
       const l = Math.hypot(dx, dy, dz) || 1; dx /= l; dy /= l; dz /= l;
       let t = -1;
@@ -7749,15 +7987,17 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       if (t < 0) return 0;
       const hx = ox + dx * t, hy = oy + dy * t, hz = oz + dz * t;
       if (Math.hypot(hx - P.x, hy - (P.y + 0.7), hz - P.z) > 3.6) return 0;   // solo cavas lo que tienes cerca (como en el 2D)
-      ultHit = { x: hx, z: hz };
-      return cavarCapsula(hx + dx * 0.55, hy + dy * 0.55 + 0.35, hz + dz * 0.55, 1.3, 1.1);
+      ultHit = { x: hx, y: hy, z: hz };
+      const rj = 0.9 + Math.random() * 0.2;   // cada mordisco es un poco distinto
+      return cavarCapsula(hx + dx * 0.55, hy + dy * 0.55 + 0.35, hz + dz * 0.55, 1.05 * rj, 0.9 * rj);
     }
     function procesarCavar(dt) {
       cdCavar -= dt; avisoEst -= dt;
       const teclas = K.KeyC || K.KeyQ || K.KeyX;
       if ((mouseDig === null && !teclas) || cdCavar > 0) return;
       if (P.est <= 0) { if (avisoEst <= 0) { toast('Sin estamina para cavar. Descansa un momento.'); avisoEst = 2.5; } return; }
-      cdCavar = 0.09;
+      if (P.tierra >= CAP_TIERRA) { if (avisoEst <= 0) { toast('Tu mochila de tierra está llena. Sube a la luz de la entrada y pulsa B para botarla.'); avisoEst = 2.5; } return; }
+      cdCavar = 0.11 + 0.12 * acota(-P.y / 24, 0, 1);   // más profundo = tierra más dura = más lento
       let n = 0;
       if (mouseDig !== null) {                                   // clic mantenido: cava donde apuntas (si está cerca de la hormiga)
         const ry = rayoPuntero();
@@ -7765,9 +8005,14 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         if (n > 0 && ultHit) P.rot = giro(P.rot, Math.atan2(ultHit.x - P.x, ultHit.z - P.z), 0.6);
       } else {                                                   // C: adelante · Q: sube (cada paso 1 celda más alto) · X: baja
         const e = K.KeyQ ? 1 : K.KeyX ? -1 : 0;
-        n = cavarCapsula(P.x + Math.sin(P.rot) * 1.5, P.y + 1.15 + e * 0.5, P.z + Math.cos(P.rot) * 1.5, 1.3, 1.1);
+        n = cavarCapsula(P.x + Math.sin(P.rot) * 1.4, P.y + 1.15 + e * 0.5, P.z + Math.cos(P.rot) * 1.4, 1.05, 0.9);
       }
-      if (n > 0) { P.est = Math.max(0, P.est - Math.min(2.2, 0.3 + n * 0.03)); P.cavado++; P.atT = 0.14; }
+      if (n > 0) {
+        P.est = Math.max(0, P.est - Math.min(6, 1 + n * 0.09)); P.cavado++; P.atT = 0.14; P.tierra = Math.min(CAP_TIERRA, P.tierra + 1);   // cavar cansa ~3 veces más y cada mordisco llena la mochila
+        const dig = mouseDig !== null && ultHit;
+        soltarTierra(dig ? ultHit.x : P.x + Math.sin(P.rot) * 1.4, dig ? ultHit.y : P.y + 1.1, dig ? ultHit.z : P.z + Math.cos(P.rot) * 1.4, Math.min(9, 3 + Math.round(n / 8)));
+        sacudida = 0.12;
+      }
     }
 
     // Luz de la entrada, letreros, despensa y huevos
@@ -7796,6 +8041,40 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         pilaMan[i].position.set(x + Math.cos(a) * r, y + 0.26 + l * 0.38, z + Math.sin(a) * r);
       }
     }
+    // Tierra suelta: terrones que saltan al cavar y caen con gravedad
+    const NPART = 90, partM = new T.InstancedMesh(new T.IcosahedronGeometry(0.07, 0), new T.MeshLambertMaterial({ color: 0x6b4a2a }), NPART);
+    partM.frustumCulled = false; scene2.add(partM);
+    const part = Array.from({ length: NPART }, () => ({ t: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, s: 1 })); let partI = 0;
+    function soltarTierra(x, y, z, n) {
+      for (let q = 0; q < n; q++) {
+        const p = part[partI++ % NPART];
+        p.t = 0.6 + Math.random() * 0.7; p.x = x; p.y = y; p.z = z; p.s = 0.6 + Math.random() * 1.1;
+        p.vx = (Math.random() - 0.5) * 3.2; p.vy = 1.5 + Math.random() * 2.6; p.vz = (Math.random() - 0.5) * 3.2;
+      }
+    }
+    function actualizarPart(dt) {
+      for (let q = 0; q < NPART; q++) {
+        const p = part[q];
+        if (p.t > 0) {
+          p.t -= dt; p.vy -= 14 * dt;
+          const nx = p.x + p.vx * dt, ny = p.y + p.vy * dt, nz = p.z + p.vz * dt;
+          if (solido(nx, ny, nz)) { p.vx *= -0.2; p.vz *= -0.2; p.vy = p.vy < 0 ? 0 : -p.vy * 0.2; if (p.vy === 0) { p.vx *= 0.5; p.vz *= 0.5; } }
+          else { p.x = nx; p.y = ny; p.z = nz; }
+          dm.position.set(p.x, p.y, p.z); dm.scale.setScalar(p.s * Math.min(1, p.t * 3));
+        } else { dm.position.set(0, -99, 0); dm.scale.setScalar(0.0001); }
+        dm.rotation.set(p.t * 5, p.t * 3, 0); dm.updateMatrix(); partM.setMatrixAt(q, dm.matrix);
+      }
+      dm.rotation.set(0, 0, 0); dm.scale.set(1, 1, 1);
+      partM.instanceMatrix.needsUpdate = true;
+    }
+    // Mandíbulas de la hormiga, siempre delante de la cámara; se abren y cierran al morder la tierra
+    const manda = new T.Group(); manda.visible = false; scene2.add(manda);
+    const mMand = new T.MeshPhongMaterial({ color: 0x4a2410, shininess: 40, depthTest: false });
+    const mandG = new T.ConeGeometry(0.045, 0.42, 8); mandG.translate(0, 0.21, 0); mandG.rotateX(-Math.PI / 2);
+    const mandPiv = [-1, 1].map(sg => { const g = new T.Group(); g.position.set(sg * 0.2, -0.3, -0.45); const m = new T.Mesh(mandG, mMand); m.renderOrder = 999; g.add(m); manda.add(g); return { g, sg }; });
+    function animarMand(abre) {
+      mandPiv.forEach(o => { o.g.rotation.y = -o.sg * (0.18 + abre * 0.5); o.g.rotation.z = o.sg * 0.12; });
+    }
     const fadeEl = $('m3-fade');
     function irA(adentro) {
       if (trans || P.muerta > 0) return;
@@ -7820,8 +8099,8 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       e.x = x; e.z = z; e.hp = 60; e.vivo = true; e.obj = null; e.cd = 0; e.flash = 0; e.a.g.visible = true;
     }
     function datosHormiga() {
-      const col = (typeof coloresReinas !== 'undefined' && coloresReinas[tipoHormigaSeleccionada]) || { c1: '#7b1113', c2: '#a11d21' };
-      const tp = tipoHormigaSeleccionada;
+      const col = (typeof coloresReinas !== 'undefined' && coloresReinas[razaSel]) || { c1: '#7b1113', c2: '#a11d21' };
+      const tp = razaSel;
       return {
         c1: col.c1, c2: col.c2,
         mand: tp === 'trampa' ? 0.7 : tp === 'prados' ? 0.5 : tp === 'tridente' ? 0.6 : 0,
@@ -7848,7 +8127,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     function morder() {
       if (P.muerta > 0 || P.cdAt > 0 || dentro) return;
       P.cdAt = 0.45; P.atT = 0.22;
-      const mult = { trampa: 1.7, prados: 1.5, tridente: 1.4, loca: 1.3 }[tipoHormigaSeleccionada] || 1, dmg = 34 * mult;
+      const mult = { trampa: 1.7, prados: 1.5, tridente: 1.4, loca: 1.3 }[razaSel] || 1, dmg = 34 * mult;
       const fx = Math.sin(P.rot), fz = Math.cos(P.rot);
       for (const e of enemigos) {
         if (!e.vivo) continue;
@@ -7938,11 +8217,91 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       seguir = !seguir; $('m3-b-seguir').classList.toggle('on', seguir);
       toast(seguir ? 'Tus hormigas te siguen y pelean contigo.' : 'Tus hormigas se quedan cerca del nido.');
     }
-    acc = { comer, cosechar, guardar, nido: accionNido, huevo: ponerHuevo, dormir, seguir: alternarSeguir, morder };
+    acc = { botar: botarTierra, comer, cosechar, guardar, nido: accionNido, huevo: ponerHuevo, dormir, seguir: alternarSeguir, morder };
+
+
+    // ----- Botar la tierra: cinemática. La cámara queda a ras de suelo (tú eres chiquito) y ves a tu hormiga, enorme, lanzando toda la tierra -----
+    let cine = null, esc3 = null;
+    function crearEsc3() {
+      const sc = new T.Scene(); sc.background = new T.Color(0x8fd3f4); sc.fog = new T.Fog(0x8fd3f4, 16, 60);
+      const hm = new T.HemisphereLight(0xffffff, 0x6b4a2a, 0.8), dl = new T.DirectionalLight(0xfff0d0, 0.95); dl.position.set(4, 9, 8); sc.add(hm, dl);
+      const verde = new T.Mesh(new T.CircleGeometry(160, 40).rotateX(-Math.PI / 2), new T.MeshLambertMaterial({ color: 0x4f8a2e })); verde.position.y = -0.03; sc.add(verde);
+      const suelo = new T.Mesh(new T.CircleGeometry(9, 40).rotateX(-Math.PI / 2), conTexturaTierra(new T.MeshLambertMaterial({ color: 0x7a5230 }))); sc.add(suelo);
+      const hoyo = new T.Mesh(new T.CircleGeometry(1.15, 28).rotateX(-Math.PI / 2), new T.MeshBasicMaterial({ color: 0x050201 })); hoyo.position.set(-2.1, 0.015, 0); sc.add(hoyo);
+      const borde = new T.Mesh(new T.RingGeometry(1.15, 1.6, 28).rotateX(-Math.PI / 2), new T.MeshLambertMaterial({ color: 0x4a2e16 })); borde.position.set(-2.1, 0.012, 0); sc.add(borde);
+      const monte = new T.Mesh(new T.SphereGeometry(1, 26, 14), conTexturaTierra(new T.MeshLambertMaterial({ color: 0x6b4423 }))); monte.position.set(3.2, 0, 0.1); sc.add(monte);
+      const NP = 170, pm = new T.InstancedMesh(new T.IcosahedronGeometry(0.1, 0), new T.MeshLambertMaterial({ color: 0xffffff }), NP); pm.frustumCulled = false;
+      const col = new T.Color(); for (let i = 0; i < NP; i++) { col.setHSL(0.07 + Math.random() * 0.03, 0.4 + Math.random() * 0.15, 0.16 + Math.random() * 0.12); pm.setColorAt(i, col); }
+      sc.add(pm);
+      const ps = Array.from({ length: NP }, () => ({ v: false, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, s: 1, tl: -1, r: 0 }));
+      return { sc, hm, dl, verde, monte, pm, ps, NP, dum: new T.Object3D(), v3: new T.Vector3() };
+    }
+    function botarTierra() {
+      if (cine || trans || P.muerta > 0) return;
+      if (P.tierra <= 0) { toast('No llevas tierra en la mochila.'); return; }
+      if (dentro ? !cercaSalida() : !cercaNido(4.5)) { toast(dentro ? 'Lleva la tierra a la luz del hoyo de entrada para botarla.' : 'Acércate a la entrada de tu nido para botar la tierra.'); return; }
+      cine = { ini: false }; trans = true; mouseDig = null; for (const k in K) K[k] = false;
+      fadeEl.style.opacity = 1;
+      setTimeout(() => {
+        if (!cine) return;
+        if (!esc3) esc3 = crearEsc3();
+        const E = esc3, g = P.a.g;
+        E.sc.background.copy(cielo); E.sc.fog.color.copy(cielo); E.hm.intensity = Math.max(0.35, hemi.intensity + 0.2); E.dl.intensity = 0.3 + sol.intensity * 0.8;
+        E.verde.material.color.setHSL(B.suelo[0], B.suelo[1], B.suelo[2]);
+        E.ps.forEach(p => { p.v = false; }); E.monte.scale.set(1.5, 0.04, 1.25);
+        Object.assign(cine, { ini: true, t: 0, dur: 10.5, total: P.tierra, ciclos: 6, hecho: 0, frac: 0, sh: 0, padre: g.parent, esc: g.scale.x, vis: g.visible, fin: false });
+        if (g.parent) g.parent.remove(g); E.sc.add(g); g.visible = true; g.scale.setScalar(1.6);
+        fadeEl.style.opacity = 0;
+      }, 240);
+    }
+    function terminarCine() {
+      if (!cine) return;
+      if (cine.ini && P.a) { const g = P.a.g; if (g.parent) g.parent.remove(g); (cine.padre || scene).add(g); g.scale.setScalar(cine.esc || 1.1); g.visible = !dentro; P.a.cuerpo.rotation.x = 0; }
+      cine = null; trans = false; fadeEl.style.opacity = 0; promptTxt = '__'; infoTxt = '';
+    }
+    function actualizarCine(dt) {
+      const c = cine, E = esc3, g = P.a.g; c.t += dt; tt += dt;
+      const ini = 1.0, per = 1.15, k = Math.floor((c.t - ini) / per), ph = ((c.t - ini) % per) / per;
+      g.position.set(0.2, 0, 0); g.rotation.set(0, Math.PI / 2, 0);
+      let tilt = 0;
+      if (k >= 0 && k < c.ciclos) tilt = ph < 0.55 ? -0.45 * sstep(0, 0.55, ph) : ph < 0.68 ? -0.45 + 0.62 * sstep(0.55, 0.68, ph) : 0.17 * (1 - sstep(0.68, 1, ph));
+      P.a.cuerpo.rotation.x = tilt; patas(P.a, c.t, 0); animarMand(k >= 0 && k < c.ciclos ? (ph > 0.5 && ph < 0.72 ? 1 : 0.1) : 0.1);
+      if (k >= 0 && k < c.ciclos && ph >= 0.6 && c.hecho <= k) {            // ¡lanza un puñado de tierra!
+        c.hecho = k + 1; c.sh = 0.18; P.a.cuerpo.updateWorldMatrix(true, false);
+        E.v3.set(0, 0.62, 0.95); P.a.cuerpo.localToWorld(E.v3);
+        const n = Math.floor(E.NP / c.ciclos);
+        for (let q = 0; q < n; q++) {
+          const p = E.ps[(k * n + q) % E.NP];
+          p.v = true; p.tl = -1; p.x = E.v3.x; p.y = E.v3.y; p.z = E.v3.z + (Math.random() - 0.5) * 0.3; p.s = 0.6 + Math.random() * 1.2; p.r = Math.random() * 6;
+          p.vx = 1.6 + Math.random() * 1.8; p.vy = 3.6 + Math.random() * 2.6; p.vz = (Math.random() - 0.5) * 2.2;
+        }
+        P.tierra = Math.max(0, c.total - Math.round(c.total * c.hecho / c.ciclos));   // la mochila se va vaciando con cada lanzamiento
+      }
+      c.frac += (c.hecho / c.ciclos - c.frac) * Math.min(1, dt * 2.5); c.sh = Math.max(0, c.sh - dt);
+      E.monte.scale.set(1.5, 0.04 + 0.95 * c.frac, 1.25);
+      const alt0 = 0.04 + 0.95 * c.frac;
+      for (let i = 0; i < E.NP; i++) {
+        const p = E.ps[i], d = E.dum;
+        if (p.v) {
+          if (p.tl < 0) { p.vy -= 14 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt; const hy = Math.max(0.05, 0.9 * alt0 * Math.max(0, 1 - Math.hypot((p.x - 3.2) / 1.5, (p.z - 0.1) / 1.25))); if (p.y <= hy && p.vy < 0) { p.y = hy; p.tl = 0; } }
+          else { p.tl += dt; if (p.tl > 0.6) p.v = false; }
+          d.position.set(p.x, p.y, p.z); d.rotation.set(p.r + p.x, p.r, 0); d.scale.setScalar(p.s * (p.tl < 0 ? 1 : Math.max(0.001, 1 - p.tl / 0.6)));
+        } else { d.position.set(0, -99, 0); d.scale.setScalar(0.0001); }
+        d.updateMatrix(); E.pm.setMatrixAt(i, d.matrix);
+      }
+      E.pm.instanceMatrix.needsUpdate = true;
+      const u = sstep(0, 1, Math.min(1, c.t / c.dur)), sh = c.sh * 0.12;      // cámara a ras de suelo, mirando hacia arriba, acercándose despacio
+      camera.position.set(1.6 - 0.7 * u + (Math.random() - 0.5) * sh, 0.1 + 0.05 * u + (Math.random() - 0.5) * sh, 4.1 - 1.4 * u);
+      camera.lookAt(1.0 + 0.2 * Math.sin(c.t * 0.5), 0.95, 0);
+      prompt3.textContent = 'Botando la tierra… ' + P.tierra + '/' + CAP_TIERRA; prompt3.style.display = 'block'; promptTxt = '__cine';
+      if (!c.fin && c.t >= c.dur - 0.35) { c.fin = true; fadeEl.style.opacity = 1; }
+      if (c.t >= c.dur) { P.tierra = 0; terminarCine(); toast('¡Mochila de tierra vacía! Ya puedes seguir cavando.'); return; }
+      renderer.render(E.sc, camera);
+    }
 
     function reset() {
-      Object.assign(P, { y: -3, cavado: 0, x: 0, z: 7, h: 0, vy: 0, rot: Math.PI, hp: 100, est: 100, com: 80, agot: false, cdAt: 0, atT: 0, muerta: 0, n: 0, kills: 0, dano: 0, vel: 0, mochila: 0, desp: 0, cdHuevo: 0 });
-      nidoPos = null; nido.visible = false; seguir = false; dentro = false; trans = false; nidoLbl = ''; fadeEl.style.opacity = 0;
+      Object.assign(P, { y: -3, cavado: 0, x: 0, z: 7, h: 0, vy: 0, rot: Math.PI, hp: 100, est: 100, com: 80, agot: false, cdAt: 0, atT: 0, muerta: 0, n: 0, kills: 0, dano: 0, vel: 0, mochila: 0, tierra: 0, desp: 0, cdHuevo: 0 });
+      terminarCine(); nidoPos = null; nido.visible = false; seguir = false; dentro = false; trans = false; nidoLbl = ''; fadeEl.style.opacity = 0;
       aliadas.forEach(a => { scene.remove(a.a.g); scene2.remove(a.b.g); }); aliadas.length = 0; huevos.length = 0;
       reiniciarNido(); pantry = null; lblDesp.visible = false; mouseDig = null; cdCavar = 0; avisoEst = 0;
       $('m3-b-seguir').classList.remove('on');
@@ -8034,7 +8393,10 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     const hv = $('m3-vida'), he = $('m3-est'), hc = $('m3-com'), hi = $('m3-info'), hd = $('m3-dano');
 
     function actualizar(dt) {
+      if (cine && cine.ini) { actualizarCine(dt); if (cine) return; }
       tt += dt;
+      if (!dentro) manda.visible = false;
+      if (nido.visible) { const sy = 1 + 0.9 * Math.min(1, P.cavado / 700); monte.scale.y = sy; monte.position.y = 0.75 * sy; hueco.position.y = 1.52 * sy; }   // la tierra que sacas se amontona en la entrada
       if (ratonActivo() && sinLock && !bloqueado() && !trans && P.muerta <= 0) {
         const mg = 70, w = window.innerWidth;
         if (ptr.x < mg) yaw += 2.6 * Math.min(1, (mg - Math.max(0, ptr.x)) / mg) * dt;
@@ -8057,7 +8419,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         P.muerta -= dt;
         if (P.muerta <= 0) {
           if (dentro) { dentro = false; scene.add(P.a.g); }
-          Object.assign(P, { x: nidoPos ? nidoPos.x : 0, z: nidoPos ? nidoPos.z + 4 : 7, h: 0, vy: 0, hp: 100, est: 100, com: Math.max(P.com, 50), mochila: 0 });
+          Object.assign(P, { x: nidoPos ? nidoPos.x : 0, z: nidoPos ? nidoPos.z + 4 : 7, h: 0, vy: 0, hp: 100, est: 100, com: Math.max(P.com, 50), mochila: 0, tierra: 0 });
           P.a.g.visible = true; estado.style.display = 'none';
         }
       } else {
@@ -8068,7 +8430,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         mueve = ml > 0.08;
         if (dentro) P.rot = yaw + Math.PI;   // en primera persona la hormiga mira hacia donde miras
         const cavando = dentro && (mouseDig !== null || K.KeyC || K.KeyQ || K.KeyX);
-        let vel = 5;
+        let vel = razaSel === 'loca' ? 6 : 5;   // la hormiga loca es más rápida
         if (P.agot && P.est > 25) P.agot = false;
         if ((K.ShiftLeft || K.ShiftRight || K.run) && mueve && !P.agot && P.est > 0) { vel = 9.5; P.est -= 26 * dt; if (P.est <= 0) { P.est = 0; P.agot = true; } }
         else if (!cavando) P.est = Math.min(100, P.est + 16 * dt);
@@ -8167,7 +8529,13 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         // primera persona: la cámara está en los ojos de la hormiga (arrastrar hacia abajo = mirar hacia abajo)
         const el = -pitch, ce = Math.cos(el), fx = -Math.sin(yaw) * ce, fy = Math.sin(el), fz = -Math.cos(yaw) * ce;
         const ex = P.x - Math.sin(yaw) * 0.3, ez = P.z - Math.cos(yaw) * 0.3, ey = P.y + 0.95;
-        camera.position.set(ex, ey, ez); camera.lookAt(ex + fx, ey + fy, ez + fz);
+        sacudida = Math.max(0, sacudida - dt);
+        const sh = sacudida * 0.25;
+        camera.position.set(ex + (Math.random() - 0.5) * sh, ey + (Math.random() - 0.5) * sh, ez + (Math.random() - 0.5) * sh); camera.lookAt(ex + fx, ey + fy, ez + fz);
+        const cavO = mouseDig !== null || K.KeyC || K.KeyQ || K.KeyX;
+        manda.visible = P.muerta <= 0; manda.position.copy(camera.position); manda.quaternion.copy(camera.quaternion);
+        animarMand(cavO ? Math.abs(Math.sin(tt * 16)) : 0.1);
+        actualizarPart(dt);
         if (P.muerta <= 0) P.a.g.visible = false;
         luzNido.position.set(P.x, P.y + 1.1, P.z);
         for (let q = 0; q < 24; q++) pilaMan[q].visible = !!pantry && q < P.desp;
@@ -8193,24 +8561,25 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 
       // pantalla
       hv.style.width = P.hp + '%'; he.style.width = P.est + '%'; hc.style.width = P.com + '%'; hd.style.opacity = Math.min(1, P.dano * 1.6);
-      const info = `Mochila ${P.mochila}/${CAP_MOCHILA} · Despensa ${P.desp}/${CAP_DESP}\n` + (nidoPos ? `Hormigas: ${aliadas.length} · Huevos: ${huevos.length}` : 'Sin nido todavía (⛏️)') + `\nManzanas comidas: ${P.n} · Enemigas derrotadas: ${P.kills}`;
+      const info = `Tierra ${P.tierra}/${CAP_TIERRA}${P.tierra >= CAP_TIERRA ? ' (¡llena!)' : ''}\nMochila ${P.mochila}/${CAP_MOCHILA} · Despensa ${P.desp}/${CAP_DESP}\n` + (nidoPos ? `Hormigas: ${aliadas.length} · Huevos: ${huevos.length}` : 'Sin nido todavía (⛏️)') + `\nManzanas comidas: ${P.n} · Enemigas derrotadas: ${P.kills}`;
       if (info !== infoTxt) { infoTxt = info; hi.textContent = info; }
       let p = '';
       if (P.muerta <= 0) {
         if (dentro) {
-          if (cercaSalida()) p = 'N · salir a la superficie';
+          if (cercaSalida()) p = P.tierra > 0 ? 'B · botar la tierra (' + P.tierra + '/' + CAP_TIERRA + ')   N · salir a la superficie' : 'N · salir a la superficie';
+          else if (P.tierra >= CAP_TIERRA) p = 'Mochila de tierra llena · sube a la luz de la entrada y pulsa B';
           else if (pantry && cercaDesp(9) && (P.mochila > 0 || P.desp > 0)) p = P.mochila > 0 ? 'G · guardar comida   E · comer' : 'E · comer de la despensa';
           else if (!pantry && P.mochila > 0) p = 'G · crear la despensa aquí y guardar la comida';
           else if (P.desp >= 3 && P.cdHuevo <= 0 && aliadas.length + huevos.length < 6) p = 'H · poner un huevo aquí';
           else if (esNoche) p = 'Z · dormir';
           else if (P.cavado < 6) p = 'Mantén el clic izquierdo para cavar (o C / Q / X) · mueve el ratón para mirar';
         } else if (manzanaCerca()) p = 'R · cosechar   E · comer';
-        else if (nidoPos && cercaNido(4.5)) p = 'N · entrar al nido';
+        else if (nidoPos && cercaNido(4.5)) p = P.tierra > 0 ? 'B · botar la tierra   N · entrar al nido' : 'N · entrar al nido';
         else if (!nidoPos) p = 'N · crear la entrada del nido aquí';
       }
       if (dentro !== dentroPrev) { dentroPrev = dentro; // cada botón solo aparece donde sirve: en el nido (cavar, guardar, huevo, dormir) o en la superficie (cosechar, morder)
         ['cavar', 'cavarU', 'cavarD', 'guardar', 'huevo', 'dormir'].forEach(n => { $('m3-b-' + n).style.display = dentro ? '' : 'none'; });
-        ['cosechar', 'morder'].forEach(n => { $('m3-b-' + n).style.display = dentro ? 'none' : ''; }); }
+        ['cosechar', 'morder'].forEach(n => { $('m3-b-' + n).style.display = dentro ? 'none' : ''; }); $('m3-b-botar').style.display = ''; }
       const nb = dentro ? 'salir' : nidoPos ? 'entrar' : 'crear';
       if (nb !== nidoLbl) { nidoLbl = nb; $('m3-b-nido').innerHTML = nb === 'salir' ? '<i>⬆️</i>Salir' : nb === 'entrar' ? '<i>🕳️</i>Entrar' : '<i>⛏️</i>Nido'; }
       if (p !== promptTxt) { promptTxt = p; prompt3.textContent = p; prompt3.style.display = p ? 'block' : 'none'; }
@@ -8219,7 +8588,34 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       renderer.render(dentro ? scene2 : scene, camera);
     }
 
-    return { reset, ajustar, actualizar };
+    // ----- Guardado de la partida (el terreno se regenera con la semilla; aquí va lo que cambió) -----
+    function exportar() {
+      const fuera = dentro && nidoPos;
+      const r = []; let v = 1, n = 0;                                    // los túneles cavados, comprimidos por tramos
+      for (let i = 0; i < tierraG.length; i++) { if (tierraG[i] === v) n++; else { r.push(n); v = v ? 0 : 1; n = 1; } }
+      r.push(n);
+      return { v: 1, x: fuera ? nidoPos.x : P.x, z: fuera ? nidoPos.z + RADIO_NIDO + 0.8 : P.z, hp: P.hp, est: P.est, com: P.com, mochila: P.mochila, tierra: P.tierra, desp: P.desp, n: P.n, kills: P.kills, cavado: P.cavado, cdHuevo: P.cdHuevo, fase,
+        nido: nidoPos ? { x: nidoPos.x, z: nidoPos.z } : null, pantry: pantry ? { x: pantry.x, y: pantry.y, z: pantry.z } : null, aliadas: aliadas.length,
+        huevos: huevos.map(h => ({ t: h.t, x: h.x, y: h.y, z: h.z })), seguir, cav: r };
+    }
+    function importar(e) {
+      if (!e || e.v !== 1) return;
+      Object.assign(P, { x: e.x, z: e.z, hp: Math.max(30, e.hp || 100), est: e.est == null ? 100 : e.est, com: Math.max(10, e.com == null ? 80 : e.com), mochila: e.mochila | 0, tierra: Math.min(CAP_TIERRA, e.tierra | 0), desp: e.desp | 0, n: e.n | 0, kills: e.kills | 0, cavado: e.cavado | 0, cdHuevo: e.cdHuevo || 0 });
+      if (e.fase) fase = e.fase;
+      if (e.cav && e.cav.length) {
+        let i = 0, v = 1; for (const k of e.cav) { tierraG.fill(v, i, i + k); i += k; v = v ? 0 : 1; }
+        for (let q = 0; q < NCX * NCY * NCZ; q++) sucios.add(q); procesarSucios(99999);
+      }
+      if (e.nido) { nidoPos = { x: e.nido.x, z: e.nido.z }; nido.position.set(e.nido.x, alt(e.nido.x, e.nido.z), e.nido.z); nido.visible = true; }
+      if (e.pantry) colocarDespensa(e.pantry.x, e.pantry.y, e.pantry.z);
+      (e.huevos || []).forEach(h => huevos.push({ t: h.t, x: h.x, y: h.y, z: h.z }));
+      if (nidoPos) for (let i = 0; i < Math.min(12, e.aliadas | 0); i++) nacer({ x: 0, y: SUELO_ENT + 0.02, z: 0.3 });
+      if (e.seguir) alternarSeguir();
+    }
+    const setRaza = r => { if (RAZAS_OK.includes(r)) razaSel = r; };
+    const RAZAS_OK = ['red', 'and', 'trampa', 'prados', 'loca', 'tridente'];
+    generarMundo(1234, 'pradera');
+    return { reset, ajustar, actualizar, generarMundo, exportar, importar, setRaza, terminarCine };
   }
 })();
 
