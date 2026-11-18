@@ -657,6 +657,7 @@
 <div class="opcion-hormiga" id="tipo-prados" data-tipo="prados" title="Hormiga de los prados (Lasius): pacífica, solo ataca si un enemigo se acerca a 200 px del nido o al ir a una torre, pero hace el triple de daño">🟡 Prados</div>
 <div class="opcion-hormiga" id="tipo-loca" data-tipo="loca" title="Hormiga loca: más chiquita, mucho más rápida, completamente negra, con menos vida pero más daño. Sus hormigas roban comida de los nidos enemigos">⚫ Loca</div>
 <div class="opcion-hormiga" id="tipo-tridente" data-tipo="tridente" title="Hormiga tridente: cuerpo negro con patas y mandíbulas naranjas. Si un enemigo está a menos de 100 px del nido, le hace el doble de daño">🔱 Tridente</div>
+<div class="opcion-hormiga" id="tipo-bala" data-tipo="bala" title="Hormiga bala: negra, peluda, de mandíbulas enormes. Pega durísimo (x3.5 de daño) pero tiene un poquito menos de vida">🔫 Bala</div>
 </div>
 </div>
 </div>
@@ -1241,13 +1242,21 @@ const RADIO_TRIDENTE = 100;    // px alrededor de la entrada del nido (los enemi
 const DANO_TRIDENTE = 2;       // multiplicador de daño cerca del nido
 const COLOR_TRIDENTE = '#c0702f';   // patas y antenas
 
+// ----- Raza Bala (hormiga bala, Paraponera): negra, peluda, mandíbulas enormes y patas largas con bandas claras; pega durísimo pero aguanta un poco menos -----
+const esBala = () => tipoHormigaSeleccionada === 'bala';
+const DANO_BALA = 3.5;         // multiplicador de daño
+const VIDA_BALA = 0.9;         // vida de las hormigas (un poquito menos)
+const FRAGIL_BALA = 1.15;      // la reina recibe un poquito más de daño
+const COLOR_BALA = '#b9b09a';  // antenas y bandas claras de las patas
+
 const coloresReinas = {
   red: { c1: '#7b1113', c2: '#a11d21', stroke: '#fbc02d' },
   and: { c1: '#1c1c1c', c2: '#2e2e2e', stroke: '#fbc02d' },
   trampa: { c1: '#121212', c2: '#262626', stroke: '#c9a227' },
   prados: { c1: '#d99a14', c2: '#f4bd2f', stroke: '#9a6208' },   // amarilla / dorada
   loca: { c1: '#050505', c2: '#0e0e10', stroke: '#2a2a30' },   // completamente negra
-  tridente: { c1: '#101013', c2: '#1d1d22', stroke: '#b8651f' }   // negra con detalles naranjas
+  tridente: { c1: '#101013', c2: '#1d1d22', stroke: '#b8651f' },   // negra con detalles naranjas
+  bala: { c1: '#08080a', c2: '#141417', stroke: '#2b2118' }   // negro azabache, borde marrón oscuro
 };
 
 document.querySelectorAll('.opcion-hormiga').forEach(op => {
@@ -1481,19 +1490,32 @@ function aplicarColorReina() {
   document.getElementById('sub-c2').setAttribute('stroke', col.stroke);
   document.getElementById('sub-c3').setAttribute('fill', col.c2);
   document.getElementById('sub-c3').setAttribute('stroke', col.stroke);
-  const mq = (tipoHormigaSeleccionada === 'trampa' || tipoHormigaSeleccionada === 'prados' || esTridente()) ? '' : 'none';   // trampa: finas y largas · prados: cortas y gruesas
+  const mq = (tipoHormigaSeleccionada === 'trampa' || tipoHormigaSeleccionada === 'prados' || esTridente() || esBala()) ? '' : 'none';   // trampa: finas y largas · prados: cortas y gruesas
   const mSup = document.getElementById('sup-mand'), mSub = document.getElementById('sub-mand');
   if (tipoHormigaSeleccionada === 'prados') { mSup.innerHTML = mandibulasPrados(20, -14.5, 10, 2.2); mSub.innerHTML = mandibulasPrados(12.5, -8.2, 6.5, 1.4); }
   else if (tipoHormigaSeleccionada === 'trampa') { mSup.innerHTML = mandibulasSVG(20, -14.5, 14, 2.6); mSub.innerHTML = mandibulasSVG(12.5, -8.2, 9.5, 1.7); }
   else if (esTridente()) { mSup.innerHTML = mandibulasTridente(20, -14.5, 16, 2.6); mSub.innerHTML = mandibulasTridente(12.5, -8.2, 10.5, 1.7); }
+  else if (esBala()) { mSup.innerHTML = mandibulasBala(20, -14.5, 15, 2.8); mSub.innerHTML = mandibulasBala(12.5, -8.2, 10, 1.8); }
   mSup.style.display = mq; mSub.style.display = mq;
   // Loca: patas negras y antenas largas con codo (como en la foto)
-  const loca = esLoca(), trid = esTridente();
-  [['s-p1', '#3b0d0c'], ['s-p2', '#3b0d0c'], ['s-p3', '#3b0d0c'], ['sub-p1', '#220706'], ['sub-p2', '#220706'], ['sub-p3', '#220706']].forEach(([id, c]) => { const e = document.getElementById(id); if (e) e.setAttribute('stroke', loca ? '#050505' : trid ? COLOR_TRIDENTE : c); });
+  const loca = esLoca(), trid = esTridente(), bala = esBala();
+  [['s-p1', '#3b0d0c'], ['s-p2', '#3b0d0c'], ['s-p3', '#3b0d0c'], ['sub-p1', '#220706'], ['sub-p2', '#220706'], ['sub-p3', '#220706']].forEach(([id, c]) => { const e = document.getElementById(id); if (e) e.setAttribute('stroke', loca ? '#050505' : trid ? COLOR_TRIDENTE : bala ? '#0c0c0e' : c); });
   [[hormigaSup, 'ant-loca-sup', 'M20,-24 L25,-36 L34,-40 M16,-25 L19,-39 L26,-47', 1.6], [hormigaSub, 'ant-loca-sub', 'M12,-14 L16,-24 L23,-27 M9,-15 L11,-26 L17,-32', 1.2]].forEach(([g, id, d, w]) => {
     let a = document.getElementById(id);
     if (!a) { a = document.createElementNS(svgNS, 'path'); a.id = id; a.setAttribute('fill', 'none'); a.setAttribute('stroke-linecap', 'round'); a.setAttribute('stroke-linejoin', 'round'); a.setAttribute('d', d); a.setAttribute('stroke-width', w); g.appendChild(a); }
-    a.setAttribute('stroke', trid ? COLOR_TRIDENTE : '#050505'); a.style.display = (loca || trid) ? '' : 'none';
+    a.setAttribute('stroke', trid ? COLOR_TRIDENTE : bala ? COLOR_BALA : '#050505'); a.style.display = (loca || trid || bala) ? '' : 'none';
+  });
+  // Bala: bandas claras en las patas (como en la foto) y pelitos tiesos por todo el cuerpo
+  [['s-p1', 3.5], ['s-p2', 3.5], ['s-p3', 3.5], ['sub-p1', 3], ['sub-p2', 3], ['sub-p3', 3]].forEach(([id, w]) => {
+    const pata = document.getElementById(id); if (!pata) return;
+    let b = document.getElementById(id + '-banda');
+    if (!b) { b = pata.cloneNode(false); b.id = id + '-banda'; b.setAttribute('stroke', COLOR_BALA); b.setAttribute('stroke-width', (w * 0.55).toFixed(2)); b.setAttribute('stroke-dasharray', '1.6 2.6'); b.setAttribute('stroke-linecap', 'butt'); pata.after(b); }
+    b.style.display = bala ? '' : 'none';
+  });
+  [[hormigaSup, 'ant-bala-pelos-sup', 'M-24,-23 l-2,-3 M-19,-25 l-1,-3.5 M-14,-25.5 l0,-3.5 M-9,-24 l1,-3.5 M-4,-19 l0.5,-3 M2,-19 l1.5,-3 M8,-23 l1,-3 M14,-24 l1.5,-3 M-27,-17 l-3,-1.5 M-26,-12 l-3,0.5', 0.9], [hormigaSub, 'ant-bala-pelos-sub', 'M-17,-13.5 l-1.5,-2.5 M-13,-15 l-1,-3 M-9,-15 l0,-3 M-5,-14 l1,-3 M-2,-10 l0.5,-2.5 M2,-10 l1,-2.5 M6,-13.5 l1,-2.5 M10,-13.5 l1.5,-2.5 M-19,-9 l-2.5,-1', 0.7]].forEach(([g, id, d, w]) => {
+    let a = document.getElementById(id);
+    if (!a) { a = document.createElementNS(svgNS, 'path'); a.id = id; a.setAttribute('fill', 'none'); a.setAttribute('stroke', '#050505'); a.setAttribute('stroke-linecap', 'round'); a.setAttribute('d', d); a.setAttribute('stroke-width', w); g.appendChild(a); }
+    a.style.display = bala ? '' : 'none';
   });
   // Loca: son totalmente negras, así que los túneles se aclaran para que se vean (las otras razas conservan el túnel oscuro)
   const ft = document.getElementById('fondo-tunel'); if (ft) ft.setAttribute('fill', loca ? 'url(#g-tunel-loca)' : '#120502');
@@ -1861,6 +1883,15 @@ const PATAS_TRIDENTE = (() => {
   [-6, 0, 6].forEach(x => { t += `<line class="pata" x1="${x}" y1="-3" x2="${x}" y2="4.5" stroke="#c8782f" stroke-width="1.4" stroke-linecap="round"/>`; });
   return t + '</g>';
 })();
+// Patas de la raza Bala: negras, largas, con bandas claras
+const PATAS_BALA = (() => {
+  let t = '<g>';
+  [[-8, -10], [-2, -2], [4, 6], [-6, -11], [0, 1], [6, 10]].forEach(([x, xe]) => {
+    t += `<line class="pata" x1="${x}" y1="-3" x2="${xe}" y2="5.5" stroke="#0c0c0e" stroke-width="1.3" stroke-linecap="round"/>`
+       + `<line class="pata" x1="${x}" y1="-3" x2="${xe}" y2="5.5" stroke="${COLOR_BALA}" stroke-width="0.7" stroke-dasharray="1 1.6"/>`;
+  });
+  return t + '</g>';
+})();
 // Patas de la raza Loca: negras, finas y largas
 const PATAS_LOCA = (() => {
   let t = '<g>';
@@ -1887,7 +1918,7 @@ function hsl2hex(h, sa, l) {
 // Las hormigas toman el color de la reina elegida (Red, Black o Trampa)
 function recolorHormiga(svg) {
   const col = coloresReinas[tipoHormigaSeleccionada] || coloresReinas.red;
-  const [H, S] = hex2hsl(col.c2), negro = tipoHormigaSeleccionada === 'and' || tipoHormigaSeleccionada === 'trampa' || esTridente(), amarilla = tipoHormigaSeleccionada === 'prados', loca = esLoca();
+  const [H, S] = hex2hsl(col.c2), negro = tipoHormigaSeleccionada === 'and' || tipoHormigaSeleccionada === 'trampa' || esTridente() || esBala(), amarilla = tipoHormigaSeleccionada === 'prados', loca = esLoca();
   return svg.replace(/<(ellipse|circle)\b[^>]*>/g, tag => {
     if (!/stroke=/.test(tag)) return tag;
     return tag.replace(/(fill|stroke)="(#[0-9a-fA-F]{6})"/g, (m, a, hx) => {
@@ -1938,6 +1969,14 @@ function mandibulasPrados(xf, yc, L, W) {
     + hojaMandibula([xf - 0.5, yc + 0.8 * k], [xf + L * 0.38, yc + L * 0.52], [xf + L * 0.86, yc + L * 0.34], 2.3 * k, 0.4 * k, -1, [0.5, 0.68, 0.84], '#8c4620', '#2e1305')
     + `</g>`;
 }
+// Hormiga bala (como la foto): mandíbulas enormes, gruesas y curvas, casi negras con punta marrón, con dientes
+function mandibulasBala(xf, yc, L, W) {
+  const k = W / 1.1;
+  return `<g class="mand">`
+    + hojaMandibula([xf - 0.5, yc - 0.6 * k], [xf + L * 0.55, yc - L * 0.34], [xf + L * 0.95, yc + L * 0.3], 2.9 * k, 0.5 * k, 1, [0.5, 0.68, 0.84], '#1b100a', '#060403')
+    + hojaMandibula([xf - 0.5, yc + 0.9 * k], [xf + L * 0.42, yc + L * 0.62], [xf + L * 0.9, yc + L * 0.4], 2.9 * k, 0.5 * k, -1, [0.5, 0.68, 0.84], '#2b1a10', '#060403')
+    + `</g>`;
+}
 // Hormiga tridente (como la foto): mandíbulas largas, finas y anaranjadas, abiertas hacia adelante, con tres dientes cada una
 function mandibulasTridente(xf, yc, L, W) {
   const k = W / 1.1;
@@ -1949,9 +1988,11 @@ function mandibulasTridente(xf, yc, L, W) {
 const CABEZA_HORMIGA = { 'Warrior Ant': [9.5, -5], 'Protector Ant': [9, -5], 'Honey Ant': [9.8, -5], 'Builder Ant': [8.3, -4.5], 'Tank Ant': [9.5, -5.5] };
 function dibujoHormiga(tipo) {
   let base = recolorHormiga(dibujoHormigaBase(tipo));
-  if (tipoHormigaSeleccionada === 'trampa' || tipoHormigaSeleccionada === 'prados' || esTridente()) {
+  if (tipoHormigaSeleccionada === 'trampa' || tipoHormigaSeleccionada === 'prados' || esTridente() || esBala()) {
     const [xf, yc] = CABEZA_HORMIGA[tipo] || [7.5, -4], i = base.indexOf('<rect x="-15"');
-    let m = tipoHormigaSeleccionada === 'prados' ? mandibulasPrados(xf, yc, 6.5, 1.1) : esTridente() ? mandibulasTridente(xf, yc, 9, 1.1) : mandibulasSVG(xf, yc, 9, 1.1);
+    let m = tipoHormigaSeleccionada === 'prados' ? mandibulasPrados(xf, yc, 6.5, 1.1) : esTridente() ? mandibulasTridente(xf, yc, 9, 1.1) : esBala() ? mandibulasBala(xf, yc, 9.5, 1.15) : mandibulasSVG(xf, yc, 9, 1.1);
+    if (esBala()) m += `<path d="M${xf - 2},${yc - 2} l3,-6 l5.5,-2.5 M${xf - 3.5},${yc - 2.5} l1.5,-7 l4.5,-4.5" fill="none" stroke="${COLOR_BALA}" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/>`
+      + `<path d="M-12,-9 l-1.5,-2.5 M-9,-10 l-1,-3 M-5,-10 l0,-3 M-1,-9.5 l0.8,-3 M3,-9 l1,-2.5 M7,-9 l1.2,-2.5 M-14,-5 l-2.5,-1" fill="none" stroke="#050505" stroke-width="0.5" stroke-linecap="round"/>`;
     if (esTridente()) m += `<path d="M${xf - 2},${yc - 2} l3,-6 l5.5,-2.5 M${xf - 3.5},${yc - 2.5} l1.5,-7 l4.5,-4.5" fill="none" stroke="${COLOR_TRIDENTE}" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/>`;
     base = i >= 0 ? base.slice(0, i) + m + base.slice(i) : base + m;
   }
@@ -1963,9 +2004,9 @@ function dibujoHormiga(tipo) {
   }
   if (tipo === 'Tank Ant') {   // cuerpo y patas más grandes; la barra de vida queda sin escalar y al final
     const i = base.indexOf('<rect x="-15"'), cuerpo = i >= 0 ? base.slice(0, i) : base, barras = i >= 0 ? base.slice(i) : '';
-    return `<g transform="scale(${ESCALA_TANQUE})">` + (esTridente() ? PATAS_TRIDENTE : PATAS_SVG) + cuerpo + '</g>' + barras;
+    return `<g transform="scale(${ESCALA_TANQUE})">` + (esTridente() ? PATAS_TRIDENTE : esBala() ? PATAS_BALA : PATAS_SVG) + cuerpo + '</g>' + barras;
   }
-  return (esTridente() ? PATAS_TRIDENTE : PATAS_SVG) + base;
+  return (esTridente() ? PATAS_TRIDENTE : esBala() ? PATAS_BALA : PATAS_SVG) + base;
 }
 function dibujoHormigaBase(tipo) {
   if (tipo === 'Tank Ant') return `
@@ -2487,7 +2528,7 @@ function caminarCampo(h, arr, v, sentido = 1) {
 // ----- Hormigas nacidas -----
 function initH(h) {
   h.init = true; h.ubic = 'sub'; h.vy = 0; h.est = 'nido'; h.t = 3 + Math.random() * 6; h.cd = 0; h.carga = false; h.pausa = 0;
-  h.max = Math.round(datosTipo(h.tipo).vida * (esLoca() ? VIDA_LOCA : 1));
+  h.max = Math.round(datosTipo(h.tipo).vida * (esLoca() ? VIDA_LOCA : esBala() ? VIDA_BALA : 1));
   h.vida = h.max; h.barra = h.elemento.lastElementChild; h.dir = h.dir || 1;
   h.barraMiel = h.elemento.querySelector('.b-miel'); h.vientre = h.elemento.querySelector('.vientre'); h.txtObra = h.elemento.querySelector('.b-obra');
   if (h.tipo === 'Honey Ant' && h.miel == null) h.miel = 100;
@@ -2849,7 +2890,7 @@ const btnComer = document.getElementById('btn-comer');
 const barraHambreFill = document.getElementById('barra-hambre-fill');
 const modalPartidas = document.getElementById('modal-partidas');
 const inputNuevaPartida = document.getElementById('input-nueva-partida');
-const nombresReina = { red: 'Reina Roja', and: 'Reina Negra', trampa: 'Reina Trampa', prados: 'Reina de los Prados', loca: 'Reina Loca', tridente: 'Reina Tridente' };
+const nombresReina = { red: 'Reina Roja', and: 'Reina Negra', trampa: 'Reina Trampa', prados: 'Reina de los Prados', loca: 'Reina Loca', tridente: 'Reina Tridente', bala: 'Reina Bala' };
 
 function comer() {
   if (comida < 10 || hambre >= 100) return;
@@ -3862,7 +3903,7 @@ function enemigoAlAlcance() {
 const enemigoCercaTrid = e => !!e && (e.ubic === 'sub' || Math.abs(e.x - xEntrada) < RADIO_TRIDENTE);
 const mulAtaqueVs = e => mulAtaque() * (esTridente() && enemigoCercaTrid(e) ? DANO_TRIDENTE : 1);   // tridente: x2 a los enemigos cerca del nido
 const colorGolpe = (e, c) => esTridente() && enemigoCercaTrid(e) ? '#ff7043' : c;
-function mulAtaque() { return tipoHormigaSeleccionada === 'trampa' ? 2 : tipoHormigaSeleccionada === 'prados' ? 3 : esLoca() ? DANO_LOCA : 1; }   // trampa: doble de daño · prados: triple de daño
+function mulAtaque() { return esBala() ? DANO_BALA : tipoHormigaSeleccionada === 'trampa' ? 2 : tipoHormigaSeleccionada === 'prados' ? 3 : esLoca() ? DANO_LOCA : 1; }   // trampa: doble de daño · prados: triple de daño
 
 // ----- Pasiva de la hormiga de los prados: pacífica, solo ataca si está obligada -----
 const RADIO_PACIFISTA = 200;   // px alrededor del nido: ahí sí atacan al enemigo (dentro del nido y en torres/estructuras siempre pelean)
@@ -4314,7 +4355,7 @@ const PREMIOS = [
 const ZONAS_TXT = { huevos: 'ruleta de huevos', iglu: 'cofres del igloo', nido: 'cofres de nidos enemigos', torre: 'cofres de la torre', templo: 'cofres del templo', general: 'raids y rachas' };
 const IGLU_X = -3200, BW = 900, SUELO = 300, REAPARECE_COFRE_MS = 5 * 60 * 60 * 1000;   // los cofres reaparecen a las 5 horas (tiempo real)
 let buffs = { escudo: 0, frio: 0, suerte: 0 };
-const factorDano = () => (buffs.escudo > 0 ? 0.5 : 1) * (esLoca() ? FRAGIL_LOCA : 1);
+const factorDano = () => (buffs.escudo > 0 ? 0.5 : 1) * (esLoca() ? FRAGIL_LOCA : esBala() ? FRAGIL_BALA : 1);
 let inventario = {}, cofresAbiertos = {}, baseAbierta = false, cdIglu = 0, ruletaCofre = false;
 let bp = { x: 80, dir: 1, hp: 100, cd: 0 }, bEnem = [], bCof = [{ id: 0, x: 330 }, { id: 1, x: 560 }, { id: 2, x: 820 }], bDespejada = false;
 
@@ -4395,7 +4436,7 @@ function dibujoReinaSVG() {
     + '<circle cx="7" cy="-7" r="4.4" fill="#8e24aa" stroke="#ffd54f" stroke-width="1.1"/>';
   let pelo = '<circle cx="8.8" cy="-8.2" r=".9" fill="#fff"/>'
     + '<path d="M3,-11 L4.2,-16.5 L6.4,-12.8 L8.4,-17 L10,-11Z" fill="#ffd54f" stroke="#f57f17" stroke-width=".8" stroke-linejoin="round"/>';
-  const trampa = tipoHormigaSeleccionada === 'trampa' ? mandibulasSVG(10.5, -7, 8, 1.1) : tipoHormigaSeleccionada === 'prados' ? mandibulasPrados(10.5, -7, 6.5, 1.1) : esTridente() ? mandibulasTridente(10.5, -7, 9, 1.1) : '';
+  const trampa = tipoHormigaSeleccionada === 'trampa' ? mandibulasSVG(10.5, -7, 8, 1.1) : tipoHormigaSeleccionada === 'prados' ? mandibulasPrados(10.5, -7, 6.5, 1.1) : esTridente() ? mandibulasTridente(10.5, -7, 9, 1.1) : esBala() ? mandibulasBala(10.5, -7, 9.5, 1.15) : '';
   return '<g stroke-linecap="round"><line class="pata" x1="-8" y1="-2" x2="-9" y2="4" stroke="#2b1a0e" stroke-width="1.4"/><line class="pata" x1="-2" y1="-2" x2="-2" y2="4" stroke="#2b1a0e" stroke-width="1.4"/><line class="pata" x1="4" y1="-2" x2="5" y2="4" stroke="#2b1a0e" stroke-width="1.4"/></g>'
     + recolorHormiga(cuerpo) + trampa + pelo;   // el cuerpo toma el color de la raza que elegiste
 }
@@ -6295,6 +6336,12 @@ const LOG_TXT = {
       <li><b>🌍 Mundo completo.</b> Ya no hay que descubrir los biomas: al crear una partida aparece el mundo entero (otoño, nieve, planicies, lago y desierto).</li>
       <li><b>🐜 Sin límite de hormigas.</b> Puedes tener todas las hormigas que quieras. Los huevos siguen gastando comida (40 si los pones tú, 2 de la despensa si los pone la Reina).</li>
       <li><b>⛏️ Sin trabarte al cavar.</b> La reina ahora es más estrecha para los túneles y sube rampas y escalones más altos, así que ya no se queda pegada en la tierra al caminar mientras cavas.</li>
+      <li><b>🔫 Nueva raza: Hormiga bala.</b> Negra, peluda, con mandíbulas enormes y patas largas con bandas claras. Hace ×3.5 de daño pero sus hormigas tienen un poco menos de vida y tu reina recibe un poco más de daño.</li>
+      <li><b>❄️ 3D: nieve, igloo y torre.</b> El mundo 3D ahora tiene un bioma de nieve con pinos, y en cada mundo siempre aparecen el igloo (en la nieve) y la torre de desafíos (en las planicies).</li>
+      <li><b>🚪 3D: ya se puede entrar.</b> El igloo y la torre ahora son huecos y tienen la puerta abierta; también quité el pasto picudo de la nieve.</li>
+      <li><b>🚪 3D: puertas y mini salas.</b> La torre tiene una puerta de madera y el igloo una puerta negra. Al llegar a la puerta entras a una mini sala 3D donde salen las hormigas (la torre con sus 5 pisos y el igloo con 5 hormigas); al ganar aparece un cofre, y una puerta al fondo te saca. Ya no hay huecos en las paredes.</li>
+      <li><b>💾 3D: se guarda el progreso.</b> Cuándo completaste la torre y el igloo (para la espera de 10 minutos) y el bono de mordida se guardan con tu mundo 3D.</li>
+      <li><b>🔒 3D: Shift lock.</b> Pulsa Ctrl para activarlo o quitarlo: la hormiga mira siempre hacia donde mira la cámara, el ratón gira la cámara sin hacer clic y la cámara queda sobre el hombro.</li>
       <li><b>📜 Registro de cambios.</b> Toca la etiqueta «Actualización ${VERSION_JUEGO}» de la esquina para abrir este registro cuando quieras; aquí se irán sumando todas las actualizaciones.</li>
     </ul>`,
     `<h4>📖 Historial de actualizaciones</h4><p class="rch-sub">Todo lo que se agregó antes</p><ul class="rch-lista">
@@ -6312,6 +6359,12 @@ const LOG_TXT = {
       <li><b>🌍 Full world.</b> You no longer have to discover the biomes: a new game starts with the whole world (autumn, snow, plains, lake and desert).</li>
       <li><b>🐜 No ant limit.</b> You can have as many ants as you want. Eggs still cost food (40 if you lay them, 2 from the pantry if the Queen does).</li>
       <li><b>⛏️ No more getting stuck while digging.</b> The queen now fits tunnels better and climbs taller steps and ramps, so she no longer sticks to the dirt while walking and digging.</li>
+      <li><b>🔫 New race: Bullet ant.</b> Black, hairy, with huge mandibles and long banded legs. Deals ×3.5 damage but its ants have a little less health and your queen takes a little more damage.</li>
+      <li><b>❄️ 3D: snow, igloo and tower.</b> The 3D world now has a snow biome with pine trees, and every world always includes the igloo (in the snow) and the challenge tower (in the plains).</li>
+      <li><b>🚪 3D: you can go inside.</b> The igloo and the tower are now hollow with an open door; I also removed the spiky grass from the snow.</li>
+      <li><b>🚪 3D: doors and mini rooms.</b> The tower has a wooden door and the igloo a black door. Reaching the door takes you into a 3D mini room where the ants come out (the tower with its 5 floors and the igloo with 5 ants); winning reveals a chest, and a door at the back lets you out. No more holes in the walls.</li>
+      <li><b>💾 3D: progress is saved.</b> When you completed the tower and the igloo (for the 10-minute wait) and the bite bonus are saved with your 3D world.</li>
+      <li><b>🔒 3D: Shift lock.</b> Press Ctrl to turn it on or off: the ant always faces where the camera looks, the mouse turns the camera without clicking, and the camera sits over the shoulder.</li>
       <li><b>📜 Changelog.</b> Tap the "Update ${VERSION_JUEGO}" tag in the corner to open this log whenever you want.</li>
     </ul>`,
     `<h4>📖 Update history</h4><p class="rch-sub">Everything added before</p><ul class="rch-lista">
@@ -6680,7 +6733,7 @@ Object.assign(_EN, {
   "Habilidades pasivas": "Passive abilities", "Tu raza": "Your race",
   "Las razas que puedes elegir al crear una partida.": "The races you can choose when creating a game.",
   "Los valores ×1 son normales. Daño recibido es el que sufre tu reina.": "×1 values are normal. Damage taken is what your queen suffers.",
-  "Equilibrada": "Balanced", "Ofensiva": "Offensive", "Pacífica": "Peaceful", "Rápida": "Fast", "Defensiva": "Defensive", "Tridente": "Trident",
+  "Equilibrada": "Balanced", "Ofensiva": "Offensive", "Pacífica": "Peaceful", "Rápida": "Fast", "Defensiva": "Defensive", "Tridente": "Trident", "Letal": "Deadly", "Hormiga bala": "Bullet ant",
   "Hormiga roja": "Red ant", "Hormiga negra": "Black ant", "Hormiga trampa": "Trap-jaw ant", "Hormiga de los prados": "Meadow ant", "Hormiga loca": "Crazy ant", "Hormiga tridente": "Trident ant",
   "La raza equilibrada de siempre: sin bonos ni castigos.": "The usual balanced race: no bonuses or penalties.",
   "Igual de equilibrada que la roja, pero de color negro.": "Just as balanced as the red one, but black.",
@@ -6699,6 +6752,11 @@ Object.assign(_EN, {
   "Hormiga tridente: cuerpo negro con patas y mandíbulas naranjas. Si un enemigo está a menos de 100 px del nido, le hace el doble de daño": "Trident ant: black body with orange legs and mandibles. If an enemy is within 100 px of the nest, it deals double damage to it"
 });
 _ENFR.push([/Reina Tridente/g, 'Trident Queen']);
+_ENFR.push([/Reina Bala/g, 'Bullet Queen']);
+_ENFR.push([/Picadura brutal: su ataque hace 3\.5 veces más daño\./g, 'Brutal sting: its attack deals 3.5 times more damage.']);
+_ENFR.push([/Menos aguante: sus hormigas tienen un poco menos de vida y tu reina recibe un poco más de daño\./g, 'Less endurance: its ants have a little less health and your queen takes a little more damage.']);
+_ENFR.push([/Paraponera: negra, peluda, de mandíbulas enormes y patas largas con bandas claras\./g, 'Paraponera: black, hairy, with huge mandibles and long banded legs.']);
+_ENFR.push([/Hormiga bala: negra, peluda, de mandíbulas enormes\. Pega durísimo \(x3\.5 de daño\) pero tiene un poquito menos de vida/g, 'Bullet ant: black, hairy, with huge mandibles. Hits very hard (x3.5 damage) but has a little less health']);
 
 // --- Desierto y registro de cambios (update 2.2) ---
 Object.assign(_EN, {
@@ -6932,7 +6990,9 @@ const RAZAS_LIBRO = [
   { id: 'loca', n: 'Hormiga loca', chip: 'Rápida', col: '#7e57c2', d: 'Chiquita, veloz y completamente negra.',
     st: { tam: ESCALA_LOCA, vel: VEL_LOCA, vida: VIDA_LOCA, dano: DANO_LOCA, recibe: FRAGIL_LOCA }, pas: ['Pequeña y veloz: es más chiquita y mucho más rápida.', 'Frágil: sus hormigas tienen menos vida y tu reina recibe más daño.', 'Ladrona: sus hormigas roban comida de los nidos enemigos.'] },
   { id: 'tridente', n: 'Hormiga tridente', chip: 'Defensiva', col: '#ef6c00', d: 'Cuerpo negro con patas y mandíbulas anaranjadas.',
-    st: { tam: 1, vel: 1, vida: 1, dano: 1, recibe: 1 }, cerca: DANO_TRIDENTE, pas: ['Defensa del nido: si un enemigo está a menos de 100 px del nido, tu reina y tus hormigas le hacen el doble de daño.'] }
+    st: { tam: 1, vel: 1, vida: 1, dano: 1, recibe: 1 }, cerca: DANO_TRIDENTE, pas: ['Defensa del nido: si un enemigo está a menos de 100 px del nido, tu reina y tus hormigas le hacen el doble de daño.'] },
+  { id: 'bala', n: 'Hormiga bala', chip: 'Letal', col: '#37474f', d: 'Paraponera: negra, peluda, de mandíbulas enormes y patas largas con bandas claras.',
+    st: { tam: 1, vel: 1, vida: VIDA_BALA, dano: DANO_BALA, recibe: FRAGIL_BALA }, pas: ['Picadura brutal: su ataque hace 3.5 veces más daño.', 'Menos aguante: sus hormigas tienen un poco menos de vida y tu reina recibe un poco más de daño.'] }
 ];
 function retratoRaza(id) {   // dibuja una hormiga con el aspecto de esa raza sin cambiar tu elección
   const g = tipoHormigaSeleccionada; tipoHormigaSeleccionada = id;
@@ -7357,7 +7417,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 
   // ----- Partidas 3D: se guardan en este navegador (cada mundo tiene su semilla, bioma y raza) -----
   const BIO_UI = { pradera: ['🌳', 'Pradera'], otono: ['🍂', 'Otoño'], desierto: ['🏜️', 'Desierto'], azar: ['🎲', 'Al azar'], mundo: ['🌍', 'Todos los biomas'] };
-  const RAZAS_UI = { red: '🔴 Roja', and: '⚫ Negra', trampa: '⚫ Trampa', prados: '🟡 Prados', loca: '⚫ Loca', tridente: '🔱 Tridente' };
+  const RAZAS_UI = { red: '🔴 Roja', and: '⚫ Negra', trampa: '⚫ Trampa', prados: '🟡 Prados', loca: '⚫ Loca', tridente: '🔱 Tridente', bala: '🔫 Bala' };
   const LS3D = 'hormigas3d_partidas_v1';
   let part3 = [], actual = null, selBio = 'azar', selRaza = 'red', ultGuard = 0;
   const leer3 = () => { try { const a = JSON.parse(localStorage.getItem(LS3D)); return Array.isArray(a) ? a : []; } catch (_) { return []; } };
@@ -7466,6 +7526,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       if (!e.repeat && RAT.toggle) RAT.toggle();
       return;
     }
+    if ((e.code === 'ControlLeft' || e.code === 'ControlRight') && !e.repeat) { e.preventDefault(); if (acc.shiftlock) acc.shiftlock(); return; }   // Ctrl: shift lock
     if (libre(e)) return;
     e.stopPropagation();
     if (!TECLAS.has(e.code)) return;
@@ -7524,7 +7585,8 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     const BIOMAS = {
       pradera:  { n: 'Pradera',  cielo: 0x8fd3f4, hemiC: 0xbfe6ff, hemiG: 0x4a6b2a, solC: 0xfff2d0, suelo: [0.26, 0.5, 0.3],  pasto: [0.24, 0.08, 0.55, 0.25, 0.15], nh: 6000, flores: [0xffd84a, 0xffffff, 0xff7aa8, 0xb48cff, 0xff9040], nf: 260, piedra: 0x6e6256, np: 22, fruta: 0xd62c2c, arbol: 'copa',   hojas: [0.29, 0.05, 0.5, 0.25, 0.08],  arboles: [12, 16], amp: 1 },
       otono:    { n: 'Otoño',    cielo: 0xb9cfdc, hemiC: 0xffe2c0, hemiG: 0x7a4a22, solC: 0xffd29a, suelo: [0.08, 0.55, 0.3],  pasto: [0.06, 0.07, 0.7, 0.3, 0.14],   nh: 5000, flores: [0xd2691e, 0xc0392b, 0xf1c40f, 0x8b4513, 0xe67e22], nf: 480, piedra: 0x6f6358, np: 22, fruta: 0xe08a1e, arbol: 'copa',   hojas: [0.02, 0.11, 0.8, 0.38, 0.1],   arboles: [16, 22], amp: 1.15 },
-      desierto: { n: 'Desierto', cielo: 0xe6d5a8, hemiC: 0xfff0d0, hemiG: 0xb08a50, solC: 0xfff0c0, suelo: [0.12, 0.5, 0.62], pasto: [0.11, 0.04, 0.4, 0.5, 0.1],    nh: 1800, flores: [0xd94f8a, 0xf2c14e], nf: 70, piedra: 0x9a825a, np: 34, fruta: 0xe0408a, arbol: 'cactus', hojas: [0.3, 0.04, 0.45, 0.3, 0.06],  arboles: [18, 26], amp: 1.7 }
+      desierto: { n: 'Desierto', cielo: 0xe6d5a8, hemiC: 0xfff0d0, hemiG: 0xb08a50, solC: 0xfff0c0, suelo: [0.12, 0.5, 0.62], pasto: [0.11, 0.04, 0.4, 0.5, 0.1],    nh: 1800, flores: [0xd94f8a, 0xf2c14e], nf: 70, piedra: 0x9a825a, np: 34, fruta: 0xe0408a, arbol: 'cactus', hojas: [0.3, 0.04, 0.45, 0.3, 0.06],  arboles: [18, 26], amp: 1.7 },
+      nieve:    { n: 'Nieve',    cielo: 0xcfe0ee, hemiC: 0xe8f2ff, hemiG: 0x8da3ba, solC: 0xf2f6ff, suelo: [0.58, 0.16, 0.86], pasto: [0.55, 0.05, 0.15, 0.82, 0.1], nh: 2200, flores: [0xcfe9ff, 0xffffff, 0xa9d6ff], nf: 120, piedra: 0x8c96a3, np: 22, fruta: 0x4da3ff, arbol: 'pino', hojas: [0.4, 0.05, 0.35, 0.2, 0.06], arboles: [14, 20], amp: 1.1 }
     };
     let B = BIOMAS.pradera, biomaAct = 'pradera';
     let razaSel = (typeof tipoHormigaSeleccionada !== 'undefined' && tipoHormigaSeleccionada) || 'red';   // raza de esta partida 3D
@@ -7532,21 +7594,21 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     let LX = 40, LZ = -35;
     const NIVEL_AGUA = -1.0, LIM = 88;
     const TP = { f1: 0.08, f2: 0.07, f3: 0.15, p1: 0, p2: 0, p3: 0, a1: 1.3, a2: 1.1, a3: 0.45 };   // forma del terreno (cambia con la semilla)
-    // Mundo con TODOS los biomas: tres sectores alrededor del nido (pradera, otoño, desierto) que se mezclan suavemente en sus bordes; junto al nido siempre hay pradera
-    const BIO_LISTA = [BIOMAS.pradera, BIOMAS.otono, BIOMAS.desierto], OFS = { a: 0, p: 0 };
+    // Mundo con TODOS los biomas: cuatro sectores alrededor del nido (pradera, otoño, desierto, nieve) que se mezclan suavemente en sus bordes; junto al nido siempre hay pradera
+    const BIO_LISTA = [BIOMAS.pradera, BIOMAS.otono, BIOMAS.desierto, BIOMAS.nieve], OFS = { a: 0, p: 0 };
     const pesos = (x, z) => {
       const r = Math.hypot(x, z);
-      let m = (Math.atan2(z, x) + OFS.a + 0.4 * Math.sin(r * 0.035 + OFS.p)) / 6.2832 * 3;
-      m = ((m % 3) + 3) % 3;
-      const w = [0, 0, 0]; let tot = 0;
-      for (let k = 0; k < 3; k++) { let d = Math.abs(m - (k + 0.5)); d = Math.min(d, 3 - d); w[k] = 1 - sstep(0.3, 0.7, d); tot += w[k]; }
+      let m = (Math.atan2(z, x) + OFS.a + 0.4 * Math.sin(r * 0.035 + OFS.p)) / 6.2832 * 4;
+      m = ((m % 4) + 4) % 4;
+      const w = [0, 0, 0, 0]; let tot = 0;
+      for (let k = 0; k < 4; k++) { let d = Math.abs(m - (k + 0.5)); d = Math.min(d, 4 - d); w[k] = 1 - sstep(0.3, 0.7, d); tot += w[k]; }
       const cn = 1 - sstep(16, 36, r);
-      for (let k = 0; k < 3; k++) w[k] = (w[k] / tot) * (1 - cn) + (k === 0 ? cn : 0);
+      for (let k = 0; k < 4; k++) w[k] = (w[k] / tot) * (1 - cn) + (k === 0 ? cn : 0);
       return w;
     };
-    const elige = (x, z) => { const w = pesos(x, z), r = rng(); return r < w[0] ? 0 : r < w[0] + w[1] ? 1 : 2; };
+    const elige = (x, z) => { const w = pesos(x, z), r = rng(); return r < w[0] ? 0 : r < w[0] + w[1] ? 1 : r < w[0] + w[1] + w[2] ? 2 : 3; };
     const alt = (x, z) => {   // altura del terreno en (x, z): colinas / dunas (más altas en el desierto), plano junto al nido y un lago
-      const pw = pesos(x, z), amp = pw[0] + pw[1] * 1.15 + pw[2] * 1.7;
+      const pw = pesos(x, z), amp = pw[0] + pw[1] * 1.15 + pw[2] * 1.7 + pw[3] * 1.1;
       let base = (Math.sin(x * TP.f1 + TP.p1) * TP.a1 + Math.cos(z * TP.f2 + TP.p2) * TP.a2 + Math.sin((x + z) * TP.f3 + TP.p3) * TP.a3) * amp;
       if (base < -0.5) base = -0.5 + (base + 0.5) * 0.15;   // sin hondonadas fantasma que parezcan agua
       const k = sstep(5, 16, Math.hypot(x, z));
@@ -7559,26 +7621,26 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     const tierra = new T.Color(0x6a4524), arena = new T.Color(0xcdb77f);
     const mPiedra = new T.MeshLambertMaterial({ color: 0x6e6256 });
     const mTronco = new T.MeshLambertMaterial({ color: 0x5b3a1e }), mManzana = new T.MeshPhongMaterial({ color: 0xd62c2c, shininess: 60 });
-    const mCactus = new T.MeshLambertMaterial({ color: 0x3f8a3a });
+    const mCactus = new T.MeshLambertMaterial({ color: 0x3f8a3a }), mNieve = new T.MeshLambertMaterial({ color: 0xf4f9ff });
     const aGeo = new T.SphereGeometry(0.34, 10, 8);
-    const manzanas = [], troncos = [], mundoObjs = [];
+    const manzanas = [], troncos = [], mundoObjs = [], ESTR = [];   // ESTR: estructuras con desafío (igloo y torre)
     const agua = new T.Mesh(new T.CircleGeometry(16, 40), new T.MeshPhongMaterial({ color: 0x2f9be0, transparent: true, opacity: 0.78, shininess: 90, specular: 0xffffff }));
     agua.rotation.x = -Math.PI / 2; scene.add(agua);
 
     // ----- Genera TODO el mundo (terreno, pasto, flores, piedras, árboles / cactus, lago) a partir de una semilla y un bioma -----
     const mPiedras = BIO_LISTA.map(b => new T.MeshLambertMaterial({ color: b.piedra })), mFrutas = BIO_LISTA.map(b => new T.MeshPhongMaterial({ color: b.fruta, shininess: 60 }));
-    const cCielo = BIO_LISTA.map(b => new T.Color(b.cielo)), cHemiC = BIO_LISTA.map(b => new T.Color(b.hemiC)), cHemiG = BIO_LISTA.map(b => new T.Color(b.hemiG)), cSolC = BIO_LISTA.map(b => new T.Color(b.solC)), AMB = [1, 0, 0];
+    const cCielo = BIO_LISTA.map(b => new T.Color(b.cielo)), cHemiC = BIO_LISTA.map(b => new T.Color(b.hemiC)), cHemiG = BIO_LISTA.map(b => new T.Color(b.hemiG)), cSolC = BIO_LISTA.map(b => new T.Color(b.solC)), AMB = [1, 0, 0, 0];
     function generarMundo(sd, bk) {
       B = BIOMAS.pradera; biomaAct = 'mundo';
       mundoObjs.forEach(o => { scene.remove(o); o.traverse(q => { if (q.geometry) q.geometry.dispose(); }); }); mundoObjs.length = 0;
-      manzanas.length = 0; troncos.length = 0;
+      manzanas.length = 0; troncos.length = 0; ESTR.length = 0;
       seed = sd | 0;
       const add = o => { scene.add(o); mundoObjs.push(o); return o; };
       // forma del terreno distinta en cada mundo
       TP.f1 = 0.05 + rng() * 0.05; TP.f2 = 0.045 + rng() * 0.045; TP.f3 = 0.11 + rng() * 0.07;
       TP.p1 = rng() * 6.28; TP.p2 = rng() * 6.28; TP.p3 = rng() * 6.28;
       TP.a1 = 0.9 + rng() * 0.7; TP.a2 = 0.8 + rng() * 0.7; TP.a3 = 0.25 + rng() * 0.3;
-      OFS.a = rng() * 6.2832; OFS.p = rng() * 6.2832; AMB[0] = 1; AMB[1] = 0; AMB[2] = 0;
+      OFS.a = rng() * 6.2832; OFS.p = rng() * 6.2832; AMB[0] = 1; AMB[1] = 0; AMB[2] = 0; AMB[3] = 0;
       const ang0 = rng() * 6.2832, dl0 = 38 + rng() * 22; LX = Math.cos(ang0) * dl0; LZ = Math.sin(ang0) * dl0;
       agua.position.set(LX, NIVEL_AGUA, LZ);
       // cielo y luz del bioma
@@ -7594,7 +7656,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         const x = pos.getX(i), z = pos.getZ(i);
         pos.setY(i, alt(x, z));
         const pw = pesos(x, z), j1 = (rng() - 0.5) * 0.02, j2 = (rng() - 0.5) * 0.03; let cr = 0, cg = 0, cb = 0;
-        for (let q = 0; q < 3; q++) { const sb = BIO_LISTA[q].suelo; c.setHSL(sb[0] + 0.035 * Math.sin(x * 0.31) * Math.cos(z * 0.27) + j1, sb[1], sb[2] + 0.07 * Math.sin(x * 0.13 + z * 0.17) + j2); cr += c.r * pw[q]; cg += c.g * pw[q]; cb += c.b * pw[q]; }
+        for (let q = 0; q < 4; q++) { const sb = BIO_LISTA[q].suelo; c.setHSL(sb[0] + 0.035 * Math.sin(x * 0.31) * Math.cos(z * 0.27) + j1, sb[1], sb[2] + 0.07 * Math.sin(x * 0.13 + z * 0.17) + j2); cr += c.r * pw[q]; cg += c.g * pw[q]; cb += c.b * pw[q]; }
         c.setRGB(cr, cg, cb);
         const dn = Math.hypot(x, z); if (dn < 9) c.lerp(tierra, 1 - sstep(4, 9, dn));
         const dl = Math.hypot(x - LX, z - LZ); if (dl < 16) c.lerp(arena, 1 - sstep(9, 16, dl));
@@ -7607,14 +7669,14 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 
       // pasto (en el desierto, matas secas; en otoño, pasto dorado)
       const hGeo = new T.ConeGeometry(0.07, 0.75, 4); hGeo.translate(0, 0.375, 0);
-      const NH = 7000, DENS = [1, 0.85, 0.3], hierba = new T.InstancedMesh(hGeo, new T.MeshLambertMaterial({ color: 0xffffff }), NH);
+      const NH = 7000, DENS = [1, 0.85, 0.3, 0.25], hierba = new T.InstancedMesh(hGeo, new T.MeshLambertMaterial({ color: 0xffffff }), NH);
       for (let i = 0; i < NH; i++) {
         let x, z, bi;
         do { x = (rng() - 0.5) * 200; z = (rng() - 0.5) * 200; bi = elige(x, z); } while (lejos(x, z, 6, 11) || rng() > DENS[bi]);
         const Bq = BIO_LISTA[bi];
         dm.position.set(x, alt(x, z), z);
         dm.rotation.set((rng() - 0.5) * 0.4, rng() * 6.28, (rng() - 0.5) * 0.4);
-        const sc = 0.7 + rng() * 1.1; dm.scale.set(sc, sc * (0.8 + rng() * 0.8), sc);
+        const sc = (0.7 + rng() * 1.1) * (bi === 3 ? 0.4 : 1); dm.scale.set(sc, sc * (0.8 + rng() * 0.8), sc);
         dm.updateMatrix(); hierba.setMatrixAt(i, dm.matrix);
         c.setHSL(Bq.pasto[0] + rng() * Bq.pasto[1], Bq.pasto[2], Bq.pasto[3] + rng() * Bq.pasto[4]); hierba.setColorAt(i, c);
       }
@@ -7622,7 +7684,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 
       // flores (en otoño son hojas caídas)
       const floresM = new T.InstancedMesh(new T.SphereGeometry(0.16, 6, 5), new T.MeshLambertMaterial({ color: 0xffffff }), 480);
-      const DF = [1, 1, 0.25];
+      const DF = [1, 1, 0.25, 0.6];
       for (let i = 0; i < 480; i++) {
         let x, z, bi;
         do { x = (rng() - 0.5) * 190; z = (rng() - 0.5) * 190; bi = elige(x, z); } while (lejos(x, z, 8, 13) || rng() > DF[bi]);
@@ -7660,6 +7722,14 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
             const cv = new T.Mesh(new T.CylinderGeometry(0.24, 0.26, h2, 6), mCactus); cv.position.set(sd2 * 1.1, ya + h2 / 2, 0); cv.castShadow = true; g.add(cv);
           });
           g.rotation.y = rng() * 6.28; troncos.push({ x: d.x, z: d.z, r: 0.75 });
+        } else if (Bq.arbol === 'pino') {
+          const tr = new T.Mesh(new T.CylinderGeometry(0.4, 0.6, 3, 8), mTronco); tr.position.y = 1.5; tr.castShadow = true; g.add(tr);
+          const mh = new T.MeshLambertMaterial({ color: new T.Color().setHSL(Bq.hojas[0] + rng() * Bq.hojas[1], Bq.hojas[2], Bq.hojas[3] + rng() * Bq.hojas[4]) });
+          [[3.1, 3.4, 3.6], [2.4, 5.4, 3], [1.7, 7.2, 2.6]].forEach(([r, y, h]) => {
+            const f = new T.Mesh(new T.ConeGeometry(r, h, 9), mh); f.position.y = y; f.castShadow = true; g.add(f);
+            const nv = new T.Mesh(new T.ConeGeometry(r * 0.72, h * 0.55, 9), mNieve); nv.position.y = y + h * 0.28; g.add(nv);
+          });
+          troncos.push({ x: d.x, z: d.z, r: 0.8 });
         } else {
           const tr = new T.Mesh(new T.CylinderGeometry(0.55, 0.8, 5, 8), mTronco); tr.position.y = 2.5; tr.castShadow = true; g.add(tr);
           const mh = new T.MeshLambertMaterial({ color: new T.Color().setHSL(Bq.hojas[0] + rng() * Bq.hojas[1], Bq.hojas[2], Bq.hojas[3] + rng() * Bq.hojas[4]) });
@@ -7675,6 +7745,74 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
           manzanas.push({ m, x, z, vis: true, t: 0 });
         }
       });
+
+      // ----- Estructuras (como en el 2D): el igloo siempre está en la nieve y la torre de desafíos siempre en las planicies -----
+      const sitio = (k, r0, r1, evitar) => {
+        let mejor = { x: Math.cos(0) * r0, z: 0 }, bs = -1e9;
+        for (let a = 0; a < 90; a++) for (let r = r0; r <= r1; r += 4) {
+          const ang = a / 90 * 6.2832, x = Math.cos(ang) * r, z = Math.sin(ang) * r;
+          if (Math.hypot(x - LX, z - LZ) < 28 || (evitar && Math.hypot(x - evitar.x, z - evitar.z) < 34)) continue;
+          const sc = pesos(x, z)[k] - Math.abs(r - (r0 + r1) / 2) * 0.002;
+          if (sc > bs) { bs = sc; mejor = { x, z }; }
+        }
+        return mejor;
+      };
+      const posT = sitio(0, 48, 72), posI = sitio(3, 50, 74, posT);
+      // Igloo y torre: macizos, con una puerta (negra en el igloo, de madera en la torre). Al llegar a la puerta entras a una mini sala 3D donde salen hormigas
+      const th = q => Math.atan2(q.z, -q.x), PI = Math.PI;
+      const anillo = (q, pts) => { const t = th(q), cs = Math.cos(t), sn = Math.sin(t); pts.forEach(([lx, lz, r]) => troncos.push({ x: q.x + lx * cs + lz * sn, z: q.z - lx * sn + lz * cs, r })); };
+      const SALA_Y = 45, SALA_R = 10;
+      const crearSala = (tipo, cx, cz) => {   // la sala está lejos del mundo, flotando en su propio espacio
+        const ig = tipo === 'iglu', g = new T.Group(); g.position.set(cx, SALA_Y, cz);
+        const pared = new T.Mesh(new T.CylinderGeometry(SALA_R, SALA_R, 10, 32, 1, true), new T.MeshLambertMaterial({ color: ig ? 0xcfe6f6 : 0x8a8f96, side: T.BackSide })); pared.position.y = 5; g.add(pared);
+        const suelo = new T.Mesh(new T.CircleGeometry(SALA_R, 32), new T.MeshLambertMaterial({ color: ig ? 0xe8f3fb : 0x6f747a })); suelo.rotation.x = -PI / 2; suelo.receiveShadow = true; g.add(suelo);
+        const techo = new T.Mesh(new T.CircleGeometry(SALA_R, 32), new T.MeshLambertMaterial({ color: ig ? 0xb8d6ea : 0x5f656b })); techo.rotation.x = PI / 2; techo.position.y = 10; techo.castShadow = true; g.add(techo);
+        const luz = new T.PointLight(ig ? 0x9fd0ff : 0xffb060, 1.2, 34); luz.position.set(0, 6.5, 0); g.add(luz);
+        if (ig) {
+          for (let k = 0; k < 8; k++) { const a = k / 8 * 2 * PI + 0.3, c = new T.Mesh(new T.ConeGeometry(0.55, 2.2 + (k % 3) * 0.6, 6), new T.MeshLambertMaterial({ color: 0xbfe3ff })); c.position.set(Math.cos(a) * (SALA_R - 1.2), 1.1, Math.sin(a) * (SALA_R - 1.2)); g.add(c); }
+        } else {
+          const al = new T.Mesh(new T.PlaneGeometry(16, 3), new T.MeshLambertMaterial({ color: 0x8e1b1b })); al.rotation.x = -PI / 2; al.position.y = 0.03; g.add(al);
+          for (let k = 0; k < 6; k++) { const a = k / 6 * 2 * PI, x = Math.cos(a) * (SALA_R - 0.7), z = Math.sin(a) * (SALA_R - 0.7); const pal = new T.Mesh(new T.CylinderGeometry(0.12, 0.12, 2.2, 6), mTronco); pal.position.set(x, 1.1, z); g.add(pal); const ll = new T.Mesh(new T.SphereGeometry(0.34, 8, 6), new T.MeshBasicMaterial({ color: 0xff9800 })); ll.position.set(x, 2.5, z); g.add(ll); }
+        }
+        // puerta de salida (en la pared del fondo)
+        const pu = new T.Mesh(new T.BoxGeometry(0.4, 3.2, 2.2), new T.MeshLambertMaterial({ color: ig ? 0x0a0a0d : 0x8d5a2b })); pu.position.set(SALA_R - 0.3, 1.6, 0); g.add(pu);
+        const mc = new T.Mesh(new T.BoxGeometry(0.3, 3.5, 2.6), new T.MeshLambertMaterial({ color: ig ? 0xb9d0e4 : 0x4e342e })); mc.position.set(SALA_R - 0.15, 1.75, 0); g.add(mc);
+        add(g); return { x: cx, z: cz, y: SALA_Y, r: SALA_R };
+      };
+      // Igloo: cúpula de hielo con una entrada baja y una puerta NEGRA al frente
+      { const g = new T.Group(), mH = new T.MeshLambertMaterial({ color: 0xeaf4fb }), mB = new T.MeshLambertMaterial({ color: 0xb9d0e4 });
+        g.position.set(posI.x, alt(posI.x, posI.z) - 0.2, posI.z); g.rotation.y = th(posI);
+        const dome = new T.Mesh(new T.SphereGeometry(5, 24, 12, 0, 2 * PI, 0, PI / 2), mH); dome.scale.y = 0.85; dome.castShadow = true; dome.receiveShadow = true; g.add(dome);
+        for (let i = 1; i <= 4; i++) { const an = i * 0.3, ring = new T.Mesh(new T.TorusGeometry(5 * Math.cos(an) + 0.02, 0.07, 4, 30), mB); ring.rotation.x = PI / 2; ring.position.y = 5 * 0.85 * Math.sin(an); g.add(ring); }
+        const fal = new T.Mesh(new T.CylinderGeometry(5.0, 5.4, 1.6, 24, 1, true), new T.MeshLambertMaterial({ color: 0xb9d0e4, side: T.DoubleSide })); fal.position.y = -0.6; g.add(fal);
+        const ent = new T.Mesh(new T.BoxGeometry(3.4, 2.4, 3.0), mH); ent.position.set(5.5, 1.2, 0); ent.castShadow = true; g.add(ent);
+        const tej = new T.Mesh(new T.BoxGeometry(3.7, 0.4, 3.3), mB); tej.position.set(5.5, 2.55, 0); g.add(tej);
+        const mc = new T.Mesh(new T.BoxGeometry(0.3, 2.2, 2.0), mB); mc.position.set(7.2, 1.1, 0); g.add(mc);
+        const pu = new T.Mesh(new T.BoxGeometry(0.34, 1.9, 1.6), new T.MeshLambertMaterial({ color: 0x0a0a0d })); pu.position.set(7.32, 0.95, 0); g.add(pu);
+        const mn = new T.Mesh(new T.SphereGeometry(0.1, 8, 6), new T.MeshBasicMaterial({ color: 0xc0c8d0 })); mn.position.set(7.52, 0.95, 0.5); g.add(mn);
+        add(g); troncos.push({ x: posI.x, z: posI.z, r: 5.2 }); anillo(posI, [[6.4, 0, 1.4]]);
+        ESTR.push({ id: 'iglu', x: posI.x, z: posI.z, rot: th(posI), pl: [8.0, 0], sal: [10.8, 0], tr: 2.4, sala: crearSala('iglu', 500, -500) }); }
+      // Torre de desafíos: piedra gris con bandas, almenas, antorchas, bandera roja y una PUERTA DE MADERA
+      { const g = new T.Group(), mP = new T.MeshLambertMaterial({ color: 0x9aa0a6 }), mO = new T.MeshLambertMaterial({ color: 0x6b7075 });
+        g.position.set(posT.x, alt(posT.x, posT.z) - 0.3, posT.z); g.rotation.y = th(posT);
+        const rA = y => 4.2 - (y + 1) / 21.1 * 0.6;
+        const cuerpo = new T.Mesh(new T.CylinderGeometry(3.6, 4.2, 21.1, 28), mP); cuerpo.position.y = 9.55; cuerpo.castShadow = true; cuerpo.receiveShadow = true; g.add(cuerpo);
+        [5, 9, 13, 17].forEach(y => { const b = new T.Mesh(new T.TorusGeometry(rA(y) + 0.05, 0.13, 5, 26), mO); b.rotation.x = PI / 2; b.position.y = y; g.add(b); });
+        const par = new T.Mesh(new T.CylinderGeometry(4.7, 4.1, 1.5, 18), mO); par.position.y = 20.9; g.add(par);
+        for (let i = 0; i < 9; i++) { const a = i / 9 * 6.2832, al = new T.Mesh(new T.BoxGeometry(1.1, 1.1, 1.1), mO); al.position.set(Math.cos(a) * 4.4, 22.2, Math.sin(a) * 4.4); al.rotation.y = -a; g.add(al); }
+        [[0.9, 7], [2.4, 11], [4.0, 15], [5.5, 18.5]].forEach(([a, y]) => { const v = new T.Mesh(new T.BoxGeometry(0.4, 1.3, 0.8), new T.MeshBasicMaterial({ color: 0x1a1a1f })); v.position.set(Math.cos(a) * rA(y), y, Math.sin(a) * rA(y)); v.rotation.y = -a; g.add(v); });
+        // puerta de madera con marco, tablones, correas de hierro y manija
+        const mc = new T.Mesh(new T.BoxGeometry(0.5, 3.5, 2.6), new T.MeshLambertMaterial({ color: 0x4e342e })); mc.position.set(4.15, 1.75, 0); g.add(mc);
+        const pu = new T.Mesh(new T.BoxGeometry(0.4, 3.1, 2.1), new T.MeshLambertMaterial({ color: 0x8d5a2b })); pu.position.set(4.3, 1.55, 0); g.add(pu);
+        [-0.7, 0, 0.7].forEach(zz => { const tb = new T.Mesh(new T.BoxGeometry(0.06, 3.0, 0.07), new T.MeshLambertMaterial({ color: 0x3e2723 })); tb.position.set(4.52, 1.55, zz); g.add(tb); });
+        [0.7, 2.4].forEach(yy => { const co = new T.Mesh(new T.BoxGeometry(0.08, 0.2, 2.1), new T.MeshLambertMaterial({ color: 0x37393d })); co.position.set(4.53, yy, 0); g.add(co); });
+        const mn = new T.Mesh(new T.SphereGeometry(0.12, 8, 6), new T.MeshBasicMaterial({ color: 0xd4af37 })); mn.position.set(4.58, 1.4, 0.7); g.add(mn);
+        [-2.0, 2.0].forEach(zz => { const pal = new T.Mesh(new T.CylinderGeometry(0.1, 0.1, 1.2, 5), mTronco); pal.position.set(4.6, 1.6, zz); g.add(pal); const ll = new T.Mesh(new T.SphereGeometry(0.34, 8, 6), new T.MeshBasicMaterial({ color: 0xff9800 })); ll.position.set(4.6, 2.4, zz); g.add(ll); });
+        const mas = new T.Mesh(new T.CylinderGeometry(0.09, 0.09, 4.5, 6), mTronco); mas.position.y = 24.4; g.add(mas);
+        const ban = new T.Mesh(new T.PlaneGeometry(2.2, 1.3), new T.MeshLambertMaterial({ color: 0xe53935, side: T.DoubleSide })); ban.position.set(1.15, 25.9, 0); g.add(ban);
+        add(g); troncos.push({ x: posT.x, z: posT.z, r: 4.5 });
+        ESTR.push({ id: 'torre', x: posT.x, z: posT.z, rot: th(posT), pl: [5.0, 0], sal: [7.8, 0], tr: 2.2, sala: crearSala('torre', 500, 500) }); }
+      resetDesafios();
     }
 
     // ----- Textura de tierra: la misma del 2D (ruido fractal con relieve iluminado + piedritas claras), aplicada sin estirarse en cualquier pared -----
@@ -7815,7 +7953,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 
     // ----- Estado del jugador y de las enemigas -----
     const P = { y: -3, cavado: 0, x: 0, z: 7, h: 0, vy: 0, rot: Math.PI, hp: 100, est: 100, com: 80, agot: false, cdAt: 0, atT: 0, muerta: 0, n: 0, kills: 0, dano: 0, vel: 0, a: null, mochila: 0, tierra: 0, desp: 0, cdHuevo: 0 };
-    let yaw = 0, pitch = 0.45, dist = 7, fase = 1.0, tt = 0, promptTxt = '', infoTxt = '', dentroPrev = null;
+    let yaw = 0, pitch = 0.45, dist = 7, shiftLock = false, fase = 1.0, tt = 0, promptTxt = '', infoTxt = '', dentroPrev = null;
     let mouseDig = null; const ptr = { x: 0, y: 0 };   // mouseDig: el ratón está cavando (clic izquierdo mantenido)
     let nidoPos = null, seguir = false, esNoche = false, dentro = false, trans = false, nidoLbl = '';
     const aliadas = [], huevos = [], CAP_MOCHILA = 8, CAP_DESP = 24, CAP_TIERRA = 45;   // CAP_TIERRA: cuánta tierra aguanta la mochila antes de tener que botarla
@@ -8130,8 +8268,8 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       const tp = razaSel;
       return {
         c1: col.c1, c2: col.c2,
-        mand: tp === 'trampa' ? 0.7 : tp === 'prados' ? 0.5 : tp === 'tridente' ? 0.6 : 0,
-        pata: tp === 'loca' ? '#050505' : tp === 'tridente' ? '#c0702f' : '#1a0a05',
+        mand: tp === 'trampa' ? 0.7 : tp === 'prados' ? 0.5 : tp === 'tridente' ? 0.6 : tp === 'bala' ? 0.8 : 0,
+        pata: tp === 'loca' ? '#050505' : tp === 'tridente' ? '#c0702f' : tp === 'bala' ? '#0c0c0e' : '#1a0a05',
         mandCol: tp === 'prados' ? 0x7a4a10 : tp === 'tridente' ? 0xb8651f : 0x1a0a05
       };
     }
@@ -8151,12 +8289,121 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       }
     }
     function matar(e) { e.vivo = false; e.t = 12; e.a.g.visible = false; }
+
+    // ----- Desafíos: la puerta del igloo o de la torre te lleva a una mini sala 3D donde salen hormigas -----
+    let sala = null;   // { S, x, z, y, r }: la mini sala en la que estás
+    const guardias = [], estadoD = {};
+    const TIPOS_G = {
+      n: { hp: 45, v: 3.6, dano: 9, esc: 0.95, c1: '#2a0e0e', c2: '#6e2418' },    // normal
+      c: { hp: 30, v: 5.6, dano: 6, esc: 0.8, c1: '#0f2a12', c2: '#2f7a38' },     // veloz
+      t: { hp: 120, v: 2.6, dano: 14, esc: 1.35, c1: '#1b1b22', c2: '#4a4f5c' },  // tanque
+      j: { hp: 220, v: 3.8, dano: 14, esc: 1.8, c1: '#2a0e2a', c2: '#7a2a8a' }    // jefe
+    };
+    const PISOS3 = {
+      torre: [{ n: 'Piso 1 · Calentamiento', e: 'nnn' }, { n: 'Piso 2 · Velocistas', e: 'cncc' }, { n: 'Piso 3 · Oleadas', e: 'nnnnnn' }, { n: 'Piso 4 · Muros de acero', e: 'tctc' }, { n: 'Piso 5 · ¡EL JEFE!', e: 'jnn' }],
+      iglu: [{ n: 'Base secreta: vence a las hormigas', e: 'nnnnn' }]
+    };
+    const REAP_DESAFIO = 10 * 60 * 1000;   // el desafío se puede repetir a los 10 minutos
+    function estD(id) { return estadoD[id] || (estadoD[id] = { fase: 'dormido', piso: 0, espera: 0, ts: 0, cd: 0, cofre: null }); }
+    function enLocal(S, lx, lz) { const cs = Math.cos(S.rot), sn = Math.sin(S.rot); return { x: S.x + lx * cs + lz * sn, z: S.z - lx * sn + lz * cs }; }
+    function ocultarGuardias() { guardias.forEach(g => { g.vivo = false; g.a.g.visible = false; }); }
+    function resetDesafios() {
+      ocultarGuardias(); sala = null;
+      Object.values(estadoD).forEach(d => { if (d.cofre) scene.remove(d.cofre); });
+      for (const k in estadoD) delete estadoD[k];
+      if (typeof P !== 'undefined') P.buffT = 0;
+    }
+    function crearGuardia(S, tipo, k, n) {
+      const T2 = TIPOS_G[tipo];
+      let g = guardias.find(q => !q.vivo);
+      if (!g) { const a = hormiga('#2a0e0e', '#6e2418', '#120605', 0.38, 0x2a1008); scene.add(a.g); g = { a }; guardias.push(g); }
+      g.a.m1.color.set(T2.c1); g.a.m2.color.set(T2.c2); g.a.g.scale.setScalar(T2.esc); g.a.g.visible = true;
+      const ang = (k - (n - 1) / 2) * 0.5, R = 5.5;
+      Object.assign(g, { T: T2, x: sala.x + Math.cos(ang) * R, z: sala.z + Math.sin(ang) * R, rot: -Math.PI / 2, hp: T2.hp, vivo: true, cd: 1.2, flash: 0 });
+    }
+    function empezarPisoD(S, d) {
+      const pf = PISOS3[S.id][d.piso];
+      toast((S.id === 'torre' ? '🏰 ' : '❄️ ') + pf.n);
+      [...pf.e].forEach((t, i, arr) => crearGuardia(S, t, i, arr.length));
+    }
+    function entrarSala(S) {
+      const d = estD(S.id);
+      if (d.ts && Date.now() - d.ts < REAP_DESAFIO) {
+        d.cd = 6; toast((S.id === 'torre' ? '🏰 ' : '❄️ ') + 'Ya lo completaste. Vuelve en ' + Math.max(1, Math.ceil((REAP_DESAFIO - (Date.now() - d.ts)) / 60000)) + ' min');
+        return;
+      }
+      sala = Object.assign({ S }, S.sala);
+      P.x = sala.x - 6.5; P.z = sala.z; P.h = 0; P.vy = 0; P.rot = Math.PI / 2; yaw = -Math.PI / 2;
+      d.fase = 'lucha'; d.piso = 0; d.espera = 2.5;
+      toast(S.id === 'torre' ? '🏰 ¡Entraste a la torre! Prepárate…' : '❄️ ¡Entraste al igloo! Prepárate…');
+    }
+    function salirSala(muerto) {
+      if (!sala) return;
+      const S = sala.S, d = estD(S.id), o = enLocal(S, S.sal[0], S.sal[1]);
+      if (d.fase !== 'dormido') { d.fase = 'dormido'; d.piso = 0; }   // si sales a medias, el desafío se reinicia
+      if (d.cofre) d.cofre.visible = false;
+      ocultarGuardias(); sala = null; d.cd = 3;
+      P.x = o.x; P.z = o.z; P.h = 0; P.vy = 0; P.rot = Math.atan2(o.x - S.x, o.z - S.z);
+      if (!muerto) toast('🚪 Saliste');
+    }
+    function actualizarDesafios(dt, tt) {
+      if (P.buffT > 0) P.buffT -= dt;
+      for (const S of ESTR) {
+        const d = estD(S.id); d.cd -= dt;
+        if (sala || d.cd > 0 || dentro || P.muerta > 0) continue;
+        const pt = enLocal(S, S.pl[0], S.pl[1]);
+        if (Math.hypot(P.x - pt.x, P.z - pt.z) < S.tr) entrarSala(S);   // llegaste a la puerta
+      }
+      if (!sala) return;
+      if (P.muerta > 0) { salirSala(true); return; }
+      const S = sala.S, d = estD(S.id);
+      if (Math.hypot(P.x - (sala.x + sala.r - 1.1), P.z - sala.z) < 1.6) { salirSala(false); return; }   // la puerta del fondo te saca
+      const vivos = guardias.filter(g => g.vivo).length;
+      if (d.fase === 'lucha') {
+        if (d.espera > 0) { d.espera -= dt; if (d.espera <= 0) empezarPisoD(S, d); }
+        else if (vivos === 0) {
+          d.piso++;
+          if (d.piso >= PISOS3[S.id].length) {
+            d.fase = 'cofre';
+            if (!d.cofre) {
+              const c = new THREE.Group(), cu = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.7, 0.75), new THREE.MeshLambertMaterial({ color: 0x8d5a2b })), tp = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.3, 0.85), new THREE.MeshLambertMaterial({ color: 0xb8860b })), br = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffe066 }));
+              cu.position.y = 0.35; tp.position.y = 0.85; br.position.y = 1.35; c.add(cu); c.add(tp); c.add(br); scene.add(c); d.cofre = c;
+            }
+            d.cofre.visible = true; d.cofre.position.set(sala.x, sala.y, sala.z);
+            toast('🎁 ¡Ganaste! Acércate al cofre');
+          } else { d.espera = 2.2; toast('✔ ¡Piso superado!'); }
+        }
+      } else if (d.fase === 'cofre') {
+        if (d.cofre) d.cofre.rotation.y += dt * 1.5;
+        if (Math.hypot(P.x - sala.x, P.z - sala.z) < 2.2) {
+          const tw = S.id === 'torre';
+          P.hp = 100; P.est = 100; P.com = 100; P.buffT = tw ? 150 : 90;
+          if (tw) P.mochila = Math.min(CAP_MOCHILA, P.mochila + 6);
+          d.fase = 'dormido'; d.ts = Date.now(); if (d.cofre) d.cofre.visible = false;
+          toast('🎁 Cofre abierto: vida, aguante y comida al máximo, ¡y muerdes ×1.5 por ' + (tw ? '150' : '90') + ' s!' + (tw ? ' (+6 manzanas)' : '') + ' La puerta del fondo te saca.');
+        }
+      }
+      for (const g of guardias) {
+        if (!g.vivo) continue;
+        const T2 = g.T;
+        g.flash = Math.max(0, g.flash - dt); g.cd -= dt;
+        const dx = P.x - g.x, dzz = P.z - g.z, dd = Math.hypot(dx, dzz) || 0.001;
+        const vx = dx / dd, vz = dzz / dd, v = dd > 1.5 ? T2.v : 0;
+        if (dd < 1.8 && g.cd <= 0) { g.cd = 0.9; danar(T2.dano); }
+        if (v > 0) { g.x += vx * v * dt; g.z += vz * v * dt; g.rot = giro(g.rot, Math.atan2(vx, vz), dt * 10); }
+        const ex = g.x - sala.x, ez = g.z - sala.z, dm = Math.hypot(ex, ez), lim = sala.r - 1.2;
+        if (dm > lim) { g.x = sala.x + ex / dm * lim; g.z = sala.z + ez / dm * lim; }
+        g.a.g.position.set(g.x, sala.y, g.z); g.a.g.rotation.y = g.rot;
+        patas(g.a, tt + g.x, v);
+        const em = g.flash > 0 ? 0x661111 : 0x000000; g.a.m1.emissive.setHex(em); g.a.m2.emissive.setHex(em);
+      }
+    }
     function morder() {
       if (P.muerta > 0 || P.cdAt > 0 || dentro) return;
       P.cdAt = 0.45; P.atT = 0.22;
-      const mult = { trampa: 1.7, prados: 1.5, tridente: 1.4, loca: 1.3 }[razaSel] || 1, dmg = 34 * mult;
+      const mult = { trampa: 1.7, prados: 1.5, tridente: 1.4, loca: 1.3, bala: 2.2 }[razaSel] || 1, dmg = 34 * mult * (P.buffT > 0 ? 1.5 : 1);
       const fx = Math.sin(P.rot), fz = Math.cos(P.rot);
-      for (const e of enemigos) {
+      for (const e of enemigos.concat(guardias)) {
         if (!e.vivo) continue;
         const dx = e.x - P.x, dz = e.z - P.z, d = Math.hypot(dx, dz);
         if (d > 2.7 || (d > 1.2 && (dx * fx + dz * fz) / (d || 1) < 0.2)) continue;
@@ -8207,8 +8454,15 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       P.z = nidoPos.z + RADIO_NIDO + 0.8;   // te deja justo al lado del montículo (que ahora es sólido)
       toast('¡Entrada del nido creada! Pulsa N para entrar y cava tus túneles.');
     }
+    function alternarShiftLock() {   // Ctrl: shift lock (la hormiga mira siempre hacia donde mira la cámara y el ratón gira la cámara sin hacer clic)
+      if (!usaRaton) { toast('El shift lock es para jugar con ratón.'); return; }
+      shiftLock = !shiftLock;
+      if (shiftLock) { pedirBloqueo(); toast('🔒 Shift lock activado (Ctrl para quitarlo)'); }
+      else { RAT.libre = false; if (!dentro) soltarBloqueo(); toast('🔓 Shift lock desactivado'); }
+    }
     function accionNido() {
       if (P.muerta > 0 || trans) return;
+      if (sala) { toast('No puedes hacer un nido aquí dentro.'); return; }
       if (dentro) { if (cercaSalida()) irA(false); else toast('Vuelve a la luz del hoyo de entrada para subir.'); return; }
       if (!nidoPos) { crearNido(); return; }
       if (cercaNido(4.5)) irA(true); else toast('Acércate a la entrada de tu nido para entrar.');
@@ -8269,7 +8523,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       seguir = !seguir; $('m3-b-seguir').classList.toggle('on', seguir);
       toast(seguir ? 'Tus hormigas te siguen y pelean contigo.' : 'Tus hormigas se quedan cerca del nido.');
     }
-    acc = { botar: botarTierra, comer, cosechar, guardar, nido: accionNido, huevo: ponerHuevo, dormir, seguir: alternarSeguir, morder };
+    acc = { shiftlock: alternarShiftLock, botar: botarTierra, comer, cosechar, guardar, nido: accionNido, huevo: ponerHuevo, dormir, seguir: alternarSeguir, morder };
 
 
     // ----- Botar la tierra: cinemática. La cámara queda a ras de suelo (tú eres chiquito) y ves a tu hormiga, enorme, lanzando toda la tierra -----
@@ -8353,13 +8607,13 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 
     function reset() {
       Object.assign(P, { y: -3, cavado: 0, x: 0, z: 7, h: 0, vy: 0, rot: Math.PI, hp: 100, est: 100, com: 80, agot: false, cdAt: 0, atT: 0, muerta: 0, n: 0, kills: 0, dano: 0, vel: 0, mochila: 0, tierra: 0, desp: 0, cdHuevo: 0 });
-      terminarCine(); nidoPos = null; nido.visible = false; seguir = false; dentro = false; trans = false; nidoLbl = ''; fadeEl.style.opacity = 0;
+      terminarCine(); shiftLock = false; nidoPos = null; nido.visible = false; seguir = false; dentro = false; trans = false; nidoLbl = ''; fadeEl.style.opacity = 0;
       aliadas.forEach(a => { scene.remove(a.a.g); scene2.remove(a.b.g); }); aliadas.length = 0; huevos.length = 0;
       reiniciarNido(); pantry = null; lblDesp.visible = false; mouseDig = null; cdCavar = 0; avisoEst = 0;
       $('m3-b-seguir').classList.remove('on');
       yaw = 0; pitch = 0.45; dist = 7;
       dentro = false; ponerJugador();
-      enemigos.forEach(reaparecer);
+      enemigos.forEach(reaparecer); resetDesafios();
       manzanas.forEach(a => { a.vis = true; a.m.visible = true; });
       infoTxt = ''; promptTxt = '';
     }
@@ -8375,25 +8629,25 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     let usaRaton = !!(window.matchMedia && matchMedia('(pointer:fine)').matches), sinLock = false;
     const miraEl = $('m3-mira');
     const bloqueado = () => document.pointerLockElement === canvas;
-    const ratonActivo = () => abierto && dentro && usaRaton && !RAT.libre;
+    const ratonActivo = () => abierto && (dentro || shiftLock) && usaRaton && !RAT.libre;
     function pedirBloqueo() {
       RAT.libre = false;
       if (!usaRaton || bloqueado() || !canvas.requestPointerLock) return;
       try { const r = canvas.requestPointerLock(); if (r && r.catch) r.catch(() => { sinLock = true; }); } catch (_) { sinLock = true; }
-      setTimeout(() => { if (abierto && dentro && !RAT.libre && !bloqueado()) { sinLock = true; avisarSinLock(); } }, 600);
+      setTimeout(() => { if (abierto && (dentro || shiftLock) && !RAT.libre && !bloqueado()) { sinLock = true; avisarSinLock(); } }, 600);
     }
     let avisoSL = false;
     function avisarSinLock() { if (avisoSL) return; avisoSL = true; toast('Tu navegador no deja bloquear el ratón: acerca el cursor al borde de la pantalla para seguir girando.'); }
     function soltarBloqueo() { try { if (bloqueado()) document.exitPointerLock(); } catch (_) {} }
     W_soltarBloqueo = soltarBloqueo;
     RAT.toggle = () => {
-      if (!dentro || !usaRaton) return;
+      if (!(dentro || shiftLock) || !usaRaton) return;
       mouseDig = null;
       if (RAT.libre) pedirBloqueo(); else { RAT.libre = true; soltarBloqueo(); }
     };
     document.addEventListener('pointerlockchange', () => {
       if (bloqueado()) { RAT.libre = false; sinLock = false; }
-      else if (abierto && dentro) { RAT.libre = true; mouseDig = null; }   // se soltó (Esc u otra cosa): cursor libre hasta que hagas clic o Alt
+      else if (abierto && (dentro || shiftLock)) { RAT.libre = true; mouseDig = null; }   // se soltó (Esc u otra cosa): cursor libre hasta que hagas clic o Alt
     });
     document.addEventListener('pointerlockerror', () => { sinLock = true; if (abierto && dentro) avisarSinLock(); });   // el navegador no dejó bloquear: se gira igual con el movimiento del ratón
     // en cuanto se usa un ratón de verdad se activa el modo ratón (aunque el equipo también tenga pantalla táctil)
@@ -8412,6 +8666,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     canvas.addEventListener('pointerdown', e => {
       try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
       ptr.x = e.clientX; ptr.y = e.clientY;
+      if (shiftLock && !dentro && e.pointerType === 'mouse' && (RAT.libre || !bloqueado())) pedirBloqueo();   // shift lock: el clic vuelve a capturar el ratón
       if (dentro && e.pointerType === 'mouse') {
         if (RAT.libre) { pedirBloqueo(); return; }   // cursor libre: este clic solo vuelve a capturar el ratón
         if (!bloqueado() && !sinLock) pedirBloqueo();
@@ -8454,7 +8709,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         if (ptr.x < mg) yaw += 2.6 * Math.min(1, (mg - Math.max(0, ptr.x)) / mg) * dt;
         else if (ptr.x > w - mg) yaw -= 2.6 * Math.min(1, (ptr.x - (w - mg)) / mg) * dt;
       }
-      miraEl.style.display = (dentro && usaRaton && !RAT.libre) ? 'block' : 'none';
+      miraEl.style.display = ((dentro || shiftLock) && usaRaton && !RAT.libre) ? 'block' : 'none';
       canvas.style.cursor = dentro ? (usaRaton ? ((RAT.libre || (sinLock && !bloqueado())) ? 'default' : 'none') : 'crosshair') : '';
       if (!dentro && bloqueado()) soltarBloqueo();
       // día y noche (un ciclo dura 4 minutos)
@@ -8462,15 +8717,15 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       const sh = Math.sin(fase) + 0.3, k = sstep(-0.12, 0.3, sh);
       esNoche = sh < 0.05;
       { const qx = dentro && nidoPos ? nidoPos.x : P.x, qz = dentro && nidoPos ? nidoPos.z : P.z, wp = pesos(qx, qz), f = Math.min(1, dt * 0.8);
-        for (let q = 0; q < 3; q++) AMB[q] += (wp[q] - AMB[q]) * f;
+        for (let q = 0; q < 4; q++) AMB[q] += (wp[q] - AMB[q]) * f;
         cDia.setRGB(0, 0, 0); hemi.color.setRGB(0, 0, 0); hemi.groundColor.setRGB(0, 0, 0); sol.color.setRGB(0, 0, 0);
-        for (let q = 0; q < 3; q++) { const a = AMB[q]; cDia.r += cCielo[q].r * a; cDia.g += cCielo[q].g * a; cDia.b += cCielo[q].b * a; hemi.color.r += cHemiC[q].r * a; hemi.color.g += cHemiC[q].g * a; hemi.color.b += cHemiC[q].b * a; hemi.groundColor.r += cHemiG[q].r * a; hemi.groundColor.g += cHemiG[q].g * a; hemi.groundColor.b += cHemiG[q].b * a; sol.color.r += cSolC[q].r * a; sol.color.g += cSolC[q].g * a; sol.color.b += cSolC[q].b * a; } }
+        for (let q = 0; q < 4; q++) { const a = AMB[q]; cDia.r += cCielo[q].r * a; cDia.g += cCielo[q].g * a; cDia.b += cCielo[q].b * a; hemi.color.r += cHemiC[q].r * a; hemi.color.g += cHemiC[q].g * a; hemi.color.b += cHemiC[q].b * a; hemi.groundColor.r += cHemiG[q].r * a; hemi.groundColor.g += cHemiG[q].g * a; hemi.groundColor.b += cHemiG[q].b * a; sol.color.r += cSolC[q].r * a; sol.color.g += cSolC[q].g * a; sol.color.b += cSolC[q].b * a; } }
       cielo.copy(cNoche).lerp(cDia, k).lerp(cOcaso, Math.max(0, 1 - Math.abs(sh) / 0.25) * 0.45);
       scene.background.copy(cielo); scene.fog.color.copy(cielo);
       sol.intensity = 0.95 * k; hemi.intensity = 0.18 + 0.5 * k; estrellas.material.opacity = 1 - k;
 
       // jugador
-      let gy = dentro ? 0 : alt(P.x, P.z), mueve = false;
+      let gy = dentro ? 0 : sala ? sala.y : alt(P.x, P.z), mueve = false;
       if (P.muerta > 0) {
         P.muerta -= dt;
         if (P.muerta <= 0) {
@@ -8485,6 +8740,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         const ml = Math.hypot(mx, mz); if (ml > 1) { mx /= ml; mz /= ml; }
         mueve = ml > 0.08;
         if (dentro) P.rot = yaw + Math.PI;   // en primera persona la hormiga mira hacia donde miras
+        else if (shiftLock) P.rot = giro(P.rot, yaw + Math.PI, dt * 14);   // shift lock: mira hacia donde mira la cámara
         const cavando = dentro && (mouseDig !== null || K.KeyC || K.KeyQ || K.KeyX);
         let vel = razaSel === 'loca' ? 6 : 5;   // la hormiga loca es más rápida
         if (P.agot && P.est > 25) P.agot = false;
@@ -8494,10 +8750,13 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         if (mueve) {
           if (dentro) moverEnt(P, mx * vel * dt, mz * vel * dt);
           else { P.x += mx * vel * dt; P.z += mz * vel * dt; }
-          if (!dentro) P.rot = giro(P.rot, Math.atan2(mx, mz), dt * 12);
+          if (!dentro && !shiftLock) P.rot = giro(P.rot, Math.atan2(mx, mz), dt * 12);
         }
         P.vel = mueve ? vel * Math.min(1, ml) : 0;
-        if (!dentro) {
+        if (sala) {   // dentro de la mini sala: paredes redondas, sin troncos
+          const dx = P.x - sala.x, dz = P.z - sala.z, d = Math.hypot(dx, dz), lim = sala.r - 1;
+          if (d > lim) { P.x = sala.x + dx / d * lim; P.z = sala.z + dz / d * lim; }
+        } else if (!dentro) {
           P.x = Math.max(-LIM, Math.min(LIM, P.x)); P.z = Math.max(-LIM, Math.min(LIM, P.z));
           for (const t of troncos) {   // los troncos no se atraviesan
             const dx = P.x - t.x, dz = P.z - t.z, d = Math.hypot(dx, dz), lim = t.r + 0.4;
@@ -8508,7 +8767,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
             if (d < lim) { const ux = d > 0.001 ? dx / d : 0, uz = d > 0.001 ? dz / d : 1; P.x = nidoPos.x + ux * lim; P.z = nidoPos.z + uz * lim; }
           }
         }
-        gy = dentro ? 0 : alt(P.x, P.z);
+        gy = dentro ? 0 : sala ? sala.y : alt(P.x, P.z);
         if (dentro) { gravedad(P, dt, K.Space); rescatar(P); procesarCavar(dt); }
         else {
           if (K.Space && P.h === 0) { P.vy = 8.5; P.h = 0.001; }
@@ -8578,11 +8837,15 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         const em = e.flash > 0 ? 0x661111 : 0x000000; e.a.m1.emissive.setHex(em); e.a.m2.emissive.setHex(em);
       }
 
+      actualizarDesafios(dt, tt);
+
       // cámara
       if (!dentro) {
-        const cx = P.x + Math.sin(yaw) * Math.cos(pitch) * dist, cz = P.z + Math.cos(yaw) * Math.cos(pitch) * dist, cy = gy + P.h + 1.1 + Math.sin(pitch) * dist;
+        const ox = shiftLock ? Math.cos(yaw) * 1.1 : 0, oz = shiftLock ? -Math.sin(yaw) * 1.1 : 0;   // shift lock: cámara sobre el hombro derecho
+        const cx = P.x + ox + Math.sin(yaw) * Math.cos(pitch) * dist, cz = P.z + oz + Math.cos(yaw) * Math.cos(pitch) * dist, cy = gy + P.h + 1.1 + Math.sin(pitch) * dist;
         camera.position.set(cx, Math.max(cy, alt(cx, cz) + 0.6), cz);
-        camera.lookAt(P.x, gy + P.h + 0.9, P.z);
+        if (sala && camera.position.y > sala.y + 9.4) camera.position.y = sala.y + 9.4;   // la cámara no pasa del techo de la sala
+        camera.lookAt(P.x + ox, gy + P.h + 0.9, P.z + oz);
       } else {
         // primera persona: la cámara está en los ojos de la hormiga (arrastrar hacia abajo = mirar hacia abajo)
         const el = -pitch, ce = Math.cos(el), fx = -Math.sin(yaw) * ce, fy = Math.sin(el), fz = -Math.cos(yaw) * ce;
@@ -8649,18 +8912,23 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 
     // ----- Guardado de la partida (el terreno se regenera con la semilla; aquí va lo que cambió) -----
     function exportar() {
-      const fuera = dentro && nidoPos;
+      const fuera = dentro && nidoPos, so = sala ? enLocal(sala.S, sala.S.sal[0], sala.S.sal[1]) : null;
       const r = []; let v = 1, n = 0;                                    // los túneles cavados, comprimidos por tramos
       for (let i = 0; i < tierraG.length; i++) { if (tierraG[i] === v) n++; else { r.push(n); v = v ? 0 : 1; n = 1; } }
       r.push(n);
-      return { v: 1, x: fuera ? nidoPos.x : P.x, z: fuera ? nidoPos.z + RADIO_NIDO + 0.8 : P.z, hp: P.hp, est: P.est, com: P.com, mochila: P.mochila, tierra: P.tierra, desp: P.desp, n: P.n, kills: P.kills, cavado: P.cavado, cdHuevo: P.cdHuevo, fase,
+      return { v: 1, x: so ? so.x : fuera ? nidoPos.x : P.x, z: so ? so.z : fuera ? nidoPos.z + RADIO_NIDO + 0.8 : P.z, hp: P.hp, est: P.est, com: P.com, mochila: P.mochila, tierra: P.tierra, desp: P.desp, n: P.n, kills: P.kills, cavado: P.cavado, cdHuevo: P.cdHuevo, fase,
         nido: nidoPos ? { x: nidoPos.x, z: nidoPos.z } : null, pantry: pantry ? { x: pantry.x, y: pantry.y, z: pantry.z } : null, aliadas: aliadas.length, tipos: aliadas.map(a => a.tipo),
-        huevos: huevos.map(h => ({ t: h.t, tipo: h.tipo, x: h.x, y: h.y, z: h.z })), seguir, cav: r };
+        huevos: huevos.map(h => ({ t: h.t, tipo: h.tipo, x: h.x, y: h.y, z: h.z })), seguir, cav: r,
+        bt: Math.round(P.buffT || 0), des: Object.fromEntries(Object.entries(estadoD).map(([k, d]) => [k, { ts: d.ts }])) };   // des: cuándo completaste la torre y el igloo
     }
     function importar(e) {
       if (!e || e.v !== 1) return;
       Object.assign(P, { x: e.x, z: e.z, hp: Math.max(30, e.hp || 100), est: e.est == null ? 100 : e.est, com: Math.max(10, e.com == null ? 80 : e.com), mochila: e.mochila | 0, tierra: Math.min(CAP_TIERRA, e.tierra | 0), desp: e.desp | 0, n: e.n | 0, kills: e.kills | 0, cavado: e.cavado | 0, cdHuevo: e.cdHuevo || 0 });
       if (e.fase) fase = e.fase;
+      if (e.bt > 0) P.buffT = +e.bt || 0;
+      if (e.des && typeof e.des === 'object') for (const id of ['torre', 'iglu']) {   // cuándo completaste la torre y el igloo
+        const g = e.des[id]; if (g) estD(id).ts = +(g.ts || (g.t && g.t.ts)) || 0;
+      }
       if (e.cav && e.cav.length) {
         let i = 0, v = 1; for (const k of e.cav) { tierraG.fill(v, i, i + k); i += k; v = v ? 0 : 1; }
         for (let q = 0; q < NCX * NCY * NCZ; q++) sucios.add(q); procesarSucios(99999);
@@ -8672,7 +8940,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       if (e.seguir) alternarSeguir();
     }
     const setRaza = r => { if (RAZAS_OK.includes(r)) razaSel = r; };
-    const RAZAS_OK = ['red', 'and', 'trampa', 'prados', 'loca', 'tridente'];
+    const RAZAS_OK = ['red', 'and', 'trampa', 'prados', 'loca', 'tridente', 'bala'];
     generarMundo(1234, 'pradera');
     return { reset, ajustar, actualizar, generarMundo, exportar, importar, setRaza, terminarCine };
   }
