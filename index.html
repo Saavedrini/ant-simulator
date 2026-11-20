@@ -6342,6 +6342,7 @@ const LOG_TXT = {
       <li><b>🚪 3D: puertas y mini salas.</b> La torre tiene una puerta de madera y el igloo una puerta negra. Al llegar a la puerta entras a una mini sala 3D donde salen las hormigas (la torre con sus 5 pisos y el igloo con 5 hormigas); al ganar aparece un cofre, y una puerta al fondo te saca. Ya no hay huecos en las paredes.</li>
       <li><b>💾 3D: se guarda el progreso.</b> Cuándo completaste la torre y el igloo (para la espera de 10 minutos) y el bono de mordida se guardan con tu mundo 3D.</li>
       <li><b>🔒 3D: Shift lock.</b> Pulsa Ctrl para activarlo o quitarlo: la hormiga mira siempre hacia donde mira la cámara, el ratón gira la cámara sin hacer clic y la cámara queda sobre el hombro.</li>
+      <li><b>🌎 3D: mundo mucho más grande.</b> El mundo 3D ahora mide 700 de lado (antes 176, unas 16 veces más superficie): más árboles, pasto, piedras y enemigos, lomas grandes, y el igloo y la torre quedan lejos del nido para explorarlos. Los mundos 3D guardados se regeneran con la forma nueva.</li>
       <li><b>📜 Registro de cambios.</b> Toca la etiqueta «Actualización ${VERSION_JUEGO}» de la esquina para abrir este registro cuando quieras; aquí se irán sumando todas las actualizaciones.</li>
     </ul>`,
     `<h4>📖 Historial de actualizaciones</h4><p class="rch-sub">Todo lo que se agregó antes</p><ul class="rch-lista">
@@ -6365,6 +6366,7 @@ const LOG_TXT = {
       <li><b>🚪 3D: doors and mini rooms.</b> The tower has a wooden door and the igloo a black door. Reaching the door takes you into a 3D mini room where the ants come out (the tower with its 5 floors and the igloo with 5 ants); winning reveals a chest, and a door at the back lets you out. No more holes in the walls.</li>
       <li><b>💾 3D: progress is saved.</b> When you completed the tower and the igloo (for the 10-minute wait) and the bite bonus are saved with your 3D world.</li>
       <li><b>🔒 3D: Shift lock.</b> Press Ctrl to turn it on or off: the ant always faces where the camera looks, the mouse turns the camera without clicking, and the camera sits over the shoulder.</li>
+      <li><b>🌎 3D: much bigger world.</b> The 3D world is now 700 wide (it was 176, about 16 times the surface): more trees, grass, rocks and enemies, big hills, and the igloo and the tower sit far from the nest so you have to explore. Saved 3D worlds are regenerated with the new shape.</li>
       <li><b>📜 Changelog.</b> Tap the "Update ${VERSION_JUEGO}" tag in the corner to open this log whenever you want.</li>
     </ul>`,
     `<h4>📖 Update history</h4><p class="rch-sub">Everything added before</p><ul class="rch-lista">
@@ -7573,8 +7575,8 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     renderer.shadowMap.type = T.PCFSoftShadowMap;
     const scene = new T.Scene();
     scene.background = new T.Color(0x8fd3f4);
-    scene.fog = new T.Fog(0x8fd3f4, 45, 140);
-    const camera = new T.PerspectiveCamera(60, 1, 0.1, 400);
+    scene.fog = new T.Fog(0x8fd3f4, 70, 260);
+    const camera = new T.PerspectiveCamera(60, 1, 0.1, 320);
 
     // números al azar a partir de una semilla: la misma semilla = el mismo mundo, otra semilla = otro mundo
     let seed = 1234;
@@ -7592,7 +7594,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     let razaSel = (typeof tipoHormigaSeleccionada !== 'undefined' && tipoHormigaSeleccionada) || 'red';   // raza de esta partida 3D
 
     let LX = 40, LZ = -35;
-    const NIVEL_AGUA = -1.0, LIM = 88;
+    const NIVEL_AGUA = -1.0, LIM = 350;   // el mundo mide 700 de lado (antes 176)
     const TP = { f1: 0.08, f2: 0.07, f3: 0.15, p1: 0, p2: 0, p3: 0, a1: 1.3, a2: 1.1, a3: 0.45 };   // forma del terreno (cambia con la semilla)
     // Mundo con TODOS los biomas: cuatro sectores alrededor del nido (pradera, otoño, desierto, nieve) que se mezclan suavemente en sus bordes; junto al nido siempre hay pradera
     const BIO_LISTA = [BIOMAS.pradera, BIOMAS.otono, BIOMAS.desierto, BIOMAS.nieve], OFS = { a: 0, p: 0 };
@@ -7602,7 +7604,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       m = ((m % 4) + 4) % 4;
       const w = [0, 0, 0, 0]; let tot = 0;
       for (let k = 0; k < 4; k++) { let d = Math.abs(m - (k + 0.5)); d = Math.min(d, 4 - d); w[k] = 1 - sstep(0.3, 0.7, d); tot += w[k]; }
-      const cn = 1 - sstep(16, 36, r);
+      const cn = 1 - sstep(40, 90, r);   // una gran pradera alrededor del nido
       for (let k = 0; k < 4; k++) w[k] = (w[k] / tot) * (1 - cn) + (k === 0 ? cn : 0);
       return w;
     };
@@ -7613,7 +7615,8 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       if (base < -0.5) base = -0.5 + (base + 0.5) * 0.15;   // sin hondonadas fantasma que parezcan agua
       const k = sstep(5, 16, Math.hypot(x, z));
       const lago = Math.max(0, 1 - Math.hypot(x - LX, z - LZ) / 17);
-      return base * k - lago * lago * 6;
+      const grande = Math.max(0, Math.sin(x * 0.011 + TP.p2) * Math.cos(z * 0.013 + TP.p3)) * 8 * amp * sstep(40, 140, Math.hypot(x, z));   // lomas grandes lejos del nido
+      return (base + grande) * k - lago * lago * 6;
     };
 
     // piezas que se reutilizan al regenerar el mundo
@@ -7649,7 +7652,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       const lejos = (x, z, r0, r1) => Math.hypot(x, z) < r0 || Math.hypot(x - LX, z - LZ) < r1;
 
       // suelo
-      const geo = new T.PlaneGeometry(240, 240, 140, 140);
+      const geo = new T.PlaneGeometry(LIM * 2.2, LIM * 2.2, 330, 330);
       geo.rotateX(-Math.PI / 2);
       const pos = geo.attributes.position, cols = new Float32Array(pos.count * 3);
       for (let i = 0; i < pos.count; i++) {
@@ -7669,10 +7672,10 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 
       // pasto (en el desierto, matas secas; en otoño, pasto dorado)
       const hGeo = new T.ConeGeometry(0.07, 0.75, 4); hGeo.translate(0, 0.375, 0);
-      const NH = 7000, DENS = [1, 0.85, 0.3, 0.25], hierba = new T.InstancedMesh(hGeo, new T.MeshLambertMaterial({ color: 0xffffff }), NH);
+      const NH = 60000, DENS = [1, 0.85, 0.3, 0.25], hierba = new T.InstancedMesh(hGeo, new T.MeshLambertMaterial({ color: 0xffffff }), NH);
       for (let i = 0; i < NH; i++) {
         let x, z, bi;
-        do { x = (rng() - 0.5) * 200; z = (rng() - 0.5) * 200; bi = elige(x, z); } while (lejos(x, z, 6, 11) || rng() > DENS[bi]);
+        do { x = (rng() - 0.5) * LIM * 2.1; z = (rng() - 0.5) * LIM * 2.1; bi = elige(x, z); } while (lejos(x, z, 6, 11) || rng() > DENS[bi]);
         const Bq = BIO_LISTA[bi];
         dm.position.set(x, alt(x, z), z);
         dm.rotation.set((rng() - 0.5) * 0.4, rng() * 6.28, (rng() - 0.5) * 0.4);
@@ -7683,11 +7686,11 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       add(hierba);
 
       // flores (en otoño son hojas caídas)
-      const floresM = new T.InstancedMesh(new T.SphereGeometry(0.16, 6, 5), new T.MeshLambertMaterial({ color: 0xffffff }), 480);
+      const floresM = new T.InstancedMesh(new T.SphereGeometry(0.16, 6, 5), new T.MeshLambertMaterial({ color: 0xffffff }), 2600);
       const DF = [1, 1, 0.25, 0.6];
-      for (let i = 0; i < 480; i++) {
+      for (let i = 0; i < 2600; i++) {
         let x, z, bi;
-        do { x = (rng() - 0.5) * 190; z = (rng() - 0.5) * 190; bi = elige(x, z); } while (lejos(x, z, 8, 13) || rng() > DF[bi]);
+        do { x = (rng() - 0.5) * LIM * 2; z = (rng() - 0.5) * LIM * 2; bi = elige(x, z); } while (lejos(x, z, 8, 13) || rng() > DF[bi]);
         const Bq = BIO_LISTA[bi];
         dm.position.set(x, alt(x, z) + (bi === 1 ? 0.08 : 0.45), z); dm.rotation.set(0, 0, 0); dm.scale.set(1, bi === 1 ? 0.3 : 1, 1); dm.updateMatrix();
         floresM.setMatrixAt(i, dm.matrix); c.setHex(Bq.flores[Math.floor(rng() * Bq.flores.length)]); floresM.setColorAt(i, c);
@@ -7695,19 +7698,19 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       add(floresM);
 
       // piedras
-      for (let i = 0; i < 40; i++) {
+      for (let i = 0; i < 200; i++) {
         let x, z, bi;
-        do { x = (rng() - 0.5) * 180; z = (rng() - 0.5) * 180; bi = elige(x, z); } while (lejos(x, z, 10, 14) || rng() > (bi === 2 ? 1 : 0.55));
+        do { x = (rng() - 0.5) * LIM * 1.9; z = (rng() - 0.5) * LIM * 1.9; bi = elige(x, z); } while (lejos(x, z, 10, 14) || rng() > (bi === 2 ? 1 : 0.55));
         const r = new T.Mesh(new T.DodecahedronGeometry(1, 0), mPiedras[bi]);
         const sz = 0.6 + rng() * 1.3; r.scale.set(sz, sz * 0.7, sz * (0.8 + rng() * 0.5));
         r.position.set(x, alt(x, z) + sz * 0.25, z); r.rotation.y = rng() * 6; r.castShadow = true; r.receiveShadow = true; add(r);
       }
 
       // árboles (pradera / otoño) o cactus (desierto), cada uno con sus frutos en el suelo
-      const nArb = 34 + Math.floor(rng() * 10), def = [];
+      const nArb = 210 + Math.floor(rng() * 30), def = [];
       for (let i = 0; i < nArb; i++) {
         let x, z, n = 0;
-        do { x = (rng() - 0.5) * 170; z = (rng() - 0.5) * 170; n++; } while ((lejos(x, z, 14, 19) || def.some(d => Math.hypot(d.x - x, d.z - z) < 8)) && n < 50);
+        do { x = (rng() - 0.5) * LIM * 1.9; z = (rng() - 0.5) * LIM * 1.9; n++; } while ((lejos(x, z, 14, 19) || def.some(d => Math.hypot(d.x - x, d.z - z) < 8)) && n < 50);
         def.push({ x, z, n: 2 + Math.floor(rng() * 3), bi: elige(x, z) });
       }
       def.forEach(d => {
@@ -7757,7 +7760,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         }
         return mejor;
       };
-      const posT = sitio(0, 48, 72), posI = sitio(3, 50, 74, posT);
+      const posT = sitio(0, 150, 230), posI = sitio(3, 170, 270, posT);   // lejos del nido: hay que explorar para encontrarlos
       // Igloo y torre: macizos, con una puerta (negra en el igloo, de madera en la torre). Al llegar a la puerta entras a una mini sala 3D donde salen hormigas
       const th = q => Math.atan2(q.z, -q.x), PI = Math.PI;
       const anillo = (q, pts) => { const t = th(q), cs = Math.cos(t), sn = Math.sin(t); pts.forEach(([lx, lz, r]) => troncos.push({ x: q.x + lx * cs + lz * sn, z: q.z - lx * sn + lz * cs, r })); };
@@ -8254,7 +8257,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     }
 
     const enemigos = [];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 22; i++) {
       const a = hormiga('#2a0e0e', '#6e2418', '#120605', 0.38, 0x2a1008); a.g.scale.setScalar(0.95); scene.add(a.g);
       enemigos.push({ a, x: 0, z: 0, rot: 0, hp: 60, vivo: true, t: 0, obj: null, cd: 0, flash: 0 });
     }
@@ -8709,7 +8712,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         if (ptr.x < mg) yaw += 2.6 * Math.min(1, (mg - Math.max(0, ptr.x)) / mg) * dt;
         else if (ptr.x > w - mg) yaw -= 2.6 * Math.min(1, (ptr.x - (w - mg)) / mg) * dt;
       }
-      miraEl.style.display = ((dentro || shiftLock) && usaRaton && !RAT.libre) ? 'block' : 'none';
+      miraEl.style.display = (dentro && usaRaton && !RAT.libre) ? 'block' : 'none';
       canvas.style.cursor = dentro ? (usaRaton ? ((RAT.libre || (sinLock && !bloqueado())) ? 'default' : 'none') : 'crosshair') : '';
       if (!dentro && bloqueado()) soltarBloqueo();
       // día y noche (un ciclo dura 4 minutos)
