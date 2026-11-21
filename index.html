@@ -145,6 +145,34 @@
   #btn-cerrar-perfil { background: #e53935; color: #fff; }
   .btn-perfil-accion:hover { transform: scale(1.05); }
 
+  /* --- Perfil: hormiga 3D del juego (fondo blanco) + panel gris de cosméticos. Solo decoración: no aparece en la partida --- */
+  .pf3-caja { display: flex; flex-direction: row-reverse; width: min(96vw, 720px); max-height: min(94vh, 94dvh); background: #4a4b50; border: 7px solid #000; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 34px rgba(0,0,0,.85); color: #fff; font-family: system-ui, "Segoe UI", sans-serif; text-align: left; }
+  .pf3-izq { flex: 0 0 280px; display: flex; flex-direction: column; padding: 18px; background: #55565b; overflow-y: auto; }
+  .pf3-izq h3 { margin: 0 0 6px; font-size: 22px; text-shadow: 0 2px 4px rgba(0,0,0,.35); }
+  .pf3-et { display: block; margin: 12px 0 6px; font-size: 11px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: #d4d5d9; }
+  .pf3-izq input[type=text] { width: 100%; box-sizing: border-box; padding: 9px 11px; background: #3b3c40; border: 0; border-radius: 8px; outline: 0; color: #fff; font: 600 15px system-ui, sans-serif; }
+  .pf3-cos { display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 8px; padding: 10px 12px; background: #3b3c40; color: #eee; border: 2px solid transparent; border-radius: 10px; font: 700 14px system-ui, sans-serif; text-align: left; cursor: pointer; }
+  .pf3-cos:hover { background: #46474c; }
+  .pf3-cos.on { border-color: #4cc36a; background: #335a40; color: #fff; }
+  .pf3-ic { font-size: 22px; line-height: 1; }
+  .pf3-tx { flex: 1; }
+  .pf3-ok { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #8a8b90; box-sizing: border-box; text-align: center; font-size: 13px; line-height: 16px; }
+  .pf3-cos.on .pf3-ok { background: #4cc36a; border-color: #4cc36a; color: #fff; }
+  .pf3-cos.on .pf3-ok::after { content: "✓"; }
+  .pf3-pie { margin-top: auto; padding-top: 16px; }
+  .pf3-cols { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+  .pf3-sw { width: 28px; height: 28px; padding: 0; box-sizing: border-box; border: 3px solid #55565b; border-radius: 50%; cursor: pointer; color: #fff; font: 800 15px/22px system-ui, sans-serif; text-shadow: 0 1px 2px #000; }
+  .pf3-sw.on { border-color: #fff; }
+  .pf3-izq input[type=color] { width: 34px; height: 28px; padding: 0; border: 0; border-radius: 8px; background: none; cursor: pointer; }
+  .pf3-der { position: relative; flex: 1; min-width: 0; min-height: 380px; background: #fff; }
+  #pf3-vista { position: absolute; inset: 0; }
+  #pf3-vista canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+  #pf3-vista canvas:active { cursor: grabbing; }
+  #pf3-estado { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; color: #555; font: 600 14px system-ui, sans-serif; pointer-events: none; }
+  .pf3-ayuda { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; color: #888; font: 600 12px system-ui, sans-serif; pointer-events: none; }
+  @media (max-width: 620px) { .pf3-caja { flex-direction: column-reverse; } .pf3-izq { flex: 0 0 auto; } .pf3-der { flex: 0 0 280px; min-height: 280px; } }
+
+
   /* Saludo de Jugador en el menú */
   #saludo-jugador {
     color: #FFEB3B;
@@ -551,12 +579,127 @@
   #olas-lago { animation: olasLago 3.2s ease-in-out infinite alternate; }
   @keyframes olasLago { from { transform: translateX(-7px); } to { transform: translateX(7px); } }
 </style>
+<style id="botones-pro">
+/* =====================================================================
+   BOTONES ESTILO "PIEZA DE AJEDREZ": contorno negro grueso, relleno de color
+   y relieve (luz arriba-izquierda, sombra abajo), sin degradados ni vidrio.
+   Solo cambia el aspecto: no toca posición, tamaño, display ni la lógica.
+   Para volver al diseño anterior basta con borrar este bloque <style>.
+   ===================================================================== */
+:root { --negro: #0a0a0a; }
+
+/* ---------- Base común a todos los botones ---------- */
+:is(.btn-juego, #btn-perfil-menu, #btn-libro-menu, .btn-menu-principal, #btn-menu, #btn-atacar, #btn-harvest, #btn-dormir, #btn-atrapar, #btn-hoja, #btn-esconder, #btn-correr, .btn-atajo, #btn-crear-entrada, #btn-follow, #btn-comer, #btn-alimentar, #btn-huevo, #btn-especial, #btn-guardar, #btn-sacar, #btn-poner, #btn-flecha, #btn-flecha-sub, #btn-flecha-izq, #btn-mochila, #btn-iglu, #btn-torre, #btn-roble, #btn-templo, #btn-pantalla, .btn-nido, .btn-cel, .b-btn, .btn-perfil-accion, #btn-cerrar-ruleta, #msg-btn, .inv-btns button, .ac-btns button, .rch-nav button, .lb-nav button, #barra-editor button, #cfg-win .w-btn, #par-win .w-btn, #m3-botones button, #m3-salir) {
+  border: 3px solid var(--negro) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow:
+    inset 2px 2px 0 rgba(255,255,255,.42),
+    inset -2px -5px 0 rgba(0,0,0,.28),
+    0 4px 0 var(--negro) !important;
+  transition: filter .12s ease, box-shadow .08s ease, transform .08s ease !important;
+}
+
+/* ---------- Texto: letra gruesa con contorno negro ---------- */
+:is(.btn-juego, #btn-perfil-menu, #btn-libro-menu, .btn-menu-principal, #btn-menu, #btn-atacar, #btn-harvest, #btn-dormir, #btn-atrapar, #btn-hoja, #btn-esconder, #btn-correr, .btn-atajo, .btn-perfil-accion, #btn-cerrar-ruleta, #msg-btn, .inv-btns button, .ac-btns button, .rch-nav button, .lb-nav button, #barra-editor button, #cfg-win .w-btn, #par-win .w-btn) {
+  font-family: "Trebuchet MS", Verdana, "Segoe UI", system-ui, sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: .02em !important;
+  color: #fff !important;
+  -webkit-text-stroke: 3px var(--negro) !important;
+  paint-order: stroke fill !important;
+  text-shadow: none !important;
+}
+:is(.btn-perfil-accion, #btn-cerrar-ruleta, #msg-btn, .inv-btns button, .ac-btns button, .rch-nav button, .lb-nav button, #barra-editor button, #cfg-win .w-btn, #par-win .w-btn) { -webkit-text-stroke-width: 2.5px !important; }
+:is(.btn-juego, #btn-perfil-menu, #btn-libro-menu, .btn-menu-principal, #btn-menu) { border-radius: 8px !important; }
+:is(#btn-atacar, #btn-harvest, #btn-dormir, #btn-atrapar, #btn-hoja, #btn-esconder, #btn-correr, .btn-atajo) { border-radius: 12px !important; }
+:is(.btn-perfil-accion, #btn-cerrar-ruleta, #msg-btn, .inv-btns button, .ac-btns button, .rch-nav button, .lb-nav button, #barra-editor button, #cfg-win .w-btn, #par-win .w-btn) { border-radius: 9px !important; }
+.btn-perfil-accion { padding: 9px 20px !important; }
+
+/* ---------- Colores propios (vivos, para que contrasten con el negro) ---------- */
+#btn-atacar { background-color: #ef4444 !important; }
+#btn-harvest { background-color: #22c55e !important; }
+#btn-dormir { background-color: #3b82f6 !important; }
+#btn-atrapar { background-color: #c08457 !important; }
+#btn-hoja { background-color: #4ade80 !important; }
+#btn-esconder { background-color: #f97316 !important; }
+#btn-correr { background-color: #f4f1e6 !important; }
+.btn-atajo { background-color: #6366f1 !important; }
+#btn-crear-entrada { background-color: #fbbf24 !important; }
+#btn-follow { background-color: #14b8a6 !important; }
+#btn-comer { background-color: #fb923c !important; }
+#btn-alimentar { background-color: #ef4444 !important; }
+#btn-huevo { background-color: #a855f7 !important; }
+#btn-especial { background-color: #facc15 !important; }
+#btn-guardar { background-color: #c08457 !important; }
+#btn-sacar { background-color: #8b5cf6 !important; }
+#btn-poner { background-color: #22c55e !important; }
+#btn-flecha { background-color: #4ade80 !important; }
+#btn-flecha-sub { background-color: #d6a56b !important; }
+#btn-flecha-izq { background-color: #fb923c !important; }
+#btn-mochila { background-color: #f59e0b !important; }
+#btn-iglu { background-color: #38bdf8 !important; }
+#btn-torre { background-color: #c08457 !important; }
+#btn-roble { background-color: #f97316 !important; }
+#btn-templo { background-color: #d6a56b !important; }
+#btn-pantalla { background-color: #f4f1e6 !important; }
+#btn-nido-ent { background-color: #ef4444 !important; }
+#btn-nido-sal { background-color: #38bdf8 !important; }
+#btn-nido-cof { background-color: #f59e0b !important; }
+.b-btn { background-color: #f4f1e6 !important; }
+.btn-cel { background-color: #f4f1e6 !important; }
+#m3-botones button { background-color: #c9803a !important; }
+#m3-salir { background-color: #ef4444 !important; }
+
+/* los claros llevan texto oscuro, como la torre blanca */
+:is(#btn-correr, #btn-especial, #btn-pantalla, .b-btn, .btn-cel, #btn-crear-entrada) { color: var(--negro) !important; -webkit-text-stroke: 0 !important; }
+#btn-correr { -webkit-text-stroke: 0 !important; }
+#btn-correr.on { background-color: #22c55e !important; color: #fff !important; -webkit-text-stroke: 3px var(--negro) !important; paint-order: stroke fill !important; }
+.btn-cel.activo { background-color: #facc15 !important; }
+
+/* ---------- Modo 3D (letras pequeñas: sin contorno, solo sombra) ---------- */
+#m3-botones button { border-width: 2px !important; border-radius: 11px !important; color: #fff !important; text-shadow: 0 1px 2px #000, 0 0 2px #000 !important; box-shadow: inset 2px 2px 0 rgba(255,255,255,.38), inset -2px -4px 0 rgba(0,0,0,.28), 0 3px 0 var(--negro) !important; }
+#m3-botones button.on { background-color: #22c55e !important; }
+#m3-salir { border-radius: 9px !important; font-weight: 800 !important; text-shadow: 0 1px 2px #000 !important; }
+
+/* ---------- Estados ---------- */
+:is(.btn-juego, #btn-perfil-menu, #btn-libro-menu, .btn-menu-principal, #btn-menu, #btn-atacar, #btn-harvest, #btn-dormir, #btn-atrapar, #btn-hoja, #btn-esconder, #btn-correr, .btn-atajo, #btn-crear-entrada, #btn-follow, #btn-comer, #btn-alimentar, #btn-huevo, #btn-especial, #btn-guardar, #btn-sacar, #btn-poner, #btn-flecha, #btn-flecha-sub, #btn-flecha-izq, #btn-mochila, #btn-iglu, #btn-torre, #btn-roble, #btn-templo, #btn-pantalla, .btn-nido, .btn-cel, .b-btn, .btn-perfil-accion, #btn-cerrar-ruleta, #msg-btn, .inv-btns button, .ac-btns button, .rch-nav button, .lb-nav button, #barra-editor button, #cfg-win .w-btn, #par-win .w-btn, #m3-botones button, #m3-salir):hover:not(:disabled) { filter: brightness(1.10) !important; }
+:is(.btn-juego, #btn-perfil-menu, #btn-libro-menu, .btn-menu-principal, #btn-menu, .btn-perfil-accion, #btn-cerrar-ruleta, #msg-btn, .inv-btns button, .ac-btns button, .rch-nav button, .lb-nav button, #barra-editor button, #cfg-win .w-btn, #par-win .w-btn):hover:not(:disabled) { transform: translateY(-1px) !important; }
+
+:is(.btn-juego, #btn-perfil-menu, #btn-libro-menu, .btn-menu-principal, #btn-menu, .btn-perfil-accion, #btn-cerrar-ruleta, #msg-btn, .inv-btns button, .ac-btns button, .rch-nav button, .lb-nav button, #barra-editor button, #cfg-win .w-btn, #par-win .w-btn):active:not(:disabled) {
+  transform: translateY(3px) !important;
+  filter: brightness(.95) !important;
+  box-shadow: inset 2px 2px 0 rgba(0,0,0,.22), 0 1px 0 var(--negro) !important;
+}
+:is(#btn-atacar, #btn-harvest, #btn-dormir, #btn-atrapar, #btn-hoja, #btn-esconder, #btn-correr, .btn-atajo, #btn-crear-entrada, #btn-follow, #btn-comer, #btn-alimentar, #btn-huevo, #btn-especial, #btn-guardar, #btn-sacar, #btn-poner, #btn-flecha, #btn-flecha-sub, #btn-flecha-izq, #btn-mochila, #btn-iglu, #btn-torre, #btn-roble, #btn-templo, #btn-pantalla, .btn-nido, .btn-cel, .b-btn, #m3-botones button, #m3-salir):active:not(:disabled) {
+  filter: brightness(.92) !important;
+  box-shadow: inset 2px 4px 0 rgba(0,0,0,.30), 0 1px 0 var(--negro) !important;
+}
+
+/* desactivado: gris, pero con el mismo contorno negro */
+:is(.btn-juego, #btn-perfil-menu, #btn-libro-menu, .btn-menu-principal, #btn-menu, #btn-atacar, #btn-harvest, #btn-dormir, #btn-atrapar, #btn-hoja, #btn-esconder, #btn-correr, .btn-atajo, #btn-crear-entrada, #btn-follow, #btn-comer, #btn-alimentar, #btn-huevo, #btn-especial, #btn-guardar, #btn-sacar, #btn-poner, #btn-flecha, #btn-flecha-sub, #btn-flecha-izq, #btn-mochila, #btn-iglu, #btn-torre, #btn-roble, #btn-templo, #btn-pantalla, .btn-nido, .btn-cel, .b-btn, .btn-perfil-accion, #btn-cerrar-ruleta, #msg-btn, .inv-btns button, .ac-btns button, .rch-nav button, .lb-nav button, #barra-editor button, #cfg-win .w-btn, #par-win .w-btn, #m3-botones button, #m3-salir):disabled {
+  background-color: #8b8b8b !important;
+  color: #d6d6d6 !important;
+  filter: none !important;
+  cursor: not-allowed !important;
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,.25), inset -2px -4px 0 rgba(0,0,0,.22), 0 2px 0 var(--negro) !important;
+}
+
+/* anillo de enfoque al navegar con teclado */
+body #btn-play { --c: #22c55e; --d: #14532d; background-color: #22c55e !important; }
+button:focus-visible { outline: 3px solid #fff !important; outline-offset: 2px !important; }
+
+/* aviso de logros: escondido del todo (antes su sombra se asomaba como una mancha negra arriba del menú) */
+#lg-toast:not(.on) { visibility: hidden !important; box-shadow: none !important; transition: transform .35s ease, visibility 0s linear .35s !important; }
+#lg-toast.on { visibility: visible; }
+</style>
 </head>
 <body>
 
 <!-- Menú Principal con Selector -->
 <div id="menu-principal">
-  <svg id="menu-fondo" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <svg id="menu-fondo" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMin slice" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="mf-tierra" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="#5b3416"/><stop offset="0.5" stop-color="#3a1e0d"/><stop offset="1" stop-color="#1b0b04"/>
@@ -577,9 +720,51 @@
     </defs>
     <rect width="1200" height="700" fill="url(#mf-tierra)"/>
     <rect width="1200" height="700" fill="url(#mf-granos)"/>
-    <rect width="1200" height="64" fill="#64cdfc"/>
-    <rect y="52" width="1200" height="26" fill="#84be26"/>
-    <rect y="70" width="1200" height="10" fill="#689c19"/>
+    <defs>
+      <linearGradient id="mf-cielo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4fc3f7"/><stop offset="0.6" stop-color="#8fdcff"/><stop offset="1" stop-color="#cdf1ff"/></linearGradient>
+      <g id="mf-pino">
+        <rect x="-5" y="-22" width="10" height="24" fill="#5c2d0c"/><rect x="-2" y="-22" width="4" height="24" fill="#7a3e13"/>
+        <path d="M0,-72 Q34,-44 58,-22 Q28,-28 0,-22 Q-28,-28 -58,-22 Q-34,-44 0,-72Z" fill="#5a8f16"/>
+        <path d="M0,-98 Q28,-72 48,-50 Q24,-56 0,-50 Q-24,-56 -48,-50 Q-28,-72 0,-98Z" fill="#69a01d"/>
+        <path d="M0,-122 Q22,-100 38,-78 Q18,-83 0,-78 Q-18,-83 -38,-78 Q-22,-100 0,-122Z" fill="#79b028"/>
+        <path d="M0,-142 Q15,-124 25,-106 Q12,-110 0,-106 Q-12,-110 -25,-106 Q-15,-124 0,-142Z" fill="#8cc531"/>
+      </g>
+      <g id="mf-roble">
+        <rect x="-6" y="-34" width="12" height="36" fill="#5c2d0c"/><rect x="-2.5" y="-34" width="5" height="36" fill="#7a3e13"/>
+        <circle cx="-23" cy="-54" r="25" fill="#5a8f16"/><circle cx="23" cy="-54" r="25" fill="#5a8f16"/>
+        <circle cx="0" cy="-74" r="30" fill="#69a01d"/><circle cx="-10" cy="-80" r="15" fill="#8cc531" opacity=".75"/>
+      </g>
+      <g id="mf-arbusto"><ellipse cx="0" cy="-8" rx="22" ry="12" fill="#5a8f16"/><ellipse cx="-12" cy="-12" rx="14" ry="10" fill="#69a01d"/><ellipse cx="11" cy="-13" rx="13" ry="9" fill="#79b028"/></g>
+      <g id="mf-nube"><ellipse cx="0" cy="0" rx="46" ry="15" fill="#fff"/><ellipse cx="-24" cy="-9" rx="22" ry="14" fill="#fff"/><ellipse cx="10" cy="-15" rx="26" ry="17" fill="#fff"/><ellipse cx="32" cy="-6" rx="20" ry="12" fill="#fff"/></g>
+    </defs>
+    <rect width="1200" height="140" fill="url(#mf-cielo)"/>
+    <g opacity=".9">
+      <g><use href="#mf-nube" transform="translate(200,48) scale(.9)"/><use href="#mf-nube" transform="translate(760,34) scale(.7)" opacity=".85"/><use href="#mf-nube" transform="translate(1000,70) scale(1)"/>
+        <animateTransform attributeName="transform" type="translate" values="0 0;60 0;0 0" dur="50s" repeatCount="indefinite"/></g>
+    </g>
+    <path d="M0,134 L0,96 C110,58 250,70 370,98 C470,120 530,90 650,66 C780,44 900,70 1020,96 C1100,114 1160,100 1200,84 L1200,134 Z" fill="#b6de80"/>
+    <path d="M0,134 L0,114 C90,86 200,94 300,114 C420,138 520,108 640,100 C760,92 840,110 960,118 C1060,124 1140,106 1200,102 L1200,134 Z" fill="#9bce4c"/>
+    <g>
+      <use href="#mf-pino" transform="translate(40,124) scale(.4)"/><use href="#mf-pino" transform="translate(96,121) scale(.34)"/>
+      <use href="#mf-roble" transform="translate(335,122) scale(.4)"/><use href="#mf-pino" transform="translate(398,122) scale(.44)"/>
+      <use href="#mf-pino" transform="translate(468,120) scale(.34)"/><use href="#mf-roble" transform="translate(770,118) scale(.4)"/>
+      <use href="#mf-pino" transform="translate(835,120) scale(.42)"/><use href="#mf-pino" transform="translate(905,122) scale(.36)"/>
+      <use href="#mf-pino" transform="translate(1128,116) scale(.4)"/><use href="#mf-roble" transform="translate(1172,112) scale(.36)"/>
+    </g>
+    <rect y="132" width="1200" height="42" fill="#84be26"/>
+    <rect y="132" width="1200" height="4" fill="#9ad32e"/>
+    <rect y="162" width="1200" height="14" fill="#689c19"/>
+    <g>
+      <use href="#mf-pino" transform="translate(84,142) scale(.7)"/><use href="#mf-roble" transform="translate(170,142) scale(.62)"/>
+      <use href="#mf-pino" transform="translate(350,142) scale(.8)"/><use href="#mf-roble" transform="translate(520,142) scale(.6)"/>
+      <use href="#mf-pino" transform="translate(604,142) scale(.86)"/><use href="#mf-pino" transform="translate(696,142) scale(.68)"/>
+      <use href="#mf-roble" transform="translate(880,142) scale(.66)"/><use href="#mf-pino" transform="translate(965,142) scale(.8)"/>
+      <use href="#mf-pino" transform="translate(1040,142) scale(.62)"/><use href="#mf-roble" transform="translate(1150,142) scale(.7)"/>
+      <use href="#mf-arbusto" transform="translate(130,146)"/><use href="#mf-arbusto" transform="translate(300,147) scale(.8)"/>
+      <use href="#mf-arbusto" transform="translate(455,146) scale(.9)"/><use href="#mf-arbusto" transform="translate(760,147)"/>
+      <use href="#mf-arbusto" transform="translate(1010,146) scale(.85)"/>
+    </g>
+    <g transform="translate(132,95.4) scale(.78)">
     <g fill="none" stroke-linecap="round" stroke-linejoin="round">
       <g id="mf-tuneles" stroke-width="40" stroke="#6e4220">
         <path d="M150,70 L150,150 C150,200 220,215 300,235"/>
@@ -610,6 +795,7 @@
       <g><use href="#mf-hormiga"/><animateMotion dur="18s" begin="-6s" repeatCount="indefinite" rotate="auto" path="M1040,430 C990,540 900,605 760,595 L480,575 C360,565 245,550 220,480 C190,390 260,310 300,235 C220,215 150,200 150,150 L150,70"/></g>
       <g><use href="#mf-hormiga"/><animateMotion dur="11s" begin="-3s" repeatCount="indefinite" rotate="auto" path="M640,245 C660,330 700,385 760,420 C700,385 660,330 640,245"/></g>
     </g>
+    </g>
   </svg>
   <button id="btn-perfil-menu" onclick="abrirPerfil()">Perfil</button>
   <button id="btn-libro-menu" onclick="abrirLibro()" title="Libro de objetos: qué hace cada uno y su probabilidad">Libro</button>
@@ -624,13 +810,25 @@
 
 <!-- Modal de Perfil -->
 <div id="modal-perfil">
-  <div class="perfil-caja">
-    <h3>Configurar Perfil</h3>
-    <p style="font-size: 14px; margin: 0;">Escribe tu nombre de jugador:</p>
-    <input type="text" id="input-nombre-jugador" placeholder="Tu nombre..." maxlength="15">
-    <div class="perfil-botones">
-      <button class="btn-perfil-accion" id="btn-guardar-perfil" onclick="guardarNombrePerfil()">Guardar</button>
-      <button class="btn-perfil-accion" id="btn-cerrar-perfil" onclick="cerrarPerfil()">Cancelar</button>
+  <div class="pf3-caja">
+    <div class="pf3-izq">
+      <h3>Configurar Perfil</h3>
+      <label class="pf3-et" for="input-nombre-jugador">Nombre</label>
+      <input type="text" id="input-nombre-jugador" placeholder="Tu nombre..." maxlength="15">
+      <span class="pf3-et">Color de la hormiga</span>
+      <div class="pf3-cols" id="pf3-colores"></div>
+      <span class="pf3-et">Cosméticos</span>
+      <button type="button" class="pf3-cos" data-cos="casco" onclick="pf3Alt('casco')"><span class="pf3-ic">🪖</span><span class="pf3-tx">Casco de la protectora</span><span class="pf3-ok"></span></button>
+      <button type="button" class="pf3-cos" data-cos="espada" onclick="pf3Alt('espada')"><span class="pf3-ic">⚔️</span><span class="pf3-tx">Espada de la guerrera</span><span class="pf3-ok"></span></button>
+      <div class="perfil-botones pf3-pie">
+        <button class="btn-perfil-accion" id="btn-guardar-perfil" onclick="guardarNombrePerfil()">Guardar</button>
+        <button class="btn-perfil-accion" id="btn-cerrar-perfil" onclick="cerrarPerfil()">Cancelar</button>
+      </div>
+    </div>
+    <div class="pf3-der">
+      <div id="pf3-vista"></div>
+      <div id="pf3-estado">Cargando hormiga 3D…</div>
+      <div class="pf3-ayuda">Arrastra para girarla</div>
     </div>
   </div>
 </div>
@@ -1098,13 +1296,148 @@ const almacen = {
 let nombreJugador = almacen.getItem('antSimulatorNombre') || 'Jugador';
 saludoJugador.textContent = `¡Hola, ${nombreJugador}!`;
 
+// ----- Perfil: la hormiga 3D del juego (solo decoración: se ve aquí, no aparece en la partida) -----
+const PF_KEY = 'antSimulatorPerfilCosmeticos';
+const PF_COLORES = ['#c62828', '#ef6c00', '#f9a825', '#2e7d32', '#1e88e5', '#8e24aa', '#ec407a', '#2b2b2b', '#eceff1'];
+let pfCos = { casco: false, espada: false, color: null };
+try { const o = JSON.parse(almacen.getItem(PF_KEY)); if (o) pfCos = { casco: !!o.casco, espada: !!o.espada, color: (typeof o.color === 'string' && /^#[0-9a-f]{6}$/i.test(o.color)) ? o.color.toLowerCase() : null }; } catch (e) {}
+let pfBorr = Object.assign({}, pfCos);
+const PF3 = { T: null, renderer: null, scene: null, camera: null, hormiga: null, casco: null, espada: null, m1: null, m2: null, tipo: null, yaw: -0.7, pitch: 0.25, dist: 5.6, raf: 0, last: 0, t: 0, drag: null, quieto: 0 };
+
+function pf3CargarThree() {   // la misma descarga que usa el modo 3D (se comparte, solo se baja una vez)
+  if (window.THREE) return Promise.resolve();
+  if (window.__threeP) return window.__threeP;
+  window.__threeP = new Promise((ok, mal) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    sc.onload = () => ok();
+    sc.onerror = () => { window.__threeP = null; sc.remove(); mal(new Error('three.js no cargó')); };
+    document.head.appendChild(sc);
+  });
+  return window.__threeP;
+}
+function pf3Tono(h, t) {   // t < 0 oscurece, t > 0 aclara
+  const n = parseInt(h.slice(1), 16), f = t < 0 ? 0 : 255, a = Math.abs(t), m = v => Math.round(v + (f - v) * a);
+  return '#' + ((1 << 24) | (m(n >> 16) << 16) | (m((n >> 8) & 255) << 8) | m(n & 255)).toString(16).slice(1);
+}
+function pf3Pintar() {   // color de la hormiga: el de la raza (original) o el que elijas
+  if (!PF3.m1) return;
+  const col = (typeof coloresReinas !== 'undefined' && coloresReinas[tipoHormigaSeleccionada]) || { c1: '#7b1113', c2: '#a11d21' };
+  if (pfBorr.color) { PF3.m2.color.set(pfBorr.color); PF3.m1.color.set(pf3Tono(pfBorr.color, -0.3)); }
+  else { PF3.m1.color.set(col.c1); PF3.m2.color.set(col.c2); }
+}
+function pf3PonerColor(c) { pfBorr.color = c === 'orig' ? null : c; pf3Pintar(); pf3Marcar(); }
+function pf3Montar() {   // escena, luces, suelo con sombra suave y controles (se hace una sola vez)
+  const T = window.THREE, cont = document.getElementById('pf3-vista');
+  const renderer = new T.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); renderer.setClearColor(0xffffff, 1);
+  cont.appendChild(renderer.domElement);
+  const scene = new T.Scene(), camera = new T.PerspectiveCamera(34, 1, 0.1, 60);
+  scene.add(new T.HemisphereLight(0xffffff, 0xb8b8c0, 0.95));
+  const sol = new T.DirectionalLight(0xffffff, 0.8); sol.position.set(3, 6, 4); scene.add(sol);
+  const cv = document.createElement('canvas'); cv.width = cv.height = 128; const cx = cv.getContext('2d');
+  const gr = cx.createRadialGradient(64, 64, 4, 64, 64, 62); gr.addColorStop(0, 'rgba(0,0,0,.30)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); cx.fillStyle = gr; cx.fillRect(0, 0, 128, 128);
+  const som = new T.Mesh(new T.PlaneGeometry(4.2, 4.2), new T.MeshBasicMaterial({ map: new T.CanvasTexture(cv), transparent: true, depthWrite: false }));
+  som.rotation.x = -Math.PI / 2; som.position.y = 0.02; scene.add(som);
+  Object.assign(PF3, { T, renderer, scene, camera });
+  const cn = renderer.domElement;
+  cn.addEventListener('pointerdown', e => { PF3.drag = { x: e.clientX, y: e.clientY }; try { cn.setPointerCapture(e.pointerId); } catch (_) {} });
+  cn.addEventListener('pointermove', e => { const d = PF3.drag; if (!d) return; PF3.yaw += (e.clientX - d.x) * 0.012; PF3.pitch = Math.max(-0.1, Math.min(1.2, PF3.pitch + (e.clientY - d.y) * 0.006)); d.x = e.clientX; d.y = e.clientY; PF3.quieto = 0; });
+  const suelta = () => { PF3.drag = null; };
+  cn.addEventListener('pointerup', suelta); cn.addEventListener('pointercancel', suelta);
+  cn.addEventListener('wheel', e => { e.preventDefault(); PF3.dist = Math.max(3.2, Math.min(9, PF3.dist + e.deltaY * 0.004)); }, { passive: false });
+  window.addEventListener('resize', pf3Ajustar);
+}
+function pf3Ajustar() {
+  if (!PF3.renderer) return;
+  const c = document.getElementById('pf3-vista'), w = c.clientWidth, h = c.clientHeight; if (!w || !h) return;
+  PF3.renderer.setSize(w, h, false); PF3.camera.aspect = w / h; PF3.camera.updateProjectionMatrix();
+}
+function pf3HacerHormiga() {   // el mismo modelo de la hormiga del juego 3D, con los colores de la raza que elegiste
+  const T = PF3.T, tp = tipoHormigaSeleccionada;
+  const col = (typeof coloresReinas !== 'undefined' && coloresReinas[tp]) || { c1: '#7b1113', c2: '#a11d21' };
+  const mand = tp === 'trampa' ? 0.7 : tp === 'prados' ? 0.5 : tp === 'tridente' ? 0.6 : tp === 'bala' ? 0.8 : 0;
+  const patas = tp === 'loca' ? '#050505' : tp === 'tridente' ? '#c0702f' : tp === 'bala' ? '#0c0c0e' : '#1a0a05';
+  const mandCol = tp === 'prados' ? 0x7a4a10 : tp === 'tridente' ? 0xb8651f : 0x1a0a05;
+  const g = new T.Group(), cuerpo = new T.Group(); g.add(cuerpo);
+  const m1 = new T.MeshPhongMaterial({ color: col.c1, shininess: 50 }), m2 = new T.MeshPhongMaterial({ color: col.c2, shininess: 50 }), mp = new T.MeshLambertMaterial({ color: patas });
+  const sph = new T.SphereGeometry(1, 16, 12), legGeo = new T.CylinderGeometry(0.04, 0.025, 0.8, 5), antGeo = new T.CylinderGeometry(0.02, 0.02, 0.7, 4);
+  legGeo.translate(0, -0.4, 0);
+  const el = (m, sx, sy, sz, x, y, z) => { const q = new T.Mesh(sph, m); q.scale.set(sx, sy, sz); q.position.set(x, y, z); cuerpo.add(q); return q; };
+  el(m1, 0.48, 0.42, 0.66, 0, 0.58, -0.78); el(m2, 0.18, 0.18, 0.2, 0, 0.58, -0.3); el(m2, 0.3, 0.28, 0.42, 0, 0.6, 0); el(m2, 0.34, 0.3, 0.32, 0, 0.62, 0.55);
+  const ojo = new T.MeshBasicMaterial({ color: 0x050505 });
+  [-1, 1].forEach(s => { const o = new T.Mesh(sph, ojo); o.scale.setScalar(0.07); o.position.set(s * 0.2, 0.72, 0.72); cuerpo.add(o); });
+  [-1, 1].forEach(s => { const a = new T.Mesh(antGeo, mp); a.position.set(s * 0.13, 0.95, 0.95); a.rotation.set(1.0, 0, -s * 0.35); cuerpo.add(a); });
+  if (mand) {
+    const mm = new T.MeshLambertMaterial({ color: mandCol });
+    [-1, 1].forEach(s => { const pv = new T.Group(); pv.position.set(s * 0.14, 0.5, 0.78); pv.rotation.y = -s * 0.3; const cn = new T.Mesh(new T.ConeGeometry(0.06, mand, 6), mm); cn.rotation.x = Math.PI / 2; cn.position.z = mand / 2; pv.add(cn); cuerpo.add(pv); });
+  }
+  const legs = [];
+  [0.25, 0, -0.2].forEach((z, zi) => [-1, 1].forEach(s => { const p = new T.Group(); p.position.set(s * 0.2, 0.5, z); const l = new T.Mesh(legGeo, mp); l.rotation.z = s * 0.95; p.add(l); g.add(p); legs.push({ p, f: ((zi + (s > 0 ? 1 : 0)) % 2) * Math.PI }); }));
+  // Cosméticos del juego: el casco de la protectora y la espada de la guerrera (mismos modelos que en la partida)
+  const mMetal = new T.MeshPhongMaterial({ color: 0xb8c0c8, shininess: 90 }), mCasco = new T.MeshPhongMaterial({ color: 0x8d97a3, shininess: 70 }), mMango = new T.MeshLambertMaterial({ color: 0x5a3418 }), mOro = new T.MeshPhongMaterial({ color: 0xd9a830, shininess: 80 });
+  const casco = new T.Group();
+  const c = new T.Mesh(new T.SphereGeometry(1, 16, 10, 0, 6.2832, 0, 1.45), mCasco); c.scale.set(0.37, 0.27, 0.36); c.position.set(0, 0.7, 0.56); c.rotation.x = -0.12; casco.add(c);
+  const borde = new T.Mesh(new T.TorusGeometry(1, 0.1, 6, 20), mMetal); borde.rotation.x = Math.PI / 2; borde.scale.set(0.37, 0.36, 0.3); borde.position.set(0, 0.7, 0.57); casco.add(borde);
+  const cresta = new T.Mesh(new T.BoxGeometry(0.035, 0.09, 0.3), mMetal); cresta.position.set(0, 0.99, 0.55); casco.add(cresta);
+  const espada = new T.Group(); espada.position.set(0.65, -0.46, 0); espada.rotation.set(-1.1, 0.25, 0); espada.scale.setScalar(1.3);   // la espada la sostiene la pata delantera derecha
+  const mg = new T.Mesh(new T.BoxGeometry(0.035, 0.035, 0.16), mMango); mg.position.z = -0.06; const gd = new T.Mesh(new T.BoxGeometry(0.17, 0.03, 0.04), mOro); gd.position.z = 0.03; const hj = new T.Mesh(new T.BoxGeometry(0.05, 0.015, 0.62), mMetal); hj.position.z = 0.34;
+  espada.add(mg, gd, hj);
+  cuerpo.add(casco); legs[1].p.add(espada);   // legs[1] = pata delantera derecha (se mueve con ella al caminar)
+  g.scale.setScalar(1.45);
+  if (PF3.hormiga) PF3.scene.remove(PF3.hormiga.g);
+  PF3.hormiga = { g, cuerpo, legs }; PF3.casco = casco; PF3.espada = espada; PF3.tipo = tp; PF3.m1 = m1; PF3.m2 = m2; pf3Pintar();
+  PF3.scene.add(g);
+}
+function pf3Frame(now) {
+  PF3.raf = requestAnimationFrame(pf3Frame);
+  const dt = Math.min(0.05, ((now || 0) - (PF3.last || now || 0)) / 1000); PF3.last = now || 0; PF3.t += dt;
+  const H = PF3.hormiga; if (!H) return;
+  if (!PF3.drag) { PF3.quieto += dt; if (PF3.quieto > 2.5) PF3.yaw += dt * 0.45; }   // si no la tocas, gira despacio sola
+  H.g.rotation.y = PF3.yaw;
+  PF3.casco.visible = pfBorr.casco; PF3.espada.visible = pfBorr.espada;
+  const v = PF3.drag ? 3.2 : 1.1, f = PF3.t * (4 + v * 0.9), k = Math.min(1, v / 4);
+  for (const l of H.legs) l.p.rotation.x = Math.sin(f + l.f) * 0.6 * k;   // camina en el lugar
+  H.cuerpo.position.y = Math.abs(Math.sin(f)) * 0.04 * k;
+  const d = PF3.dist, cam = PF3.camera;
+  cam.position.set(0, 0.9 + Math.sin(PF3.pitch) * d, Math.cos(PF3.pitch) * d); cam.lookAt(0, 0.75, 0);
+  PF3.renderer.render(PF3.scene, cam);
+}
+function pf3Parar() { if (PF3.raf) cancelAnimationFrame(PF3.raf); PF3.raf = 0; }
+async function pf3Iniciar() {
+  const est = document.getElementById('pf3-estado');
+  if (!PF3.renderer) {
+    est.style.display = 'flex'; est.textContent = 'Cargando hormiga 3D…';
+    try { await pf3CargarThree(); } catch (_) { est.innerHTML = 'No se pudo cargar la hormiga 3D.<br><small>La primera vez necesita internet.</small>'; return; }
+    if (modalPerfil.style.display !== 'flex') return;
+    try { pf3Montar(); } catch (err) { console.error(err); est.textContent = 'Tu navegador no pudo iniciar el 3D (WebGL).'; return; }
+  }
+  if (!PF3.hormiga || PF3.tipo !== tipoHormigaSeleccionada) pf3HacerHormiga();   // la hormiga que elegiste en el menú
+  est.style.display = 'none';
+  pf3Ajustar(); PF3.last = 0; PF3.quieto = 0; pf3Parar(); PF3.raf = requestAnimationFrame(pf3Frame);
+}
+function pf3Alt(k) { pfBorr[k] = !pfBorr[k]; pf3Marcar(); }
+function pf3Marcar() {
+  document.querySelectorAll('#modal-perfil [data-cos]').forEach(b => b.classList.toggle('on', !!pfBorr[b.dataset.cos]));
+  document.querySelectorAll('#pf3-colores [data-col]').forEach(b => b.classList.toggle('on', (pfBorr.color || 'orig') === b.dataset.col));
+  const ci = document.getElementById('pf3-color-libre'); if (ci && pfBorr.color) ci.value = pfBorr.color;
+}
+(function pf3Colores() {
+  document.getElementById('pf3-colores').innerHTML = '<button type="button" class="pf3-sw" data-col="orig" title="Color original" style="background:#7b1113" onclick="pf3PonerColor(\'orig\')">↺</button>'
+    + PF_COLORES.map(c => '<button type="button" class="pf3-sw" data-col="' + c + '" style="background:' + c + '" onclick="pf3PonerColor(\'' + c + '\')"></button>').join('')
+    + '<input type="color" id="pf3-color-libre" title="Otro color" value="#c62828" oninput="pf3PonerColor(this.value.toLowerCase())">';
+})();
+
 function abrirPerfil() {
   inputNombreJugador.value = nombreJugador;
+  pfBorr = Object.assign({}, pfCos); pf3Marcar();
   modalPerfil.style.display = 'flex';
+  pf3Iniciar();
 }
 
 function cerrarPerfil() {
   modalPerfil.style.display = 'none';
+  pf3Parar();
 }
 
 function guardarNombrePerfil() {
@@ -1114,6 +1447,8 @@ function guardarNombrePerfil() {
     almacen.setItem('antSimulatorNombre', nombreJugador);
     saludoJugador.textContent = `¡Hola, ${nombreJugador}!`;
   }
+  pfCos = Object.assign({}, pfBorr);
+  almacen.setItem(PF_KEY, JSON.stringify(pfCos));
   cerrarPerfil();
 }
 
@@ -2294,8 +2629,15 @@ function actualizarSubterraneo() {
     }
   }
 
-  // Dibujar
-  hormigaSub.setAttribute('transform', `translate(${antSub.x}, ${antSub.y}) scale(${antSub.dir * escalaRaza()}, ${escalaRaza()})`);
+  // Dibujar (con animación de salto: se estira en el aire y se aplasta al aterrizar)
+  const enAireS = antSub.vy !== 0;
+  if (!enAireS && antSub.aireS) antSub.sqS = 8;
+  antSub.aireS = enAireS;
+  antSub.sqS = Math.max(0, (antSub.sqS || 0) - dtFrame);
+  let sxS = 1, syS = 1;
+  if (enAireS) { const k = Math.min(1, Math.abs(antSub.vy) / 6.5); syS = 1 + 0.2 * k; sxS = 1 - 0.1 * k; }
+  else if (antSub.sqS > 0) { const e = antSub.sqS / 8; syS = 1 - 0.22 * e; sxS = 1 + 0.12 * e; }
+  hormigaSub.setAttribute('transform', `translate(${antSub.x}, ${antSub.y}) scale(${antSub.dir * escalaRaza() * sxS}, ${escalaRaza() * syS})`);
   const m = Math.sin(antSub.paso) * 3;
   pSub1.setAttribute('x2', -8 + m);
   pSub2.setAttribute('x2', 0 - m);
@@ -6384,6 +6726,8 @@ const LOG_TXT = {
       <li><b>🌎 3D: mundo mucho más grande.</b> El mundo 3D ahora mide 700 de lado (antes 176, unas 16 veces más superficie): más árboles, pasto, piedras y enemigos, lomas grandes, y el igloo y la torre quedan lejos del nido para explorarlos. Los mundos 3D guardados se regeneran con la forma nueva.</li>
       <li><b>🔭 Distancia de renderizado.</b> En Ajustes → Gráficos hay una barrita para elegir cuántos chunks ves en el 3D (de 4 a 50, cada chunk son 16 bloques), como en Minecraft. Menos chunks = más fluido. Por defecto son 20.</li>
       <li><b>🏰 Torre como la del 2D.</b> La torre del 3D ahora tiene la misma forma que la del 2D: base ancha, remate con almenas, puerta en arco, dos antorchas que parpadean, bandera roja, cartel «TORRE DE DESAFÍOS» y 5 ventanas que se ponen verdes al superar cada piso (amarilla el piso actual).</li>
+      <li><b>🌲 3D: nuevo bioma, el bosque.</b> El mundo 3D ahora tiene 5 biomas: pradera, otoño, desierto, nieve y un bosque denso con pinos y robles oscuros, hongos y suelo de musgo. Además ya no sale pasto en la nieve.</li>
+      <li><b>🐜 Perfil nuevo.</b> Tu perfil muestra la hormiga del juego en 3D sobre un fondo blanco: arrástrala para girarla. En el panel gris puedes cambiarle el color y ponerle los cosméticos del juego: el casco de la protectora y la espada de la guerrera (la sostiene con la pata). Es solo decoración: no aparece en la partida.</li>
       <li><b>⚖️ Peleas más balanceadas.</b> En la torre y el igloo las hormigas salen de a poquitas (máximo 2 a la vez) en vez de todas juntas, hay menos hormigas por piso, pegan menos y más lento, y al superar un piso te curas un poco y tienes unos segundos para respirar.</li>
       <li><b>📜 Registro de cambios.</b> Toca la etiqueta «Actualización ${VERSION_JUEGO}» de la esquina para abrir este registro cuando quieras; aquí se irán sumando todas las actualizaciones.</li>
     </ul>`,
@@ -6411,6 +6755,8 @@ const LOG_TXT = {
       <li><b>🌎 3D: much bigger world.</b> The 3D world is now 700 wide (it was 176, about 16 times the surface): more trees, grass, rocks and enemies, big hills, and the igloo and the tower sit far from the nest so you have to explore. Saved 3D worlds are regenerated with the new shape.</li>
       <li><b>🔭 Render distance.</b> In Settings → Graphics there is a slider to choose how many chunks you see in the 3D (from 4 to 50, each chunk is 16 blocks), like in Minecraft. Fewer chunks = smoother. The default is 20.</li>
       <li><b>🏰 Tower like the 2D one.</b> The 3D tower now has the same shape as the 2D one: wide base, battlements, arched door, two flickering torches, a red flag, a «TORRE DE DESAFÍOS» sign and 5 windows that turn green as you beat each floor (yellow for the current one).</li>
+      <li><b>🌲 3D: new biome, the forest.</b> The 3D world now has 5 biomes: meadow, autumn, desert, snow and a dense forest with dark pines and oaks, mushrooms and mossy ground. Grass also no longer grows in the snow.</li>
+      <li><b>🐜 New profile.</b> Your profile shows the game's ant in 3D on a white background: drag it to rotate it. In the gray panel you can change its color and equip the game's cosmetics: the protector's helmet and the warrior's sword (held in its leg). It is just decoration: it doesn't appear in the match.</li>
       <li><b>⚖️ More balanced fights.</b> In the tower and the igloo the ants come out a few at a time (at most 2 at once) instead of all together, there are fewer ants per floor, they hit softer and slower, and after beating a floor you heal a bit and get a few seconds to breathe.</li>
       <li><b>📜 Changelog.</b> Tap the "Update ${VERSION_JUEGO}" tag in the corner to open this log whenever you want.</li>
     </ul>`,
@@ -6640,7 +6986,10 @@ const _EN = {
   "Salir a la superficie": "Go up to the surface", "Abrir cofre (1 solo uso)": "Open chest (single use)",
   "Entrar a la torre (W)": "Enter the tower (W)",
   "Elige el idioma del juego:": "Choose the game language:",
-  "El idioma se cambia al pulsar Aplicar o Aceptar.": "The language changes when you press Apply or Accept."
+  "El idioma se cambia al pulsar Aplicar o Aceptar.": "The language changes when you press Apply or Accept.",
+  "Nombre": "Name", "Color de la hormiga": "Ant color", "Color original": "Original color", "Otro color": "Other color", "Cosméticos": "Cosmetics", "Casco de la protectora": "Protector's helmet", "Espada de la guerrera": "Warrior's sword", "Arrastra para girarla": "Drag to rotate it",
+  "Cargando hormiga 3D…": "Loading 3D ant…", "No se pudo cargar la hormiga 3D.": "The 3D ant could not be loaded.", "La primera vez necesita internet.": "The first time it needs internet.",
+  "Tu navegador no pudo iniciar el 3D (WebGL).": "Your browser could not start 3D (WebGL)."
 };
 
 // --- Frases con números o partes variables (se prueban sobre el texto completo) ---
@@ -7629,7 +7978,8 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       pradera:  { n: 'Pradera',  cielo: 0x8fd3f4, hemiC: 0xbfe6ff, hemiG: 0x4a6b2a, solC: 0xfff2d0, suelo: [0.26, 0.5, 0.3],  pasto: [0.24, 0.08, 0.55, 0.25, 0.15], nh: 6000, flores: [0xffd84a, 0xffffff, 0xff7aa8, 0xb48cff, 0xff9040], nf: 260, piedra: 0x6e6256, np: 22, fruta: 0xd62c2c, arbol: 'copa',   hojas: [0.29, 0.05, 0.5, 0.25, 0.08],  arboles: [12, 16], amp: 1 },
       otono:    { n: 'Otoño',    cielo: 0xb9cfdc, hemiC: 0xffe2c0, hemiG: 0x7a4a22, solC: 0xffd29a, suelo: [0.08, 0.55, 0.3],  pasto: [0.06, 0.07, 0.7, 0.3, 0.14],   nh: 5000, flores: [0xd2691e, 0xc0392b, 0xf1c40f, 0x8b4513, 0xe67e22], nf: 480, piedra: 0x6f6358, np: 22, fruta: 0xe08a1e, arbol: 'copa',   hojas: [0.02, 0.11, 0.8, 0.38, 0.1],   arboles: [16, 22], amp: 1.15 },
       desierto: { n: 'Desierto', cielo: 0xe6d5a8, hemiC: 0xfff0d0, hemiG: 0xb08a50, solC: 0xfff0c0, suelo: [0.12, 0.5, 0.62], pasto: [0.11, 0.04, 0.4, 0.5, 0.1],    nh: 1800, flores: [0xd94f8a, 0xf2c14e], nf: 70, piedra: 0x9a825a, np: 34, fruta: 0xe0408a, arbol: 'cactus', hojas: [0.3, 0.04, 0.45, 0.3, 0.06],  arboles: [18, 26], amp: 1.7 },
-      nieve:    { n: 'Nieve',    cielo: 0xcfe0ee, hemiC: 0xe8f2ff, hemiG: 0x8da3ba, solC: 0xf2f6ff, suelo: [0.58, 0.16, 0.86], pasto: [0.55, 0.05, 0.15, 0.82, 0.1], nh: 2200, flores: [0xcfe9ff, 0xffffff, 0xa9d6ff], nf: 120, piedra: 0x8c96a3, np: 22, fruta: 0x4da3ff, arbol: 'pino', hojas: [0.4, 0.05, 0.35, 0.2, 0.06], arboles: [14, 20], amp: 1.1 }
+      nieve:    { n: 'Nieve',    cielo: 0xcfe0ee, hemiC: 0xe8f2ff, hemiG: 0x8da3ba, solC: 0xf2f6ff, suelo: [0.58, 0.16, 0.86], pasto: [0.55, 0.05, 0.15, 0.82, 0.1], nh: 2200, flores: [0xcfe9ff, 0xffffff, 0xa9d6ff], nf: 120, piedra: 0x8c96a3, np: 22, fruta: 0x4da3ff, arbol: 'pino', hojas: [0.4, 0.05, 0.35, 0.2, 0.06], arboles: [14, 20], amp: 1.1 },
+      bosque:   { n: 'Bosque',   cielo: 0x9dc3cf, hemiC: 0xcfe8d6, hemiG: 0x1f3d1c, solC: 0xf3f0c4, suelo: [0.31, 0.45, 0.2], pasto: [0.3, 0.07, 0.5, 0.2, 0.12], nh: 6000, flores: [0xc0392b, 0xf3e9cf, 0x9b6b3a, 0x8e5bd9], nf: 200, piedra: 0x5f665a, np: 26, fruta: 0x7b2d8e, arbol: 'copa', hojas: [0.3, 0.05, 0.5, 0.17, 0.08], arboles: [30, 40], amp: 1.2 }
     };
     let B = BIOMAS.pradera, biomaAct = 'pradera';
     let razaSel = (typeof tipoHormigaSeleccionada !== 'undefined' && tipoHormigaSeleccionada) || 'red';   // raza de esta partida 3D
@@ -7637,21 +7987,21 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     let LX = 40, LZ = -35;
     const NIVEL_AGUA = -1.0, LIM = 350;   // el mundo mide 700 de lado (antes 176)
     const TP = { f1: 0.08, f2: 0.07, f3: 0.15, p1: 0, p2: 0, p3: 0, a1: 1.3, a2: 1.1, a3: 0.45 };   // forma del terreno (cambia con la semilla)
-    // Mundo con TODOS los biomas: cuatro sectores alrededor del nido (pradera, otoño, desierto, nieve) que se mezclan suavemente en sus bordes; junto al nido siempre hay pradera
-    const BIO_LISTA = [BIOMAS.pradera, BIOMAS.otono, BIOMAS.desierto, BIOMAS.nieve], OFS = { a: 0, p: 0 };
+    // Mundo con TODOS los biomas: cinco sectores alrededor del nido (pradera, otoño, desierto, nieve, bosque) que se mezclan suavemente en sus bordes; junto al nido siempre hay pradera
+    const BIO_LISTA = [BIOMAS.pradera, BIOMAS.otono, BIOMAS.desierto, BIOMAS.nieve, BIOMAS.bosque], NB = 5, OFS = { a: 0, p: 0 };
     const pesos = (x, z) => {
       const r = Math.hypot(x, z);
-      let m = (Math.atan2(z, x) + OFS.a + 0.4 * Math.sin(r * 0.035 + OFS.p)) / 6.2832 * 4;
-      m = ((m % 4) + 4) % 4;
-      const w = [0, 0, 0, 0]; let tot = 0;
-      for (let k = 0; k < 4; k++) { let d = Math.abs(m - (k + 0.5)); d = Math.min(d, 4 - d); w[k] = 1 - sstep(0.3, 0.7, d); tot += w[k]; }
+      let m = (Math.atan2(z, x) + OFS.a + 0.4 * Math.sin(r * 0.035 + OFS.p)) / 6.2832 * NB;
+      m = ((m % NB) + NB) % NB;
+      const w = [0, 0, 0, 0, 0]; let tot = 0;
+      for (let k = 0; k < NB; k++) { let d = Math.abs(m - (k + 0.5)); d = Math.min(d, NB - d); w[k] = 1 - sstep(0.3, 0.7, d); tot += w[k]; }
       const cn = 1 - sstep(40, 90, r);   // una gran pradera alrededor del nido
-      for (let k = 0; k < 4; k++) w[k] = (w[k] / tot) * (1 - cn) + (k === 0 ? cn : 0);
+      for (let k = 0; k < NB; k++) w[k] = (w[k] / tot) * (1 - cn) + (k === 0 ? cn : 0);
       return w;
     };
-    const elige = (x, z) => { const w = pesos(x, z), r = rng(); return r < w[0] ? 0 : r < w[0] + w[1] ? 1 : r < w[0] + w[1] + w[2] ? 2 : 3; };
+    const elige = (x, z) => { const w = pesos(x, z); let r = rng(); for (let k = 0; k < NB - 1; k++) { if (r < w[k]) return k; r -= w[k]; } return NB - 1; };
     const alt = (x, z) => {   // altura del terreno en (x, z): colinas / dunas (más altas en el desierto), plano junto al nido y un lago
-      const pw = pesos(x, z), amp = pw[0] + pw[1] * 1.15 + pw[2] * 1.7 + pw[3] * 1.1;
+      const pw = pesos(x, z), amp = pw[0] + pw[1] * 1.15 + pw[2] * 1.7 + pw[3] * 1.1 + pw[4] * 1.2;
       let base = (Math.sin(x * TP.f1 + TP.p1) * TP.a1 + Math.cos(z * TP.f2 + TP.p2) * TP.a2 + Math.sin((x + z) * TP.f3 + TP.p3) * TP.a3) * amp;
       if (base < -0.5) base = -0.5 + (base + 0.5) * 0.15;   // sin hondonadas fantasma que parezcan agua
       const k = sstep(5, 16, Math.hypot(x, z));
@@ -7673,7 +8023,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 
     // ----- Genera TODO el mundo (terreno, pasto, flores, piedras, árboles / cactus, lago) a partir de una semilla y un bioma -----
     const mPiedras = BIO_LISTA.map(b => new T.MeshLambertMaterial({ color: b.piedra })), mFrutas = BIO_LISTA.map(b => new T.MeshPhongMaterial({ color: b.fruta, shininess: 60 }));
-    const cCielo = BIO_LISTA.map(b => new T.Color(b.cielo)), cHemiC = BIO_LISTA.map(b => new T.Color(b.hemiC)), cHemiG = BIO_LISTA.map(b => new T.Color(b.hemiG)), cSolC = BIO_LISTA.map(b => new T.Color(b.solC)), AMB = [1, 0, 0, 0];
+    const cCielo = BIO_LISTA.map(b => new T.Color(b.cielo)), cHemiC = BIO_LISTA.map(b => new T.Color(b.hemiC)), cHemiG = BIO_LISTA.map(b => new T.Color(b.hemiG)), cSolC = BIO_LISTA.map(b => new T.Color(b.solC)), AMB = [1, 0, 0, 0, 0];
     function generarMundo(sd, bk) {
       B = BIOMAS.pradera; biomaAct = 'mundo';
       mundoObjs.forEach(o => { scene.remove(o); o.traverse(q => { if (q.geometry) q.geometry.dispose(); }); }); mundoObjs.length = 0;
@@ -7684,7 +8034,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       TP.f1 = 0.05 + rng() * 0.05; TP.f2 = 0.045 + rng() * 0.045; TP.f3 = 0.11 + rng() * 0.07;
       TP.p1 = rng() * 6.28; TP.p2 = rng() * 6.28; TP.p3 = rng() * 6.28;
       TP.a1 = 0.9 + rng() * 0.7; TP.a2 = 0.8 + rng() * 0.7; TP.a3 = 0.25 + rng() * 0.3;
-      OFS.a = rng() * 6.2832; OFS.p = rng() * 6.2832; AMB[0] = 1; AMB[1] = 0; AMB[2] = 0; AMB[3] = 0;
+      OFS.a = rng() * 6.2832; OFS.p = rng() * 6.2832; AMB[0] = 1; AMB[1] = 0; AMB[2] = 0; AMB[3] = 0; AMB[4] = 0;
       const ang0 = rng() * 6.2832, dl0 = 38 + rng() * 22; LX = Math.cos(ang0) * dl0; LZ = Math.sin(ang0) * dl0;
       agua.position.set(LX, NIVEL_AGUA, LZ);
       // cielo y luz del bioma
@@ -7700,7 +8050,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         const x = pos.getX(i), z = pos.getZ(i);
         pos.setY(i, alt(x, z));
         const pw = pesos(x, z), j1 = (rng() - 0.5) * 0.02, j2 = (rng() - 0.5) * 0.03; let cr = 0, cg = 0, cb = 0;
-        for (let q = 0; q < 4; q++) { const sb = BIO_LISTA[q].suelo; c.setHSL(sb[0] + 0.035 * Math.sin(x * 0.31) * Math.cos(z * 0.27) + j1, sb[1], sb[2] + 0.07 * Math.sin(x * 0.13 + z * 0.17) + j2); cr += c.r * pw[q]; cg += c.g * pw[q]; cb += c.b * pw[q]; }
+        for (let q = 0; q < NB; q++) { const sb = BIO_LISTA[q].suelo; c.setHSL(sb[0] + 0.035 * Math.sin(x * 0.31) * Math.cos(z * 0.27) + j1, sb[1], sb[2] + 0.07 * Math.sin(x * 0.13 + z * 0.17) + j2); cr += c.r * pw[q]; cg += c.g * pw[q]; cb += c.b * pw[q]; }
         c.setRGB(cr, cg, cb);
         const dn = Math.hypot(x, z); if (dn < 9) c.lerp(tierra, 1 - sstep(4, 9, dn));
         const dl = Math.hypot(x - LX, z - LZ); if (dl < 16) c.lerp(arena, 1 - sstep(9, 16, dl));
@@ -7714,7 +8064,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       // pasto (en el desierto, matas secas; en otoño, pasto dorado)
       // El pasto y las flores se reparten en chunks (cuadros de 80×80) para poder ocultar los lejanos según la distancia de renderizado
       const CELDA = 80;
-      const hacerChunks = (geo, mat, items) => {
+      const hacerChunks = (geo, mat, items, sombra) => {
         const celdas = new Map(), off = LIM * 1.1;
         items.forEach(it => { const k = Math.floor((it.x + off) / CELDA) + ',' + Math.floor((it.z + off) / CELDA); let a = celdas.get(k); if (!a) celdas.set(k, a = []); a.push(it); });
         celdas.forEach((arr, k) => {
@@ -7722,18 +8072,18 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
           const g2 = geo.clone(); g2.boundingSphere = new T.Sphere(new T.Vector3(cx, 0, cz), CELDA * 0.8 + 14);
           const im = new T.InstancedMesh(g2, mat, arr.length);
           arr.forEach((it, i) => { im.setMatrixAt(i, it.m); im.setColorAt(i, it.col); });
-          im.userData.cull = CELDA * 0.75; im.userData.cx = cx; im.userData.cz = cz; add(im);
+          im.castShadow = !!sombra; im.userData.cull = CELDA * 0.75; im.userData.cx = cx; im.userData.cz = cz; add(im);
         });
       };
       const hGeo = new T.ConeGeometry(0.07, 0.75, 4); hGeo.translate(0, 0.375, 0);
-      const NH = 60000, DENS = [1, 0.85, 0.3, 0.25], itemsH = [];
+      const NH = 60000, DENS = [1, 0.85, 0.3, 0, 1], itemsH = [];
       for (let i = 0; i < NH; i++) {
         let x, z, bi;
         do { x = (rng() - 0.5) * LIM * 2.1; z = (rng() - 0.5) * LIM * 2.1; bi = elige(x, z); } while (lejos(x, z, 6, 11) || rng() > DENS[bi]);
         const Bq = BIO_LISTA[bi];
         dm.position.set(x, alt(x, z), z);
         dm.rotation.set((rng() - 0.5) * 0.4, rng() * 6.28, (rng() - 0.5) * 0.4);
-        const sc = (0.7 + rng() * 1.1) * (bi === 3 ? 0.4 : 1); dm.scale.set(sc, sc * (0.8 + rng() * 0.8), sc);
+        const sc = (0.7 + rng() * 1.1); dm.scale.set(sc, sc * (0.8 + rng() * 0.8), sc);
         dm.updateMatrix(); const mH = dm.matrix.clone();
         c.setHSL(Bq.pasto[0] + rng() * Bq.pasto[1], Bq.pasto[2], Bq.pasto[3] + rng() * Bq.pasto[4]); itemsH.push({ x, z, m: mH, col: c.clone() });
       }
@@ -7741,7 +8091,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 
       // flores (en otoño son hojas caídas)
       const itemsF = [];
-      const DF = [1, 1, 0.25, 0.6];
+      const DF = [1, 1, 0.25, 0.6, 0.5];
       for (let i = 0; i < 2600; i++) {
         let x, z, bi;
         do { x = (rng() - 0.5) * LIM * 2; z = (rng() - 0.5) * LIM * 2; bi = elige(x, z); } while (lejos(x, z, 8, 13) || rng() > DF[bi]);
@@ -7766,6 +8116,30 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         let x, z, n = 0;
         do { x = (rng() - 0.5) * LIM * 1.9; z = (rng() - 0.5) * LIM * 1.9; n++; } while ((lejos(x, z, 14, 19) || def.some(d => Math.hypot(d.x - x, d.z - z) < 8)) && n < 50);
         def.push({ x, z, n: 2 + Math.floor(rng() * 3), bi: elige(x, z) });
+      }
+      // ----- Bosque denso: muchísimos pinos y robles oscuros (instanciados por chunks para que el juego siga fluido) -----
+      {
+        const trB = [], pnB = [[], [], [], []], coB = [], pts = [];
+        for (let i = 0; i < 6000 && pts.length < 1100; i++) {
+          const x = (rng() - 0.5) * LIM * 1.9, z = (rng() - 0.5) * LIM * 1.9;
+          if (lejos(x, z, 14, 19) || pesos(x, z)[4] < 0.45 || rng() > pesos(x, z)[4]) continue;
+          if (pts.some(q => (q.x - x) * (q.x - x) + (q.z - z) * (q.z - z) < 30)) continue;   // separación mínima ~5.5
+          pts.push({ x, z });
+        }
+        pts.forEach(q => {
+          const sc = 0.9 + rng() * 0.65, pino = rng() < 0.65;
+          dm.position.set(q.x, alt(q.x, q.z) - 0.1, q.z); dm.rotation.set(0, rng() * 6.28, 0); dm.scale.set(sc, sc * (0.9 + rng() * 0.3), sc); dm.updateMatrix();
+          const mt = dm.matrix.clone();
+          c.setHSL(0.07 + rng() * 0.02, 0.5, 0.16 + rng() * 0.05); trB.push({ x: q.x, z: q.z, m: mt, col: c.clone() });
+          if (pino) { const l0 = 0.12 + rng() * 0.07, hh = 0.34 + rng() * 0.05; pnB.forEach((arr, k) => { c.setHSL(hh, 0.5, l0 + k * 0.018); arr.push({ x: q.x, z: q.z, m: mt, col: c.clone() }); }); }
+          else { c.setHSL(0.26 + rng() * 0.05, 0.5, 0.17 + rng() * 0.08); coB.push({ x: q.x, z: q.z, m: mt, col: c.clone() }); }
+          troncos.push({ x: q.x, z: q.z, r: 0.8 * sc });
+        });
+        const gT = new T.CylinderGeometry(0.35, 0.55, 4.4, 7); gT.translate(0, 2.2, 0);
+        const mBos = new T.MeshLambertMaterial({ color: 0xffffff });
+        hacerChunks(gT, mBos, trB, true);
+        [[3.1, 4.6, 3.6], [2.5, 4.2, 6.0], [1.9, 3.8, 8.2], [1.2, 3.2, 10.2]].forEach(([r, h, y], k) => { const g = new T.ConeGeometry(r, h, 8); g.translate(0, y, 0); hacerChunks(g, mBos, pnB[k], true); });
+        const gC = new T.IcosahedronGeometry(3.1, 1); gC.translate(0, 6.9, 0); hacerChunks(gC, mBos, coB, true);
       }
       def.forEach(d => {
         const Bq = BIO_LISTA[d.bi], g = new T.Group(); g.position.set(d.x, alt(d.x, d.z), d.z); g.userData.cull = 10;
@@ -8294,7 +8668,6 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       const teclas = K.KeyC || K.KeyQ || K.KeyX;
       if ((mouseDig === null && !teclas) || cdCavar > 0) return;
       if (P.est <= 0) { if (avisoEst <= 0) { toast('Sin estamina para cavar. Descansa un momento.'); avisoEst = 2.5; } return; }
-      if (P.tierra >= CAP_TIERRA) { if (avisoEst <= 0) { toast('Tu mochila de tierra está llena. Sube a la luz de la entrada y pulsa B para botarla.'); avisoEst = 2.5; } return; }
       cdCavar = 0.11 + 0.12 * acota(-P.y / 24, 0, 1);   // más profundo = tierra más dura = más lento
       let n = 0;
       if (mouseDig !== null) {                                   // clic mantenido: cava donde apuntas (si está cerca de la hormiga)
@@ -8306,7 +8679,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         n = cavarCapsula(P.x + Math.sin(P.rot) * 1.4, P.y + 1.15 + e * 0.5, P.z + Math.cos(P.rot) * 1.4, 1.05, 0.9);
       }
       if (n > 0) {
-        P.est = Math.max(0, P.est - Math.min(6, 1 + n * 0.09)); P.cavado++; P.atT = 0.14; P.tierra = Math.min(CAP_TIERRA, P.tierra + 1);   // cavar cansa ~3 veces más y cada mordisco llena la mochila
+        P.est = Math.max(0, P.est - Math.min(6, 1 + n * 0.09)); P.cavado++; P.atT = 0.14; P.tierra = P.tierra + 1;   // cavar cansa ~3 veces más y cada mordisco llena la mochila
         const dig = mouseDig !== null && ultHit;
         soltarTierra(dig ? ultHit.x : P.x + Math.sin(P.rot) * 1.4, dig ? ultHit.y : P.y + 1.1, dig ? ultHit.z : P.z + Math.cos(P.rot) * 1.4, Math.min(9, 3 + Math.round(n / 8)));
         sacudida = 0.12;
@@ -8794,7 +9167,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       const u = sstep(0, 1, Math.min(1, c.t / c.dur)), sh = c.sh * 0.12;      // cámara a ras de suelo, mirando hacia arriba, acercándose despacio
       camera.position.set(1.6 - 0.7 * u + (Math.random() - 0.5) * sh, 0.1 + 0.05 * u + (Math.random() - 0.5) * sh, 4.1 - 1.4 * u);
       camera.lookAt(1.0 + 0.2 * Math.sin(c.t * 0.5), 0.95, 0);
-      prompt3.textContent = 'Botando la tierra… ' + P.tierra + '/' + CAP_TIERRA; prompt3.style.display = 'block'; promptTxt = '__cine';
+      prompt3.textContent = 'Botando la tierra… ' + P.tierra; prompt3.style.display = 'block'; promptTxt = '__cine';
       if (!c.fin && c.t >= c.dur - 0.35) { c.fin = true; fadeEl.style.opacity = 1; }
       if (c.t >= c.dur) { P.tierra = 0; terminarCine(); toast('¡Mochila de tierra vacía! Ya puedes seguir cavando.'); return; }
       renderer.render(E.sc, camera);
@@ -8912,9 +9285,9 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       const sh = Math.sin(fase) + 0.3, k = sstep(-0.12, 0.3, sh);
       esNoche = sh < 0.05;
       { const qx = dentro && nidoPos ? nidoPos.x : P.x, qz = dentro && nidoPos ? nidoPos.z : P.z, wp = pesos(qx, qz), f = Math.min(1, dt * 0.8);
-        for (let q = 0; q < 4; q++) AMB[q] += (wp[q] - AMB[q]) * f;
+        for (let q = 0; q < NB; q++) AMB[q] += (wp[q] - AMB[q]) * f;
         cDia.setRGB(0, 0, 0); hemi.color.setRGB(0, 0, 0); hemi.groundColor.setRGB(0, 0, 0); sol.color.setRGB(0, 0, 0);
-        for (let q = 0; q < 4; q++) { const a = AMB[q]; cDia.r += cCielo[q].r * a; cDia.g += cCielo[q].g * a; cDia.b += cCielo[q].b * a; hemi.color.r += cHemiC[q].r * a; hemi.color.g += cHemiC[q].g * a; hemi.color.b += cHemiC[q].b * a; hemi.groundColor.r += cHemiG[q].r * a; hemi.groundColor.g += cHemiG[q].g * a; hemi.groundColor.b += cHemiG[q].b * a; sol.color.r += cSolC[q].r * a; sol.color.g += cSolC[q].g * a; sol.color.b += cSolC[q].b * a; } }
+        for (let q = 0; q < NB; q++) { const a = AMB[q]; cDia.r += cCielo[q].r * a; cDia.g += cCielo[q].g * a; cDia.b += cCielo[q].b * a; hemi.color.r += cHemiC[q].r * a; hemi.color.g += cHemiC[q].g * a; hemi.color.b += cHemiC[q].b * a; hemi.groundColor.r += cHemiG[q].r * a; hemi.groundColor.g += cHemiG[q].g * a; hemi.groundColor.b += cHemiG[q].b * a; sol.color.r += cSolC[q].r * a; sol.color.g += cSolC[q].g * a; sol.color.b += cSolC[q].b * a; } }
       cielo.copy(cNoche).lerp(cDia, k).lerp(cOcaso, Math.max(0, 1 - Math.abs(sh) / 0.25) * 0.45);
       scene.background.copy(cielo); scene.fog.color.copy(cielo);
       sol.intensity = 0.95 * k; hemi.intensity = 0.18 + 0.5 * k; estrellas.material.opacity = 1 - k;
@@ -8942,6 +9315,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         if ((K.ShiftLeft || K.ShiftRight || K.run) && mueve && !P.agot && P.est > 0) { vel = 9.5; P.est -= 26 * dt; if (P.est <= 0) { P.est = 0; P.agot = true; } }
         else if (!cavando) P.est = Math.min(100, P.est + 16 * dt);
         if (!dentro && gy < NIVEL_AGUA) vel *= 0.5;   // en el agua vas más lento
+        vel *= Math.max(0.15, 1 / (1 + P.tierra / 60));   // cuanta más tierra cargas, más lento vas (pero siempre puedes cavar y moverte)
         if (mueve) {
           if (dentro) moverEnt(P, mx * vel * dt, mz * vel * dt);
           else { P.x += mx * vel * dt; P.z += mz * vel * dt; }
@@ -8977,8 +9351,24 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       P.dano = Math.max(0, P.dano - dt);
       const a = P.a;
       a.g.position.set(P.x, dentro ? P.y : gy + P.h, P.z); a.g.rotation.y = P.rot;
-      patas(a, tt, P.h > 0 ? 0 : P.vel);
-      a.cuerpo.rotation.x = P.atT > 0 ? 0.35 * Math.sin(Math.max(0, P.atT) / 0.22 * Math.PI) : 0;
+      // animación de salto: agacharse al despegar, estirarse y levantar el morro al subir, bajarlo al caer, patas recogidas y aplastarse al aterrizar
+      const aire = !dentro && P.h > 0;
+      if (aire) { P.enAire = true; P.vyAire = P.vy; P.tS = (P.tS || 0) + dt; }
+      else { if (P.enAire && !dentro) { P.sq = 0.2; P.sqF = Math.min(1, Math.abs(P.vyAire || 0) / 12 + 0.25); } P.enAire = false; P.tS = 0; }
+      P.sq = Math.max(0, (P.sq || 0) - dt);
+      patas(a, tt, aire ? 0 : P.vel);
+      let incl = P.atT > 0 ? 0.35 * Math.sin(Math.max(0, P.atT) / 0.22 * Math.PI) : 0, sy = 1, sxz = 1;
+      if (aire) {
+        const r = Math.max(-1, Math.min(1, P.vy / 8.5)), ar = Math.abs(r), st = Math.min(1, P.tS / 0.12);
+        incl += -0.4 * r;                                                  // sube: morro arriba · cae: morro abajo
+        sy = P.tS < 0.06 ? 1 - 0.14 * (1 - P.tS / 0.06) : 1 + 0.13 * ar * st;   // se agacha un instante y se estira
+        sxz = 1 - 0.06 * ar * st;
+        for (const l of a.legs) l.p.rotation.x = 0.55 * r + Math.sin(tt * 18 + l.f) * 0.12;   // patas atrás al subir, adelante al caer
+      } else if (P.sq > 0) {
+        const e = (P.sq / 0.2) * (P.sqF || 0.5);                           // aterrizaje: se aplasta y vuelve a su forma
+        sy = 1 - 0.3 * e; sxz = 1 + 0.15 * e;
+      }
+      a.cuerpo.rotation.x = incl; a.cuerpo.scale.set(sxz, sy, sxz);
 
       // manzanas que vuelven a crecer
       for (const m of manzanas) if (!m.vis) { m.t -= dt; if (m.t <= 0) { m.vis = true; m.m.visible = true; } }
@@ -9096,13 +9486,12 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 
       // pantalla
       hv.style.width = P.hp + '%'; he.style.width = P.est + '%'; hc.style.width = P.com + '%'; hd.style.opacity = Math.min(1, P.dano * 1.6);
-      const info = `Tierra ${P.tierra}/${CAP_TIERRA}${P.tierra >= CAP_TIERRA ? ' (¡llena!)' : ''}\nMochila ${P.mochila}/${CAP_MOCHILA} · Despensa ${P.desp}/${CAP_DESP}\n` + (nidoPos ? `Hormigas: ${aliadas.length} (🧺${aliadas.filter(a => a.tipo === 'obrera').length} 🛡️${aliadas.filter(a => a.tipo === 'protectora').length} ⚔️${aliadas.filter(a => a.tipo === 'guerrera').length}) · Huevos: ${huevos.length}` : 'Sin nido todavía (⛏️)') + `\nManzanas comidas: ${P.n} · Enemigas derrotadas: ${P.kills}`;
+      const info = `Hormigas: ${aliadas.length}\nTierra: ${P.tierra}\nMochila: ${P.mochila}/${CAP_MOCHILA}`;
       if (info !== infoTxt) { infoTxt = info; hi.textContent = info; }
       let p = '';
       if (P.muerta <= 0) {
         if (dentro) {
-          if (cercaSalida()) p = P.tierra > 0 ? 'B · botar la tierra (' + P.tierra + '/' + CAP_TIERRA + ')   N · salir a la superficie' : 'N · salir a la superficie';
-          else if (P.tierra >= CAP_TIERRA) p = 'Mochila de tierra llena · sube a la luz de la entrada y pulsa B';
+          if (cercaSalida()) p = P.tierra > 0 ? 'B · botar la tierra (' + P.tierra + ')   N · salir a la superficie' : 'N · salir a la superficie';
           else if (pantry && cercaDesp(9) && (P.mochila > 0 || P.desp > 0)) p = P.mochila > 0 ? 'G · guardar comida   E · comer' : 'E · comer de la despensa';
           else if (!pantry && P.mochila > 0) p = 'G · crear la despensa aquí y guardar la comida';
           else if (P.desp + P.mochila >= COSTE_HUEVO && P.cdHuevo <= 0) p = 'H · poner un huevo aquí (gasta ' + COSTE_HUEVO + ' de comida)';
@@ -9130,13 +9519,15 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       for (let i = 0; i < tierraG.length; i++) { if (tierraG[i] === v) n++; else { r.push(n); v = v ? 0 : 1; n = 1; } }
       r.push(n);
       return { v: 1, x: so ? so.x : fuera ? nidoPos.x : P.x, z: so ? so.z : fuera ? nidoPos.z + RADIO_NIDO + 0.8 : P.z, hp: P.hp, est: P.est, com: P.com, mochila: P.mochila, tierra: P.tierra, desp: P.desp, n: P.n, kills: P.kills, cavado: P.cavado, cdHuevo: P.cdHuevo, fase,
+        dentro: !!(dentro && nidoPos), px: P.x, py: P.y, pz: P.z, rot: P.rot, yaw, pitch,   // dónde estabas dentro del nido
+        sala: sala ? { id: sala.S.id, dx: P.x - sala.x, dz: P.z - sala.z, piso: estD(sala.S.id).piso | 0 } : null,   // o dentro de la torre / el igloo
         nido: nidoPos ? { x: nidoPos.x, z: nidoPos.z } : null, pantry: pantry ? { x: pantry.x, y: pantry.y, z: pantry.z } : null, aliadas: aliadas.length, tipos: aliadas.map(a => a.tipo),
         huevos: huevos.map(h => ({ t: h.t, tipo: h.tipo, x: h.x, y: h.y, z: h.z })), seguir, cav: r,
         bt: Math.round(P.buffT || 0), des: Object.fromEntries(Object.entries(estadoD).map(([k, d]) => [k, { ts: d.ts }])) };   // des: cuándo completaste la torre y el igloo
     }
     function importar(e) {
       if (!e || e.v !== 1) return;
-      Object.assign(P, { x: e.x, z: e.z, hp: Math.max(30, e.hp || 100), est: e.est == null ? 100 : e.est, com: Math.max(10, e.com == null ? 80 : e.com), mochila: e.mochila | 0, tierra: Math.min(CAP_TIERRA, e.tierra | 0), desp: e.desp | 0, n: e.n | 0, kills: e.kills | 0, cavado: e.cavado | 0, cdHuevo: e.cdHuevo || 0 });
+      Object.assign(P, { x: e.x, z: e.z, hp: Math.max(30, e.hp || 100), est: e.est == null ? 100 : e.est, com: Math.max(10, e.com == null ? 80 : e.com), mochila: e.mochila | 0, tierra: Math.max(0, e.tierra | 0), desp: e.desp | 0, n: e.n | 0, kills: e.kills | 0, cavado: e.cavado | 0, cdHuevo: e.cdHuevo || 0 });
       if (e.fase) fase = e.fase;
       if (e.bt > 0) P.buffT = +e.bt || 0;
       if (e.des && typeof e.des === 'object') for (const id of ['torre', 'iglu']) {   // cuándo completaste la torre y el igloo
@@ -9151,6 +9542,23 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       (e.huevos || []).forEach(h => huevos.push({ t: h.t, t0: TIEMPO_HUEVO[TIPOS3[h.tipo] ? h.tipo : 'obrera'], tipo: TIPOS3[h.tipo] ? h.tipo : 'obrera', x: h.x, y: h.y, z: h.z }));
       if (nidoPos) for (let i = 0; i < (e.aliadas | 0); i++) nacer({ x: 0, y: SUELO_ENT + 0.02, z: 0.3, tipo: (e.tipos || [])[i] }, true);
       if (e.seguir) alternarSeguir();
+      // volver exactamente donde estabas: dentro de la torre / el igloo, o dentro del nido
+      if (e.sala && typeof e.sala.id === 'string') {
+        const S = ESTR.find(q => q.id === e.sala.id);
+        if (S) {
+          entrarSala(S);
+          if (sala) {
+            let dx = +e.sala.dx || 0, dz = +e.sala.dz || 0; const dl = Math.hypot(dx, dz), lim = sala.r - 1.5;
+            if (dl > lim) { dx *= lim / dl; dz *= lim / dl; }
+            P.x = sala.x + dx; P.z = sala.z + dz;
+            const d = estD(S.id); d.piso = Math.max(0, Math.min((PISOS3[S.id] || []).length - 1, e.sala.piso | 0));
+          }
+        }
+      } else if (e.dentro && nidoPos && isFinite(+e.px) && isFinite(+e.py) && isFinite(+e.pz)) {
+        dentro = true; P.x = +e.px; P.y = +e.py; P.z = +e.pz; P.h = 0; P.vy = 0;
+        P.rot = isFinite(+e.rot) ? +e.rot : 0; yaw = isFinite(+e.yaw) ? +e.yaw : Math.PI; pitch = isFinite(+e.pitch) ? +e.pitch : 0.3;
+        scene2.add(P.a.g); P.a.g.visible = false; rescatar(P);
+      }
     }
     const setRaza = r => { if (RAZAS_OK.includes(r)) razaSel = r; };
     const RAZAS_OK = ['red', 'and', 'trampa', 'prados', 'loca', 'tridente', 'bala'];
