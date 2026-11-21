@@ -6681,7 +6681,7 @@ function respPedir() { if (_respRaf) return; _respRaf = requestAnimationFrame(()
 addEventListener('resize', respPedir); addEventListener('orientationchange', () => setTimeout(respPedir, 120));
 respCalc();
 
-const VERSION_JUEGO = '2.3';   // SUBE ESTE NÚMERO en cada update. Los decimales van de 0 a 9: después de 1.9 viene 2.0 (nunca 1.10 ni 1.11)
+const VERSION_JUEGO = '2.4';   // SUBE ESTE NÚMERO en cada update. Los decimales van de 0 a 9: después de 1.9 viene 2.0 (nunca 1.10 ni 1.11)
 // Ayuda para calcular la siguiente update: siguienteVersion('1.9') → '2.0' · siguienteVersion('1.5') → '1.6'
 const siguienteVersion = v => { let [a, b] = String(v).split('.').map(Number); b = (b || 0) + 1; if (b >= 10) { a++; b = 0; } return a + '.' + b; };
 document.head.insertAdjacentHTML('beforeend', `<style>
@@ -6709,7 +6709,14 @@ document.body.insertAdjacentHTML('beforeend', `<div id="version-juego">Actualiza
 // --- El registro de cambios se abre al tocar la etiqueta «Actualización» de la esquina ---
 const LOG_TXT = {
   es: [
-    `<h4>🕷️ Update ${VERSION_JUEGO}: el Templo de las Arañas</h4><p class="rch-sub">Novedades de esta actualización</p><ul class="rch-lista">
+    `<h4>🏆 Update ${VERSION_JUEGO}: logros y colonia en 3D</h4><p class="rch-sub">Novedades de esta actualización</p><ul class="rch-lista">
+      <li><b>🏆 Logros 3D.</b> 22 logros nuevos para el modo 3D (nido, colonia, combate, cavar, torre, igloo y tiempo de juego). Mira el botón «🏆 Logros» dentro de la partida o en la lista de Partidas 3D.</li>
+      <li><b>🐜 Menos lag.</b> Solo salen hasta 10 hormigas aliadas del nido a la vez (primero guerreras, luego protectoras y obreras) y las lejanas se ocultan y se animan menos.</li>
+      <li><b>🔢 Contador de hormigas.</b> El HUD 3D muestra cuántas tienes en total, cuántas están fuera y dentro del nido, y de cada tipo.</li>
+      <li><b>🎨 Menú de razas nuevo.</b> Tarjetas con color, descripción y barras de daño y velocidad.</li>
+      <li><b>📱 3D responsivo.</b> Todos los menús y botones del 3D se adaptan a pantallas pequeñas y horizontales.</li>
+    </ul>`,
+    `<h4>🕷️ Update 2.3: el Templo de las Arañas</h4><p class="rch-sub">Novedades de esa actualización</p><ul class="rch-lista">
       <li><b>🌅 Frontera suave.</b> El cielo y la arena ya se mezclan poco a poco con el bosque: se acabó el corte recto entre biomas.</li>
       <li><b>🌙 Noches en el desierto.</b> El desierto ahora también se oscurece con el ciclo del día, con estrellas y luna incluidas.</li>
       <li><b>🕷️ Templo de las Arañas.</b> Una pirámide en lo profundo del desierto con <b>3 pisos</b> de arañas. Es más fácil que la Torre de Desafíos, pero sus cofres guardan <b>recompensas exclusivas</b>: Gema solar, Ojo de araña, Ambrosía del templo, Amuleto del templo y Escarabajo de oro.</li>
@@ -6738,7 +6745,14 @@ const LOG_TXT = {
     </ul>`
   ],
   en: [
-    `<h4>🕷️ Update ${VERSION_JUEGO}: the Spider Temple</h4><p class="rch-sub">What's new in this update</p><ul class="rch-lista">
+    `<h4>🏆 Update ${VERSION_JUEGO}: 3D achievements and colony</h4><p class="rch-sub">What's new in this update</p><ul class="rch-lista">
+      <li><b>🏆 3D achievements.</b> 22 new achievements for 3D mode (nest, colony, combat, digging, tower, igloo and play time). Use the "🏆 Logros" button in game or in the 3D games list.</li>
+      <li><b>🐜 Less lag.</b> Only up to 10 allied ants leave the nest at once (warriors first, then guards and workers) and distant ones are hidden and animated less.</li>
+      <li><b>🔢 Ant counter.</b> The 3D HUD shows your total ants, how many are outside and inside the nest, and each type.</li>
+      <li><b>🎨 New race menu.</b> Cards with color, description and damage and speed bars.</li>
+      <li><b>📱 Responsive 3D.</b> All 3D menus and buttons adapt to small and landscape screens.</li>
+    </ul>`,
+    `<h4>🕷️ Update 2.3: the Spider Temple</h4><p class="rch-sub">What's new in that update</p><ul class="rch-lista">
       <li><b>🌅 Soft border.</b> The sky and the sand now blend gradually into the forest: no more hard cut between biomes.</li>
       <li><b>🌙 Desert nights.</b> The desert now darkens with the day cycle too, with stars and a moon included.</li>
       <li><b>🕷️ Spider Temple.</b> A pyramid deep in the desert with <b>3 floors</b> of spiders. It is easier than the Tower of Challenges, but its chests hold <b>exclusive rewards</b>: Sun gem, Spider eye, Temple ambrosia, Temple amulet and Golden scarab.</li>
@@ -7741,6 +7755,37 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 .p3-op.sel{border-color:#ffd54f;background:rgba(255,213,79,.25)}
 #modal-3d input{width:100%;box-sizing:border-box;padding:9px;border-radius:9px;border:2px solid #1f0e04;font:600 14px system-ui,sans-serif}
 .p3-pie{display:flex;gap:8px;margin-top:14px;justify-content:center;flex-wrap:wrap}
+#m3-logros{position:absolute;right:calc(env(safe-area-inset-right,0px) + 12px);top:calc(env(safe-area-inset-top,0px) + 52px);padding:6px 12px;border-radius:8px;border:2px solid #1a0d06;background:#8a6a12;color:#fff;font:700 13px system-ui,sans-serif;cursor:pointer;z-index:3}
+#m3-lg{left:50%;top:calc(env(safe-area-inset-top,0px) + 14px);transform:translate(-50%,-30px);opacity:0;transition:opacity .35s,transform .35s;background:linear-gradient(145deg,#7a5a0e,#3a2a05);border:2px solid #ffd54f;border-radius:12px;padding:8px 16px;display:flex;align-items:center;gap:10px;max-width:min(92vw,380px);box-shadow:0 4px 14px rgba(0,0,0,.5);z-index:4}
+#m3-lg.ver{opacity:1;transform:translate(-50%,0)}
+#m3-lg .ic{font-size:28px}#m3-lg small{display:block;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#ffd77a}#m3-lg b{font-size:14px}
+#modal-l3d{position:fixed;inset:0;z-index:7000;display:none;align-items:center;justify-content:center;background:rgba(14,5,2,.86);font-family:system-ui,sans-serif;color:#ffe9b8}
+#modal-l3d .p3-caja{width:min(94vw,520px);max-height:92vh;max-height:92dvh;overflow:auto;background:linear-gradient(145deg,#7a3d12,#4a2209 60%,#3a1a07);border:3px solid #1f0e04;border-radius:16px;box-shadow:inset 0 0 0 3px #b8860b;padding:16px;box-sizing:border-box}
+#modal-l3d h2{margin:0 0 4px;text-align:center;font-size:26px;text-shadow:0 2px 0 #000}
+.l3-res{text-align:center;font-size:13px;margin-bottom:8px;opacity:.9}
+.l3-bar{height:8px;border-radius:5px;background:rgba(0,0,0,.45);margin:0 0 12px;overflow:hidden}.l3-bar i{display:block;height:100%;background:linear-gradient(90deg,#ffb300,#ff7043)}
+.l3-lista{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.l3-it{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:12px;border:2px solid rgba(255,255,255,.15);background:rgba(0,0,0,.3);min-width:0}
+.l3-it .ic{flex:0 0 auto;font-size:26px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.1)}
+.l3-it .t{min-width:0}.l3-it b{display:block;font-size:13.5px}.l3-it small{font-size:10.5px;opacity:.8;line-height:1.2;display:block}
+.l3-it.no{opacity:.55;filter:grayscale(.9)}
+.l3-it.si{border-color:#ffd54f;background:linear-gradient(145deg,rgba(255,213,79,.25),rgba(255,213,79,.08))}
+@media (max-width:420px){.l3-lista{grid-template-columns:1fr}#modal-l3d h2{font-size:22px}#m3-logros{padding:5px 9px;font-size:12px;top:calc(env(safe-area-inset-top,0px) + 44px)}}
+@media (max-height:520px){#m3-logros{top:calc(env(safe-area-inset-top,0px) + 44px)}#m3-lg{top:calc(env(safe-area-inset-top,0px) + 6px)}}
+.p3-razas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:min(46vh,340px);max-height:min(46dvh,340px);overflow:auto;padding:2px}
+.p3-raza{position:relative;display:flex;align-items:center;gap:9px;text-align:left;padding:8px 9px;border-radius:12px;border:2px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff;font-family:system-ui,sans-serif;cursor:pointer;min-width:0;transition:transform .12s,border-color .12s,background .12s}
+.p3-raza:hover{transform:translateY(-1px);border-color:rgba(255,213,79,.6)}
+.p3-raza.sel{border-color:#ffd54f;background:linear-gradient(145deg,rgba(255,213,79,.28),rgba(255,213,79,.1));box-shadow:0 0 0 1px #ffd54f inset}
+.rz-ico{flex:0 0 auto;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.12);border-radius:50%}
+.rz-ico i{display:block;width:24px;height:24px;border-radius:50%}
+.rz-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.rz-t b{font-size:14px}.rz-t small{font-size:10.5px;opacity:.8;line-height:1.2}
+.rz-st{display:flex;gap:6px;margin-top:2px}
+.rz-st em{flex:1;display:flex;align-items:center;gap:3px;font-style:normal;font-size:10px}
+.rz-st u{display:block;height:5px;border-radius:3px;background:linear-gradient(90deg,#ffb300,#ff7043);text-decoration:none}
+.rz-ok{position:absolute;top:4px;right:6px;font-size:12px;color:#ffd54f;display:none}
+.p3-raza.sel .rz-ok{display:block}
+@media (max-width:380px){.p3-razas{grid-template-columns:1fr}}
 @media (max-width:520px){
 #modal-jugar h2{font-size:26px}
 #modal-jugar .jg-caja{gap:18px;padding:18px 14px}
@@ -7792,13 +7837,14 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     <button class="btn-menu-principal jg-volver" onclick="cerrarJugar()">Volver</button>
   </div>
 </div>
+<div id="modal-l3d"><div class="p3-caja"><h2>🏆 Logros 3D</h2><div class="l3-res" id="l3-res"></div><div class="l3-bar"><i id="l3-bar"></i></div><div class="l3-lista" id="l3-lista"></div><div class="p3-pie"><button class="p3-b gris" onclick="p3LogrosCerrar()">Cerrar</button></div></div></div>
 <div id="modal-3d"><div class="p3-caja">
   <h2>Partidas 3D</h2>
   <div id="p3-lista-v"><div id="p3-lista"></div>
-    <div class="p3-pie"><button class="p3-b azul" onclick="p3Nueva()">➕ Nueva partida</button><button class="p3-b gris" onclick="p3Cerrar()">Volver</button></div></div>
+    <div class="p3-pie"><button class="p3-b azul" onclick="p3Nueva()">➕ Nueva partida</button><button class="p3-b" style="background:#8a6a12" onclick="p3Logros()">🏆 Logros</button><button class="p3-b gris" onclick="p3Cerrar()">Volver</button></div></div>
   <div id="p3-nueva-v" style="display:none">
     <div class="p3-lbl">Nombre</div><input id="p3-nombre" maxlength="20" placeholder="Mi mundo...">
-    <div class="p3-lbl">Raza de hormiga</div><div class="p3-opts" id="p3-razas"></div>
+    <div class="p3-lbl">Raza de hormiga</div><div class="p3-razas" id="p3-razas"></div>
     <div class="p3-lbl">Semilla (opcional)</div><input id="p3-semilla" maxlength="24" placeholder="Vacío = un mundo nuevo al azar">
     <div class="p3-pie"><button class="p3-b" onclick="p3Crear()">▶ Empezar</button><button class="p3-b gris" onclick="p3Lista()">Atrás</button></div>
   </div>
@@ -7813,6 +7859,8 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
   </div>
   <div class="m3-capa" id="m3-tag">Partidas 3D (test)</div>
   <button id="m3-salir" onclick="salir3D()">Salir</button>
+  <button id="m3-logros" onclick="p3Logros()">🏆 Logros</button>
+  <div class="m3-capa" id="m3-lg"><span class="ic"></span><div><small>¡Logro desbloqueado!</small><b></b></div></div>
   <div class="m3-capa" id="m3-prompt"></div>
   <div class="m3-capa" id="m3-toast"></div>
   <div class="m3-capa" id="m3-joy"><i></i></div>
@@ -7876,10 +7924,35 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     const c = $(id); c.innerHTML = '';
     Object.keys(tabla).forEach(k => { const b = document.createElement('button'); b.className = 'p3-op' + (k === sel ? ' sel' : ''); b.textContent = Array.isArray(tabla[k]) ? tabla[k][0] + ' ' + tabla[k][1] : tabla[k]; b.onclick = () => { cb(k); opciones(id, tabla, k, cb); }; c.appendChild(b); });
   }
+  const RAZAS_INFO = {
+    red:      { n: 'Roja',     d: 'La clásica. Equilibrada en todo.',            dmg: 1,   vel: 5 },
+    and:      { n: 'Negra',    d: 'Sigilosa y constante. Equilibrada.',          dmg: 1,   vel: 5 },
+    trampa:   { n: 'Trampa',   d: 'Mandíbulas de trampa: muerde fuerte.',        dmg: 1.7, vel: 5 },
+    prados:   { n: 'Prados',   d: 'Dorada, de mandíbulas potentes.',             dmg: 1.5, vel: 5 },
+    loca:     { n: 'Loca',     d: 'La más veloz del hormiguero.',                dmg: 1.3, vel: 6 },
+    tridente: { n: 'Tridente', d: 'Negra con detalles naranjas y buen daño.',    dmg: 1.4, vel: 5 },
+    bala:     { n: 'Bala',     d: 'Letal: el mayor daño de todas.',              dmg: 2.2, vel: 5 }
+  };
+  function razasUI() {
+    const c = $('p3-razas'); c.innerHTML = '';
+    Object.keys(RAZAS_UI).forEach(k => {
+      const inf = RAZAS_INFO[k] || { n: k, d: '', dmg: 1, vel: 5 }, col = (typeof coloresReinas !== 'undefined' && coloresReinas[k]) || { c1: '#7b1113', c2: '#a11d21', stroke: '#fbc02d' };
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'p3-raza' + (k === selRaza ? ' sel' : '');
+      b.innerHTML = '<span class="rz-ico"><i></i></span><span class="rz-t"><b></b><small></small>' +
+        '<span class="rz-st"><em>⚔<u></u></em><em>💨<u></u></em></span></span><span class="rz-ok">✔</span>';
+      const ic = b.querySelector('.rz-ico i');
+      ic.style.background = 'radial-gradient(circle at 35% 30%,' + col.c2 + ',' + col.c1 + ')'; ic.style.boxShadow = '0 0 0 3px ' + col.stroke;
+      b.querySelector('b').textContent = inf.n; b.querySelector('small').textContent = inf.d;
+      const us = b.querySelectorAll('.rz-st u');
+      us[0].style.width = Math.min(100, inf.dmg / 2.2 * 100) + '%'; us[1].style.width = Math.min(100, inf.vel / 6 * 100) + '%';
+      b.onclick = () => { selRaza = k; razasUI(); };
+      c.appendChild(b);
+    });
+  }
   window.p3Nueva = () => {
     $('p3-lista-v').style.display = 'none'; $('p3-nueva-v').style.display = 'block';
     $('p3-nombre').value = 'Mundo ' + (leer3().length + 1); $('p3-semilla').value = '';
-    opciones('p3-razas', RAZAS_UI, selRaza, k => { selRaza = k; });
+    razasUI();
   };
   window.p3Crear = () => {
     const txt = $('p3-semilla').value.trim();
@@ -7904,6 +7977,66 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     });
     return window.__threeP;
   }
+
+  // ----- Logros 3D (globales: se guardan en este navegador) -----
+  const LS_LG = 'hormigas3d_logros_v1';
+  const LOGROS = [
+    { id: 'nido',     ic: '🏠', n: 'Hogar dulce hogar',  d: 'Construye tu nido.',                    ok: s => s.nido },
+    { id: 'desp',     ic: '🧺', n: 'Despensa lista',     d: 'Coloca tu despensa.',                   ok: s => s.pantry },
+    { id: 'huevo',    ic: '🥚', n: 'Primer huevo',       d: 'Pon tu primer huevo.',                  ok: s => s.huevos + s.aliadas >= 1 },
+    { id: 'col5',     ic: '🐜', n: 'Pequeña colonia',    d: 'Ten 5 hormigas aliadas.',               ok: s => s.aliadas >= 5 },
+    { id: 'col20',    ic: '🏘️', n: 'Gran colonia',       d: 'Ten 20 hormigas aliadas.',              ok: s => s.aliadas >= 20 },
+    { id: 'col50',    ic: '👑', n: 'Imperio',            d: 'Ten 50 hormigas aliadas.',              ok: s => s.aliadas >= 50 },
+    { id: 'prot',     ic: '🛡️', n: 'Guardia real',       d: 'Ten una hormiga protectora.',           ok: s => s.tipos.protectora >= 1 },
+    { id: 'guer5',    ic: '⚔️', n: 'Ejército',           d: 'Ten 5 guerreras.',                      ok: s => s.tipos.guerrera >= 5 },
+    { id: 'todas',    ic: '🌈', n: 'Colonia completa',   d: 'Ten obrera, protectora y guerrera.',    ok: s => s.tipos.obrera && s.tipos.protectora && s.tipos.guerrera },
+    { id: 'k1',       ic: '🗡️', n: 'Primera sangre',     d: 'Vence a una hormiga enemiga.',          ok: s => s.kills >= 1 },
+    { id: 'k10',      ic: '💥', n: 'Cazador',            d: 'Vence a 10 enemigas.',                  ok: s => s.kills >= 10 },
+    { id: 'k50',      ic: '☠️', n: 'Leyenda de guerra',  d: 'Vence a 50 enemigas.',                  ok: s => s.kills >= 50 },
+    { id: 'c1',       ic: '⛏️', n: 'Primer mordisco',    d: 'Cava tierra por primera vez.',          ok: s => s.cavado >= 1 },
+    { id: 'c100',     ic: '🕳️', n: 'Topo',               d: 'Cava 100 veces.',                       ok: s => s.cavado >= 100 },
+    { id: 'c1000',    ic: '🚇', n: 'Ingeniera de túneles', d: 'Cava 1000 veces.',                    ok: s => s.cavado >= 1000 },
+    { id: 'mochila',  ic: '🎒', n: 'Mochila llena',      d: 'Llena tu mochila.',                     ok: s => s.mochilaLlena },
+    { id: 'torre',    ic: '🗼', n: 'Conquistadora de la torre', d: 'Completa la torre.',             ok: s => s.torre },
+    { id: 'iglu',     ic: '🧊', n: 'Corazón de hielo',   d: 'Completa el igloo.',                    ok: s => s.iglu },
+    { id: 'buff',     ic: '✨', n: 'Poder máximo',       d: 'Activa la bonificación de un cofre.',   ok: s => s.buff },
+    { id: 'muerte',   ic: '💀', n: 'Caída heroica',      d: 'Cae en combate por primera vez.',       ok: s => s.muertes >= 1 },
+    { id: 'tiempo10', ic: '⏱️', n: 'Superviviente',      d: 'Juega 10 minutos en total.',            ok: (s, g) => g.t >= 600 },
+    { id: 'tiempo60', ic: '⌛', n: 'Hormiguero eterno',  d: 'Juega 1 hora en total.',                ok: (s, g) => g.t >= 3600 }
+  ];
+  let lg = { u: {}, t: 0 };
+  try { const q = JSON.parse(localStorage.getItem(LS_LG)); if (q && typeof q === 'object') lg = { u: q.u || {}, t: +q.t || 0 }; } catch (_) {}
+  const lgGuardar = () => { try { localStorage.setItem(LS_LG, JSON.stringify(lg)); } catch (_) {} };
+  const lgCola = []; let lgOcupado = false, lgAcc = 0;
+  function lgMostrar() {
+    if (lgOcupado || !lgCola.length) return;
+    const a = lgCola.shift(), el = $('m3-lg'); lgOcupado = true;
+    el.querySelector('.ic').textContent = a.ic; el.querySelector('b').textContent = a.n; el.classList.add('ver');
+    setTimeout(() => { el.classList.remove('ver'); setTimeout(() => { lgOcupado = false; lgMostrar(); }, 450); }, 3200);
+  }
+  function chequearLogros(dt) {
+    lg.t += dt; lgAcc += dt;
+    if (lgAcc < 1) return; lgAcc = 0;
+    let s; try { s = W.stats(); } catch (_) { return; }
+    let nuevo = false;
+    for (const a of LOGROS) if (!lg.u[a.id] && a.ok(s, lg)) { lg.u[a.id] = Date.now(); nuevo = true; lgCola.push(a); }
+    if (nuevo) { lgGuardar(); lgMostrar(); } else if (lg.t % 30 < 1) lgGuardar();
+  }
+  window.p3Logros = () => {
+    try { if (document.pointerLockElement) document.exitPointerLock(); } catch (_) {}
+    const l = $('l3-lista'); l.innerHTML = ''; let n = 0;
+    LOGROS.forEach(a => {
+      const ok = !!lg.u[a.id]; if (ok) n++;
+      const it = document.createElement('div'); it.className = 'l3-it ' + (ok ? 'si' : 'no');
+      it.innerHTML = '<span class="ic"></span><div class="t"><b></b><small></small></div>';
+      it.querySelector('.ic').textContent = ok ? a.ic : '🔒'; it.querySelector('b').textContent = a.n; it.querySelector('small').textContent = a.d;
+      l.appendChild(it);
+    });
+    $('l3-res').textContent = n + ' / ' + LOGROS.length + ' desbloqueados';
+    $('l3-bar').style.width = (n / LOGROS.length * 100) + '%';
+    $('modal-l3d').style.display = 'flex';
+  };
+  window.p3LogrosCerrar = () => { $('modal-l3d').style.display = 'none'; };
 
   window.jugar3D = async id => {
     part3 = leer3(); actual = part3.find(p => p.id === id) || null;
@@ -7938,6 +8071,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     raf = requestAnimationFrame(loop);
     const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000)); last = now;
     W.actualizar(dt);
+    chequearLogros(dt);
     if (now - ultGuard > 15000) { ultGuard = now; guardarActual(); }   // guardado automático cada 15 s
   }
 
@@ -8828,7 +8962,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       if (P.muerta > 0) return;
       P.hp -= n; P.dano = 0.6;
       if (P.hp <= 0) {
-        P.hp = 0; P.muerta = 3; P.a.g.visible = false;
+        P.hp = 0; P.muerta = 3; P.a.g.visible = false; P.muertes = (P.muertes || 0) + 1;
         estado.style.display = 'flex'; estado.textContent = 'Tu hormiga cayó… (pierdes lo que llevabas en la mochila)';
       }
     }
@@ -9627,7 +9761,12 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
     const RAZAS_OK = ['red', 'and', 'trampa', 'prados', 'loca', 'tridente', 'bala'];
     aplicarVista(distVista);
     generarMundo(1234, 'pradera');
-    return { reset, ajustar, actualizar, generarMundo, exportar, importar, setRaza, terminarCine, setVista: aplicarVista };
+    function stats() {
+      const c = { obrera: 0, protectora: 0, guerrera: 0 };
+      for (const q of aliadas) if (c[q.tipo] != null) c[q.tipo]++;
+      return { kills: P.kills | 0, cavado: P.cavado | 0, aliadas: aliadas.length, tipos: c, huevos: huevos.length, nido: !!nidoPos, pantry: !!pantry, mochilaLlena: P.mochila >= CAP_MOCHILA, torre: !!(estadoD.torre && estadoD.torre.ts > 0), iglu: !!(estadoD.iglu && estadoD.iglu.ts > 0), muertes: P.muertes | 0, buff: (P.buffT || 0) > 0 };
+    }
+    return { reset, ajustar, actualizar, generarMundo, exportar, importar, setRaza, terminarCine, stats, setVista: aplicarVista };
   }
 })();
 
