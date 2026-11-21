@@ -7740,7 +7740,44 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 .p3-op{padding:8px 11px;border-radius:10px;border:2px solid rgba(255,255,255,.25);background:rgba(0,0,0,.3);color:#fff;font:700 13px system-ui,sans-serif;cursor:pointer}
 .p3-op.sel{border-color:#ffd54f;background:rgba(255,213,79,.25)}
 #modal-3d input{width:100%;box-sizing:border-box;padding:9px;border-radius:9px;border:2px solid #1f0e04;font:600 14px system-ui,sans-serif}
-.p3-pie{display:flex;gap:8px;margin-top:14px;justify-content:center}
+.p3-pie{display:flex;gap:8px;margin-top:14px;justify-content:center;flex-wrap:wrap}
+@media (max-width:520px){
+#modal-jugar h2{font-size:26px}
+#modal-jugar .jg-caja{gap:18px;padding:18px 14px}
+#modal-jugar .jg-botones{gap:16px;width:100%}
+#modal-jugar .btn-menu-principal{min-width:0;width:100%;max-width:100%}
+#modal-jugar .jg-nota{max-width:90%}
+#modal-3d .p3-caja{padding:12px;width:96vw}
+#modal-3d h2{font-size:22px}
+.p3-item{padding:6px 8px;gap:8px}.p3-item .ic{font-size:22px}.p3-item b{font-size:14px}
+.p3-b{padding:8px 11px;font-size:12px}.p3-op{padding:7px 9px;font-size:12px}
+.m3-barra{width:130px;height:15px}
+#m3-info{font-size:11.5px}
+#m3-tag{right:auto;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 56px);font-size:11px;max-width:60vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#m3-salir{padding:6px 11px;font-size:12px}
+#m3-prompt{font-size:13px;white-space:normal;text-align:center;max-width:88vw;bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}
+#m3-toast{font-size:13px;top:20%}
+#m3-botones{width:min(300px,64vw);gap:4px}
+#m3-botones button{min-width:50px;padding:4px 4px 3px;font-size:9px}#m3-botones button i{font-size:16px}
+#m3-estado{font-size:16px}
+}
+@media (max-height:520px){
+#modal-jugar .jg-caja{gap:10px;padding:12px 16px}
+#modal-jugar h2{font-size:22px}
+#modal-jugar .jg-botones{gap:10px}
+#modal-jugar .jg-nota{display:none}
+#modal-3d .p3-caja{max-height:96dvh;padding:10px}
+#modal-3d h2{font-size:18px;margin-bottom:6px}
+.p3-lbl{margin:6px 0 3px}
+.p3-item{padding:5px 8px;margin-bottom:5px}
+.p3-pie{margin-top:8px}
+.m3-barra{width:120px;height:13px}.m3-barra span{font-size:10px;line-height:11px}
+#m3-hud{gap:3px}#m3-info{font-size:11px}
+#m3-botones{bottom:calc(env(safe-area-inset-bottom,0px) + 4px);width:min(300px,50vw)}
+#m3-prompt{bottom:calc(env(safe-area-inset-bottom,0px) + 8px)}
+#m3-toast{top:14%}
+}
+#modal-3d .p3-caja{max-height:92vh;max-height:92dvh}
 `;
   document.head.insertAdjacentHTML('beforeend', '<style id="modo3d-css">' + css + '</style>');
   document.body.insertAdjacentHTML('beforeend', `
@@ -8752,6 +8789,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       trans = true; fadeEl.style.opacity = 1; mouseDig = null;
       setTimeout(() => {
         if (adentro) { P.x = 0; P.z = 0.3; P.y = SUELO_ENT + 0.02; } else { P.x = nidoPos.x; P.z = nidoPos.z + RADIO_NIDO + 0.8; }
+        repartirSalida(!adentro);
         dentro = adentro; P.rot = 0; P.h = 0; P.vy = 0; yaw = Math.PI; pitch = adentro ? 0.3 : 0.45;
         (dentro ? scene2 : scene).add(P.a.g); P.a.g.visible = !adentro;
         fadeEl.style.opacity = 0; trans = false;
@@ -9056,8 +9094,19 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       guerrera:   { nom: 'guerrera',   esc: 1.0,  dps: 34, vel: 5.6, rango: 10, msg: '¡Nació una hormiga guerrera! Ataca muy fuerte.' }
     };
     const tipoAlAzar = () => { const r = Math.random(); return r < 0.5 ? 'obrera' : r < 0.78 ? 'protectora' : 'guerrera'; };
+    let fr3 = 0;
     const COSTE_HUEVO = 4;
     const TIEMPO_HUEVO = { obrera: 15, protectora: 20, guerrera: 26 };
+    const MAX_FUERA = 10;   // máximo de hormigas aliadas fuera del nido a la vez (evita lag)
+    const PRIO_SALIDA = { guerrera: 0, protectora: 1, obrera: 2 };
+    function repartirSalida(salen) {
+      const orden = aliadas.slice().sort((p, q) => (PRIO_SALIDA[p.tipo] ?? 3) - (PRIO_SALIDA[q.tipo] ?? 3));
+      orden.forEach((al, i) => {
+        al.fuera = salen && i < MAX_FUERA;
+        if (al.fuera) { al.x = nidoPos.x + Math.cos(i * 0.9) * 4.4; al.z = nidoPos.z + Math.sin(i * 0.9) * 4.4; al.obj = null; }
+        al.a.g.visible = al.fuera;
+      });
+    }
     function nacer(h, callado) {
       const tipo = TIPOS3[h.tipo] ? h.tipo : 'obrera', T3 = TIPOS3[tipo];
       const ang = rng() * 6.28, x = nidoPos.x + Math.cos(ang) * 4.4, z = nidoPos.z + Math.sin(ang) * 4.4;   // salen junto al montículo, no dentro de él
@@ -9065,7 +9114,9 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       const a = mk(), b = mk();
       a.g.scale.setScalar(T3.esc); a.g.position.set(x, alt(x, z), z); scene.add(a.g);
       b.g.scale.setScalar(T3.esc); b.g.position.set(h.x, h.y, h.z); scene2.add(b.g);
-      aliadas.push({ tipo, a, b, x, z, rot: rng() * 6, obj: null, tg: 18, be: { x: h.x, y: h.y, z: h.z, vy: 0 }, brot: 0, bo: null, bs: 0 });
+      const fuera = !dentro && aliadas.reduce((n, q) => n + (q.fuera ? 1 : 0), 0) < MAX_FUERA;
+      a.g.visible = fuera; b.g.visible = !fuera || dentro;
+      aliadas.push({ tipo, a, b, x, z, rot: rng() * 6, obj: null, tg: 18, be: { x: h.x, y: h.y, z: h.z, vy: 0 }, brot: 0, bo: null, bs: 0, fuera });
       if (!callado) toast(T3.msg);
     }
     function ponerHuevo() {
@@ -9376,8 +9427,15 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
       // huevos y hormigas aliadas
       P.cdHuevo = Math.max(0, P.cdHuevo - dt);
       for (let i = huevos.length - 1; i >= 0; i--) { const h = huevos[i]; h.t -= dt; if (h.t <= 0) { huevos.splice(i, 1); nacer(h); } }
+      fr3++;
       aliadas.forEach((al, i) => {
         const T3 = TIPOS3[al.tipo] || TIPOS3.obrera;
+        if (!al.fuera) {   // dentro del nido: no se simula en la superficie (solo las obreras siguen juntando comida)
+          if (al.tipo === 'obrera') { al.tg -= dt; if (al.tg <= 0) { al.tg = 18; if (P.desp < CAP_DESP) P.desp++; } }
+          return;
+        }
+        const lejos = !dentro && Math.hypot(al.x - P.x, al.z - P.z) > 45;
+        al.a.g.visible = !dentro && !lejos;
         let tx = al.x, tz = al.z, v = 0, foe = null, fd = T3.rango;
         for (const e of enemigos) if (e.vivo) { const d = Math.hypot(e.x - al.x, e.z - al.z); if (d < fd) { fd = d; foe = e; } }
         if (foe) {
@@ -9397,7 +9455,7 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         if (dl > 0.05) al.rot = giro(al.rot, Math.atan2(dx, dz), dt * 10);
         al.x = Math.max(-LIM, Math.min(LIM, al.x)); al.z = Math.max(-LIM, Math.min(LIM, al.z));
         al.a.g.position.set(al.x, alt(al.x, al.z), al.z); al.a.g.rotation.y = al.rot;
-        patas(al.a, tt + i, v);
+        if (!lejos && ((fr3 + i) & 1) === 0) patas(al.a, tt + i, v);
         if (al.tipo === 'protectora' && !dentro && P.muerta <= 0 && P.hp < 100 && Math.hypot(P.x - al.x, P.z - al.z) < 4) P.hp = Math.min(100, P.hp + 2 * dt);   // la protectora te cura
       });
 
@@ -9470,12 +9528,15 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
         }
         aliadas.forEach((al, q) => {
           const e = al.be;
+          const lej = Math.hypot(e.x - P.x, e.z - P.z) > 35;
+          al.b.g.visible = !lej;
+          if (lej && ((fr3 + q) & 3) !== 0) return;   // las lejanas se actualizan 1 de cada 4 frames
           if (!al.bo || Math.hypot(al.bo.x - e.x, al.bo.z - e.z) < 0.7 || al.bs > 1.2) { al.bo = { x: e.x + (Math.random() - 0.5) * 12, z: e.z + (Math.random() - 0.5) * 12 }; al.bs = 0; }
           const ox = e.x, oz = e.z, dx = al.bo.x - e.x, dz = al.bo.z - e.z, dl = Math.hypot(dx, dz) || 0.001;
           moverEnt(e, dx / dl * 1.4 * dt, dz / dl * 1.4 * dt); gravedad(e, dt, false); rescatar(e);
           if (Math.hypot(e.x - ox, e.z - oz) < 0.7 * dt) al.bs += dt; else al.bs = 0;   // si no avanza (pared), cambia de rumbo
           al.brot = giro(al.brot, Math.atan2(dx, dz), dt * 8);
-          al.b.g.position.set(e.x, e.y, e.z); al.b.g.rotation.y = al.brot; patas(al.b, tt + q, 1.4);
+          al.b.g.position.set(e.x, e.y, e.z); al.b.g.rotation.y = al.brot; if (!lej) patas(al.b, tt + q, 1.4);
         });
       }
 
@@ -9486,7 +9547,9 @@ body.editando-ui .editable::before,body.editando-ui .editable::after{display:non
 
       // pantalla
       hv.style.width = P.hp + '%'; he.style.width = P.est + '%'; hc.style.width = P.com + '%'; hd.style.opacity = Math.min(1, P.dano * 1.6);
-      const info = `Hormigas: ${aliadas.length}\nTierra: ${P.tierra}\nMochila: ${P.mochila}/${CAP_MOCHILA}`;
+      let nF = 0, nO = 0, nP = 0, nG = 0;
+      for (const q of aliadas) { if (q.fuera) nF++; if (q.tipo === 'obrera') nO++; else if (q.tipo === 'protectora') nP++; else if (q.tipo === 'guerrera') nG++; }
+      const info = `🐜 Hormigas: ${aliadas.length}  (fuera ${nF} · nido ${aliadas.length - nF})\n⛏ ${nO} · 🛡 ${nP} · ⚔ ${nG}\nTierra: ${P.tierra}\nMochila: ${P.mochila}/${CAP_MOCHILA}`;
       if (info !== infoTxt) { infoTxt = info; hi.textContent = info; }
       let p = '';
       if (P.muerta <= 0) {
